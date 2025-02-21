@@ -8,6 +8,9 @@ import { UserModule } from './user/user.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { InterestModule } from './interest/interest.module';
 import { CityModule } from './city/city.module';
+import { EventModule } from './event/event.module';
+import { RatingModule } from './rating/rating.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { CityModule } from './city/city.module';
     CloudinaryModule,
     InterestModule,
     CityModule,
+    EventModule,
+    RatingModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [

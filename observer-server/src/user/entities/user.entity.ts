@@ -34,6 +34,9 @@ export class User extends Document {
   @Prop({ default: false })
   profileVerified: boolean;
 
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Interest' }] })
+  interests: Types.ObjectId[];
+
 //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
 //   attendingEvents: Types.ObjectId[];
 
