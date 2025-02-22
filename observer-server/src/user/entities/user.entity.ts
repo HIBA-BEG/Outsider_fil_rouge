@@ -1,12 +1,13 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
 export enum UserRole {
   ORGANIZER = 'organizer',
   PARTICIPANT = 'participant',
 }
 
-export class User extends Document {
+@Schema()
+export class User {
   @Prop({ required: true })
   firstName: string;
 
@@ -37,12 +38,12 @@ export class User extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Interest' }] })
   interests: Types.ObjectId[];
 
-//   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
-//   attendingEvents: Types.ObjectId[];
+  //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
+  //   attendingEvents: Types.ObjectId[];
 
-//   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
-//   createdEvents: Types.ObjectId[];
+  //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
+  //   createdEvents: Types.ObjectId[];
 }
 
+export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
-

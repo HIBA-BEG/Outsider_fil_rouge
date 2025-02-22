@@ -12,22 +12,21 @@ async function seedDatabase() {
 
     await citiesCollection.deleteMany({});
 
-    const transformedCities = cities.cities.map(city => ({
+    const transformedCities = cities.cities.map((city) => ({
       name: city.city,
       country: city.country,
       admin_name: city.admin_name,
       coordinates: {
         latitude: parseFloat(city.lat),
-        longitude: parseFloat(city.lng)
+        longitude: parseFloat(city.lng),
       },
       population: parseInt(city.population),
       isVerified: true,
-      createdAt: new Date()
+      createdAt: new Date(),
     }));
 
     const result = await citiesCollection.insertMany(transformedCities);
     console.log(`Successfully inserted ${result.insertedCount} cities`);
-
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {
@@ -35,4 +34,4 @@ async function seedDatabase() {
   }
 }
 
-seedDatabase(); 
+seedDatabase();
