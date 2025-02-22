@@ -6,12 +6,10 @@ import { City, CitySchema } from './entities/city.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: City.name, schema: CitySchema }
-    ])
+    MongooseModule.forFeature([{ name: City.name, schema: CitySchema }]),
   ],
   controllers: [CityController],
   providers: [CityService],
-  exports: [CityService, MongooseModule]
+  exports: [CityService, MongooseModule],
 })
 export class CityModule {}

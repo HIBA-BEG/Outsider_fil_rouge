@@ -6,4 +6,4 @@ export const CloudinaryProvider = {
   useFactory: () => {
     return cloudinary;
   },
-}; 
+};

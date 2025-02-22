@@ -5,24 +5,23 @@ import { City } from './entities/city.entity';
 
 @Injectable()
 export class CityService {
-  constructor(
-    @InjectModel(City.name) private cityModel: Model<City>
-  ) {}
+  constructor(@InjectModel(City.name) private cityModel: Model<City>) {}
 
   async searchCities(query: string) {
     if (!query || query.length < 2) {
       return [];
     }
 
-    return this.cityModel.find({
-      $or: [
-        { name: { $regex: new RegExp(query, 'i') } },
-        { admin_name: { $regex: new RegExp(query, 'i') } }
-      ]
-    })
-    .limit(10)
-    .select('name admin_name coordinates population')
-    .exec();
+    return this.cityModel
+      .find({
+        $or: [
+          { name: { $regex: new RegExp(query, 'i') } },
+          { admin_name: { $regex: new RegExp(query, 'i') } },
+        ],
+      })
+      .limit(10)
+      .select('name admin_name coordinates population')
+      .exec();
   }
 
   async getCityById(id: string) {
