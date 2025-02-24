@@ -6,7 +6,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { FileUpload } from 'src/types/file-upload.interface';
 
 export class CreateUserDto {
   @IsString()
