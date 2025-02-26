@@ -13,7 +13,8 @@ module.exports = {
         // Light mode colors
         primary: {
           light: '#f6f7f8',
-          dark: '#000000',
+          // light: '#ECECED',
+          dark: '#14132A',
         },
         // Dark mode colors
         secondary: {

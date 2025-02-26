@@ -7,13 +7,13 @@ export default function AllEvents() {
   return (
     <View className="mt-6">
         <View className="flex-row items-center justify-between">
-          <Text className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>Top Events</Text>
+          <Text className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>All Events</Text>
           <TouchableOpacity>
             <Text className="text-gray-400">Voir tous</Text>
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="mt-2">
+        <View className="mt-2">
           <TouchableOpacity className={`mt-4 rounded-2xl p-4 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-black/80'}`}>
             <View className="h-32 w-full overflow-hidden rounded-2xl">
               <Image
@@ -62,7 +62,7 @@ export default function AllEvents() {
             <Text className="text-sm text-gray-400">Danse contemporaine</Text>
           </TouchableOpacity>
           
-        </ScrollView>
+        </View>
       </View>
   );
 } 
