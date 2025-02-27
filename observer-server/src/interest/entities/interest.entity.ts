@@ -1,7 +1,8 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export class Interest extends Document {
+@Schema()
+export class Interest {
   @Prop({ required: true })
   category: string;
 
@@ -9,4 +10,5 @@ export class Interest extends Document {
   description: string;
 }
 
+export type InterestDocument = Interest & Document;
 export const InterestSchema = SchemaFactory.createForClass(Interest);
