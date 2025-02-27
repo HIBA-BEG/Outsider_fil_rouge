@@ -2,7 +2,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Illustration from '~/components/ui/Illustration';
 import { Dimensions } from 'react-native';
-import { useTheme } from './context/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Welcome() {
   const screenWidth = Dimensions.get('window').width;
