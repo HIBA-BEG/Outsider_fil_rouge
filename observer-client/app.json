@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "test-project",
-    "slug": "test-project",
+    "name": "observer-client",
+    "slug": "observer-client",
     "version": "1.0.0",
 
-    "scheme": "test-project",
+    "scheme": "observer-client",
     "web": {
       "bundler": "metro",
       "output": "static",
