@@ -1,5 +1,5 @@
 import { View, Switch, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { useTheme } from '../../app/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function AllEvents() {
   const { isDarkMode } = useTheme();

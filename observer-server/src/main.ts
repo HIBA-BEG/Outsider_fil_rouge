@@ -36,13 +36,17 @@ async function bootstrap() {
     decorateReply: false,
   });
 
-  // app.enableCors({
-  //   origin: [process.env.CLIENT_URL, 'http://localhost:3000'],
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   credentials: true,
-  // });
+  app.enableCors({
+    origin: [
+      'http://192.168.8.116:8081',
+      'exp://192.168.8.116:8081',
+      '0.0.0.0'
+    ].filter((url): url is string => !!url),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
-  await app.listen(process.env.PORT ?? 3000);
+  // await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
-// await app.listen(process.env.PORT ?? 3000, '0.0.0.0');}
 bootstrap();
