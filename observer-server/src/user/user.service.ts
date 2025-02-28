@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
@@ -15,8 +14,13 @@ export class UserService {
       throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
     }
 
-    const uniqueInterests = new Set([...user.interests.map(id => id.toString()), ...interestIds]);
-    user.interests = Array.from(uniqueInterests).map(id => new Types.ObjectId(id));
+    const uniqueInterests = new Set([
+      ...user.interests.map((id) => id.toString()),
+      ...interestIds,
+    ]);
+    user.interests = Array.from(uniqueInterests).map(
+      (id) => new Types.ObjectId(id),
+    );
 
     return await user.save();
   }
@@ -28,7 +32,7 @@ export class UserService {
     }
 
     user.interests = user.interests.filter(
-      interest => !interestIds.includes(interest.toString())
+      (interest) => !interestIds.includes(interest.toString()),
     );
 
     return await user.save();
@@ -67,5 +71,4 @@ export class UserService {
     }
     return { message: 'User deleted successfully' };
   }
-  
 }

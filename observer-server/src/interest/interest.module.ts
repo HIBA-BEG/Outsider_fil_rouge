@@ -6,10 +6,12 @@ import { Interest, InterestSchema } from './entities/interest.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Interest.name, schema: InterestSchema }])
+    MongooseModule.forFeature([
+      { name: Interest.name, schema: InterestSchema },
+    ]),
   ],
   controllers: [InterestController],
   providers: [InterestService],
-  exports: [InterestService]
+  exports: [InterestService],
 })
 export class InterestModule {}

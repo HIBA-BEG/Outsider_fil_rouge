@@ -35,7 +35,10 @@ export class InterestController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInterestDto: UpdateInterestDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateInterestDto: UpdateInterestDto,
+  ) {
     return this.interestService.update(id, updateInterestDto);
   }
 
