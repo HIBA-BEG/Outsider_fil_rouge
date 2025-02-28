@@ -4,14 +4,16 @@ import { AuthenticationController } from './authentication.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User, UserSchema } from 'src/user/entities/user.entity';
+import { User, UserSchema } from '../user/entities/user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
+import { InterestModule } from '../interest/interest.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UserModule,
+    InterestModule,
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],

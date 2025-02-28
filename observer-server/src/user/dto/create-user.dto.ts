@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -41,4 +42,7 @@ export class CreateUserDto {
   @IsOptional()
   profilePicture?: string;
 
+  @IsArray()
+  @IsNotEmpty()
+  interests: string[];
 }

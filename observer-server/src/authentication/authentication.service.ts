@@ -15,6 +15,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
 import { FileUpload } from '../types/file-upload.interface';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
+import { InterestService } from '../interest/interest.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -22,6 +23,8 @@ export class AuthenticationService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
     private mailerService: MailerService,
+    private interestService: InterestService,
+
   ) {}
 
   async register(
@@ -43,12 +46,23 @@ export class AuthenticationService {
         throw new BadRequestException('User with this email already exists');
       }
 
+      const interests = await Promise.all(
+        createAuthDto.interests.map(async (interestId) => {
+          const interest = await this.interestService.findOne(interestId);
+          if (!interest) {
+            throw new BadRequestException(`Interest ${interestId} not found`);
+          }
+          return interest._id;
+        })
+      );
+
       const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
 
       const user = await this.userModel.create({
         ...createAuthDto,
         password: hashedPassword,
         profilePicture: imageUrl,
+        interests: interests,
       });
 
       const token = this.jwtService.sign({
