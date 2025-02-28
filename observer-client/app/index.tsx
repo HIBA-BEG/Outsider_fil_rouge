@@ -54,8 +54,8 @@ export default function Index() {
           </View>
           
           <TouchableOpacity onPress={handleLogout}>
-            <View className={`rounded-full ${isDarkMode ? 'bg-primary-light' : 'bg-primary-dark'} p-2`}>
-              <Feather name="log-out" size={24} color={`${isDarkMode ? 'primary-dark' : 'primary-light'}`} />
+            <View className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'} p-2`}>
+              <Feather name="log-out" size={24} color='white' />
             </View>
           </TouchableOpacity>
         </View>

@@ -14,6 +14,22 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Patch(':id/interests/add')
+  addInterests(
+    @Param('id') id: string,
+    @Body() body: { interests: string[] }
+  ) {
+    return this.userService.addInterests(id, body.interests);
+  }
+
+  @Patch(':id/interests/remove')
+  removeInterests(
+    @Param('id') id: string,
+    @Body() body: { interests: string[] }
+  ) {
+    return this.userService.removeInterests(id, body.interests);
+  }
+  
   @Get()
   findAll() {
     return this.userService.findAll();

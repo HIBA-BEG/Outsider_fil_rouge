@@ -40,6 +40,7 @@ export class AuthenticationController {
       password: getFieldValue(data.fields.password),
       city: getFieldValue(data.fields.city),
       role: getFieldValue(data.fields.role),
+      interests: getFieldValue(data.fields.interests).split(',').map(id => id.trim()),
     };
 
     // console.log('Parsed DTO:', createAuthenticationDto);
