@@ -6,7 +6,7 @@ export enum UserRole {
   PARTICIPANT = 'participant',
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ required: true })
   firstName: string;
@@ -41,8 +41,8 @@ export class User {
   //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
   //   attendingEvents: Types.ObjectId[];
 
-  //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
-  //   createdEvents: Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
+  createdEvents: Types.ObjectId[];
 }
 
 export type UserDocument = User & Document;

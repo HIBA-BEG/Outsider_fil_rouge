@@ -8,11 +8,14 @@ import { User, UserSchema } from '../user/entities/user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { UserModule } from '../user/user.module';
 import { InterestModule } from '../interest/interest.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UserModule,
+    PassportModule,
     InterestModule,
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
@@ -20,7 +23,7 @@ import { InterestModule } from '../interest/interest.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '24h' },
       }),
     }),
     MailerModule.forRootAsync({
@@ -36,10 +39,10 @@ import { InterestModule } from '../interest/interest.module';
             pass: configService.get('MAIL_PASS'),
           },
           tls: {
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
           },
-          debug: true, 
-          logger: true
+          debug: true,
+          logger: true,
         },
         defaults: {
           from: `"No Reply" <${configService.get('MAIL_USER')}>`,
@@ -48,6 +51,6 @@ import { InterestModule } from '../interest/interest.module';
     }),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService],
+  providers: [AuthenticationService, JwtStrategy],
 })
 export class AuthenticationModule {}

@@ -40,7 +40,7 @@ async function bootstrap() {
     origin: [
       'http://192.168.8.116:8081',
       'exp://192.168.8.116:8081',
-      '0.0.0.0'
+      '0.0.0.0',
     ].filter((url): url is string => !!url),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

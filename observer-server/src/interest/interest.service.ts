@@ -8,7 +8,7 @@ import { UpdateInterestDto } from './dto/update-interest.dto';
 @Injectable()
 export class InterestService {
   constructor(
-    @InjectModel(Interest.name) private interestModel: Model<InterestDocument>
+    @InjectModel(Interest.name) private interestModel: Model<InterestDocument>,
   ) {}
 
   async create(createInterestDto: CreateInterestDto): Promise<Interest> {
@@ -28,11 +28,14 @@ export class InterestService {
     return interest;
   }
 
-  async update(id: string, updateInterestDto: UpdateInterestDto): Promise<Interest> {
+  async update(
+    id: string,
+    updateInterestDto: UpdateInterestDto,
+  ): Promise<Interest> {
     const updatedInterest = await this.interestModel
       .findByIdAndUpdate(id, updateInterestDto, { new: true })
       .exec();
-    
+
     if (!updatedInterest) {
       throw new NotFoundException(`Interest with ID ${id} not found`);
     }

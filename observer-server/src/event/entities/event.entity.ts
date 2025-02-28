@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Number, Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export enum EventStatus {
   SCHEDULED = 'scheduled',
@@ -8,7 +8,7 @@ export enum EventStatus {
 }
 
 @Schema({ timestamps: true })
-export class Event extends Document {
+export class Event {
   @Prop({ required: true })
   title: string;
 
@@ -28,10 +28,10 @@ export class Event extends Document {
   poster: string;
 
   @Prop({ required: true })
-  maxParticipants: Number;
+  maxParticipants: number;
 
   @Prop({ required: true })
-  price: GLfloat;
+  price: number;
 
   @Prop({ type: Types.ObjectId, ref: 'Interest', required: true })
   interests: Types.ObjectId[];
@@ -47,6 +47,10 @@ export class Event extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   organizer: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', default: [] })
+  registeredUsers: Types.ObjectId[];
 }
 
+export type EventDocument = Event & Document;
 export const EventSchema = SchemaFactory.createForClass(Event);

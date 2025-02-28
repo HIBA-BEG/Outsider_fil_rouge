@@ -24,7 +24,6 @@ export class AuthenticationService {
     private jwtService: JwtService,
     private mailerService: MailerService,
     private interestService: InterestService,
-
   ) {}
 
   async register(
@@ -46,15 +45,32 @@ export class AuthenticationService {
         throw new BadRequestException('User with this email already exists');
       }
 
+      console.log('Received interests:', createAuthDto.interests);
+
+      // if (
+      //   !createAuthDto.interests ||
+      //   !Array.isArray(createAuthDto.interests) ||
+      //   createAuthDto.interests.length === 0
+      // ) {
+      //   throw new BadRequestException('At least one interest must be provided');
+      // }
+
       const interests = await Promise.all(
         createAuthDto.interests.map(async (interestId) => {
-          const interest = await this.interestService.findOne(interestId);
-          if (!interest) {
-            throw new BadRequestException(`Interest ${interestId} not found`);
+          try {
+            const interest = await this.interestService.findOne(interestId);
+            if (!interest) {
+              throw new BadRequestException(`Interest ${interestId} not found`);
+            }
+            return interest._id;
+          } catch (error) {
+            console.error('Error validating interest:', error);
+            throw new BadRequestException(`Invalid interest ID: ${interestId}`);
           }
-          return interest._id;
-        })
+        }),
       );
+
+      console.log('Validated interests:', interests);
 
       const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
 
@@ -124,16 +140,35 @@ export class AuthenticationService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const token = this.jwtService.sign({
+      const payload = {
         id: user._id,
         email: user.email,
-      });
+        role: user.role,
+      };
+
+      console.log('Login payload:', payload);
+
+      const token = this.jwtService.sign(payload);
 
       return { token };
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
+  }
+
+  private async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return user;
   }
 
   async verifyToken(token: string) {
@@ -161,14 +196,12 @@ export class AuthenticationService {
   //   try {
   //     console.log('Starting password reset process for:', email);
 
-
   //     const user = await this.userModel.findOne({ email });
   //     if (!user) {
   //       throw new UnauthorizedException('User with this email does not exist');
   //     }
 
   //     console.log('User found:', user.email);
-
 
   //     const resetToken = this.jwtService.sign(
   //       { id: user._id, email: user.email },
@@ -178,7 +211,6 @@ export class AuthenticationService {
   //     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
   //     console.log('Reset link generated:', resetLink);
 
-
   //     const mailConfig = {
   //       host: process.env.MAIL_HOST,
   //       port: process.env.MAIL_PORT,
@@ -187,7 +219,6 @@ export class AuthenticationService {
   //     };
   //     console.log('Mail configuration:', mailConfig);
 
-      
   //     try {
   //       console.log('Attempting to send email...');
 
