@@ -182,5 +182,58 @@ export class EventService {
     }
     return event.maxParticipants - event.registeredUsers.length;
   }
-  
+
+  async cancelRegistration(eventId: string, userId: string): Promise<Event> {
+    // console.log('cancelRegistration eventId', eventId);
+    // console.log('cancelRegistration userId', userId);
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    // console.log('Event registeredUsers:', event.registeredUsers);
+
+    const isRegistered = event.registeredUsers.some((id) => id.toString() === userId );
+    //.some() is a method that checks if at least one element in the array satisfies the condition w it returns true or false
+    
+    // console.log('Is registered:', isRegistered);
+
+    if (!isRegistered) {
+      throw new ForbiddenException('User is not registered for this event');
+    }
+
+    // the user can cancel the registration 24 hours before the event :) hihihi
+    // NB: I should add an alert of a visual notification before making the reservation that he can cancel it 24 hours/ 2 full days before the event
+    const HoursBeforeEvent = new Date(event.startDate);
+    HoursBeforeEvent.setHours( HoursBeforeEvent.getHours() - 48 );
+
+    if (new Date() > HoursBeforeEvent) {
+      throw new ForbiddenException(
+        'Cannot cancel registration less than 48 hours before event',
+      );
+    }
+
+    const updatedEvent = await this.eventModel
+      .findByIdAndUpdate(
+        eventId,
+        {
+          $pull: { registeredUsers: userId },
+        },
+        { new: true },
+      )
+      .populate('organizer', 'firstName lastName email')
+      .populate('interests', 'category description');
+
+    // console.log('Cancel registration updatedEvent', updatedEvent);
+    // console.log('Cancel registration userId', userId);
+    if (!updatedEvent) {
+      throw new NotFoundException(`Event #${eventId} not found`);
+    }
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      $pull: { registeredEvents: eventId },
+    });
+
+    return updatedEvent;
+  }
 }

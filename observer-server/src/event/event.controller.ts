@@ -78,4 +78,12 @@ export class EventController {
   getAvailableSpots(@Param('id') id: string) {
     return this.eventService.getAvailableSpots(id);
   }
+
+  @Delete(':id/register')
+  cancelRegistration(
+    @Param('id') id: string,
+    @Request() req,
+  ) {
+    return this.eventService.cancelRegistration(id, req.user.id);
+  }
 }
