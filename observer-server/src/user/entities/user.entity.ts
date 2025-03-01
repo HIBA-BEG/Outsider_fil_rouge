@@ -38,8 +38,8 @@ export class User {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Interest' }] })
   interests: Types.ObjectId[];
 
-  //   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
-  //   attendingEvents: Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
+  registeredEvents: Types.ObjectId[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Event' }] })
   createdEvents: Types.ObjectId[];
