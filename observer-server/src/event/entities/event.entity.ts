@@ -24,6 +24,9 @@ export class Event {
   @Prop({ required: true })
   location: string;
 
+  @Prop({ required: true })
+  city: string;
+
   @Prop()
   poster: string;
 

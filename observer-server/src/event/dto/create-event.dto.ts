@@ -32,6 +32,10 @@ export class CreateEventDto {
   location: string;
 
   @IsNotEmpty()
+  @IsString()
+  city: string;
+
+  @IsNotEmpty()
   @IsNumber()
   maxParticipants: number;
 
