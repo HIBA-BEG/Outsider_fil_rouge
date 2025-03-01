@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -114,4 +114,73 @@ export class EventService {
       .populate('interests', 'category description')
       .exec();
   }
+
+  async registerForEvent(eventId: string, userId: string): Promise<Event> {
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    if (event.registeredUsers.includes(new Types.ObjectId(userId))) {
+      throw new ForbiddenException('User already registered for this event');
+    }
+
+    if (event.registeredUsers.length >= event.maxParticipants) {
+      throw new ForbiddenException('Event is already full');
+    }
+
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role !== UserRole.PARTICIPANT) {
+      throw new ForbiddenException('Only participants can register for events');
+    }
+
+    if (new Date(event.startDate) < new Date()) {
+      throw new ForbiddenException('Cannot register for past events');
+    }
+
+    const updatedEvent = await this.eventModel
+      .findByIdAndUpdate(
+        eventId,
+        {
+          $push: { registeredUsers: userId },
+        },
+        { new: true },
+      )
+      .populate('organizer', 'firstName lastName email')
+      .populate('interests', 'category description');
+
+    if (!updatedEvent) {
+      throw new NotFoundException(`Event #${eventId} not found`);
+    }
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      $push: { registeredEvents: eventId },
+    });
+
+    return updatedEvent;
+  }
+
+  async getRegisteredEvents(userId: string): Promise<Event[]> {
+    return this.eventModel
+      .find({
+        registeredUsers: userId,
+        isArchived: false,
+      })
+      .populate('organizer', 'firstName lastName email')
+      .populate('interests', 'category description')
+      .exec();
+  }
+
+  async getAvailableSpots(eventId: string): Promise<number> {
+    const event = await this.eventModel.findById(eventId);
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+    return event.maxParticipants - event.registeredUsers.length;
+  }
+  
 }

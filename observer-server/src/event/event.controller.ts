@@ -61,4 +61,21 @@ export class EventController {
   findByOrganizer(@Param('id') id: string) {
     return this.eventService.findByOrganizer(id);
   }
+
+  @Post(':id/register')
+  @Roles(UserRole.PARTICIPANT)
+  registerForEvent(@Param('id') id: string, @Request() req) {
+    return this.eventService.registerForEvent(id, req.user.id);
+  }
+
+  @Get('user/registered')
+  getRegisteredEvents(@Request() req) {
+    return this.eventService.getRegisteredEvents(req.user.id);
+  }
+
+  @Public()
+  @Get(':id/available-spots')
+  getAvailableSpots(@Param('id') id: string) {
+    return this.eventService.getAvailableSpots(id);
+  }
 }
