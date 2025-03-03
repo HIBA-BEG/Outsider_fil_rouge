@@ -3,6 +3,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model, Types } from 'mongoose';
+import { UpdateProfileDto } from './entities/update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -51,37 +52,65 @@ export class UserService {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.userModel.find({ role: 'participant' });
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto): Promise<User> {
+    const user = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        updateProfileDto,
+        { new: true }
+      )
+      .populate('interests')
+      .populate('registeredEvents')
+      .select('-password');
+  
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    return user;
+  }
+
+  async findAllParticipants(loggedUserId: string): Promise<User[]> {
+    const users = await this.userModel.find({ role: 'participant' ,
+      _id: { $ne: loggedUserId }});
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
     return users;
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.userModel.findById(id);
-    if (!user) {
-      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+  async findAllOrganizers(loggedUserId: string): Promise<User[]> {
+    const users = await this.userModel.find({ role: 'organizer' ,
+      _id: { $ne: loggedUserId }});
+    if (!users) {
+      throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
-    return user;
+    return users;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-    }
-    return user;
-  }
+  // async findOne(id: string): Promise<User> {
+  //   const user = await this.userModel.findById(id);
+  //   if (!user) {
+  //     throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+  //   }
+  //   return user;
+  // }
 
-  async remove(id: string): Promise<{ message: string }> {
-    const user = await this.userModel.findByIdAndDelete(id);
-    if (!user) {
-      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
-    }
-    return { message: 'User deleted successfully' };
-  }
+  // async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  //   const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+  //     new: true,
+  //   });
+  //   if (!user) {
+  //     throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+  //   }
+  //   return user;
+  // }
+
+  // async remove(id: string): Promise<{ message: string }> {
+  //   const user = await this.userModel.findByIdAndDelete(id);
+  //   if (!user) {
+  //     throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+  //   }
+  //   return { message: 'User deleted successfully' };
+  // }
 }
