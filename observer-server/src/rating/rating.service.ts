@@ -38,7 +38,7 @@ export class RatingService {
 
     const existingRating = await this.ratingModel.findOne({
       event: eventId,
-      participant: userId,
+      user: userId,
     });
 
     if (existingRating) {
@@ -46,7 +46,7 @@ export class RatingService {
     }
 
     const rating = new this.ratingModel({
-      participant: userId,
+      user: userId,
       event: eventId,
       score: createRatingDto.score,
     });
@@ -62,4 +62,18 @@ export class RatingService {
     return sum / ratings.length;
   }
 
+  async getEventRatings(eventId: string): Promise<Rating[]> {
+    return this.ratingModel
+      .find({ event: eventId })
+      .populate('user', 'firstName lastName')
+      .exec();
+  }
+
+  async cancelRating(eventId: string, userId: string): Promise<Rating> {
+    const rating = await this.ratingModel.findOneAndDelete({ event: eventId, user: userId });
+    if (!rating) {
+      throw new NotFoundException('Rating not found');
+    }
+    return rating;
+  }
 }

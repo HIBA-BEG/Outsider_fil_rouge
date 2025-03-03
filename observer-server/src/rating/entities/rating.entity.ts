@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Rating {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  participant: Types.ObjectId;
+  user: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Event', required: true })
   event: Types.ObjectId;
