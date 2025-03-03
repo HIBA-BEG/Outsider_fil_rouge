@@ -35,6 +35,9 @@ export class User {
   @Prop({ default: false })
   profileVerified: boolean;
 
+  @Prop({ default: false })
+  isArchived: boolean;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Interest' }] })
   interests: Types.ObjectId[];
 
