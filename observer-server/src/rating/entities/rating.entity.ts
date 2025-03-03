@@ -1,10 +1,11 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Max, Min } from 'class-validator';
 import { Types } from 'mongoose';
 
+@Schema({ timestamps: true })
 export class Rating {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  organizer: Types.ObjectId;
+  user: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Event', required: true })
   event: Types.ObjectId;
@@ -15,4 +16,5 @@ export class Rating {
   score: number;
 }
 
+export type RatingDocument = Rating & Document;
 export const RatingSchema = SchemaFactory.createForClass(Rating);

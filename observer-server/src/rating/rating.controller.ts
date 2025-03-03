@@ -1,42 +1,43 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
   Param,
+  Get,
+  Request,
   Delete,
 } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
-import { UpdateRatingDto } from './dto/update-rating.dto';
 
-@Controller('rating')
+@Controller('ratings')
 export class RatingController {
   constructor(private readonly ratingService: RatingService) {}
 
-  @Post()
-  create(@Body() createRatingDto: CreateRatingDto) {
-    return this.ratingService.create(createRatingDto);
+  @Post('event/:id')
+  create(
+    @Param('id') eventId: string,
+    @Request() req,
+    @Body() createRatingDto: CreateRatingDto,
+  ) {
+    return this.ratingService.create(eventId, req.user.id, createRatingDto);
   }
 
-  @Get()
-  findAll() {
-    return this.ratingService.findAll();
+  @Get('event/:id/average')
+  getEventAverageRating(@Param('id') eventId: string) {
+    return this.ratingService.getEventAverageRating(eventId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ratingService.findOne(+id);
+  @Get('event/:id')
+  getEventRatings(@Param('id') eventId: string) {
+    return this.ratingService.getEventRatings(eventId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRatingDto: UpdateRatingDto) {
-    return this.ratingService.update(+id, updateRatingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ratingService.remove(+id);
+  @Delete('event/:id')
+  cancelRating(
+    @Param('id') eventId: string, 
+    @Request() req
+  ) {
+    return this.ratingService.cancelRating(eventId, req.user.id);
   }
 }
