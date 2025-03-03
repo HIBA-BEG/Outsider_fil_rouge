@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comment } from './entities/comment.entity';
@@ -40,4 +40,21 @@ export class CommentService {
       .exec();
   }
 
+  async update(
+    id: string,
+    userId: string,
+    content: string,
+  ): Promise<Comment> {
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    if (comment.user.toString() !== userId) {
+      throw new ForbiddenException('You can only edit your own comments');
+    }
+
+    comment.content = content;
+    return comment.save();
+  }
 }
