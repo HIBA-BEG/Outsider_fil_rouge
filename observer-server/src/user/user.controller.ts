@@ -5,6 +5,7 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -24,6 +25,11 @@ export class UserController {
     @Body() body: { interests: string[] },
   ) {
     return this.userService.removeInterests(id, body.interests);
+  }
+
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.userService.getProfile(req.user.id);
   }
 
   @Get()

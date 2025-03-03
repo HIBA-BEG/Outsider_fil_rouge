@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
@@ -36,6 +36,19 @@ export class UserService {
     );
 
     return await user.save();
+  }
+
+  async getProfile(userId: string): Promise<User> {
+    const user = await this.userModel.findById(userId)
+      .populate('interests')
+      .populate('registeredEvents')
+      .select('-password');  
+      
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    return user;
   }
 
   async findAll(): Promise<User[]> {
