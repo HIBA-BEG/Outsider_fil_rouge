@@ -1,6 +1,7 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
+@Schema({ timestamps: true})
 export class Comment {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: Types.ObjectId;
@@ -15,4 +16,5 @@ export class Comment {
   archivedComment: boolean;
 }
 
+export type CommentDocument = Comment & Document;
 export const CommentSchema = SchemaFactory.createForClass(Comment);
