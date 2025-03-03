@@ -193,9 +193,11 @@ export class EventService {
 
     // console.log('Event registeredUsers:', event.registeredUsers);
 
-    const isRegistered = event.registeredUsers.some((id) => id.toString() === userId );
+    const isRegistered = event.registeredUsers.some(
+      (id) => id.toString() === userId,
+    );
     //.some() is a method that checks if at least one element in the array satisfies the condition w it returns true or false
-    
+
     // console.log('Is registered:', isRegistered);
 
     if (!isRegistered) {
@@ -205,7 +207,7 @@ export class EventService {
     // the user can cancel the registration 24 hours before the event :) hihihi
     // NB: I should add an alert of a visual notification before making the reservation that he can cancel it 24 hours/ 2 full days before the event
     const HoursBeforeEvent = new Date(event.startDate);
-    HoursBeforeEvent.setHours( HoursBeforeEvent.getHours() - 48 );
+    HoursBeforeEvent.setHours(HoursBeforeEvent.getHours() - 48);
 
     if (new Date() > HoursBeforeEvent) {
       throw new ForbiddenException(
@@ -235,5 +237,41 @@ export class EventService {
     });
 
     return updatedEvent;
+  }
+
+  async getPersonalizedEvents(userId: string): Promise<Event[]> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const userInterestIds = user.interests.map((id) => id.toString());
+
+    const query = {
+      isArchived: false,
+      // startDate: { $gt: new Date() }, //greater than today
+      city: user.city,
+      $or: [
+        { interests: { $in: userInterestIds } },
+        { interests: { $exists: true } }
+      ],
+    };
+
+    const events = await this.eventModel
+      .find(query)
+      .populate('organizer', 'firstName lastName email')
+      .populate('interests', 'category description')
+      .sort({ startDate: 1 })
+      .exec();
+
+    if (!events.length) {
+      throw new NotFoundException(`No events found`);
+    }
+
+    // console.log('User interests:', userInterestIds);
+    // console.log('Events found:', events.length);
+    // events.forEach((e) => console.log('Event interests:', e.interests));
+
+    return events;
   }
 }
