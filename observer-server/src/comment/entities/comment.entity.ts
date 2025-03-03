@@ -12,8 +12,11 @@ export class Comment {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ required: true })
-  archivedComment: boolean;
+  @Prop({ default: false })
+  archivedByOwner: boolean;
+
+  @Prop({ default: false })
+  archivedByOrganizer: boolean;
 }
 
 export type CommentDocument = Comment & Document;
