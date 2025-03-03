@@ -57,4 +57,18 @@ export class CommentService {
     comment.content = content;
     return comment.save();
   }
+
+  async archive(id: string, userId: string): Promise<Comment> {
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    if (comment.user.toString() !== userId) {
+      throw new ForbiddenException('You can only archive your own comments');
+    }
+
+    comment.archivedComment = true;
+    return comment.save();
+  }
 }

@@ -6,6 +6,7 @@ import {
   Param,
   Request,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -38,4 +39,8 @@ export class CommentController {
     return this.commentService.update(id, req.user.id, content);
   }
 
+  @Delete(':id')
+  archive(@Param('id') id: string, @Request() req) {
+    return this.commentService.archive(id, req.user.id);
+  }
 }
