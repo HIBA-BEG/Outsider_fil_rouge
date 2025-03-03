@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
-
+import { Roles } from '../authentication/decorators/roles.decorator';
+import { UserRole } from '../user/entities/user.entity';
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
@@ -40,7 +40,19 @@ export class CommentController {
   }
 
   @Delete(':id')
-  archive(@Param('id') id: string, @Request() req) {
-    return this.commentService.archive(id, req.user.id);
+  archiveByOwner(
+    @Param('id') id: string,
+    @Request() req
+  ) {
+    return this.commentService.archiveByOwner(id, req.user.id);
+  }
+
+  @Delete('organizer/:id')
+  @Roles(UserRole.ORGANIZER)
+  archiveByOrganizer(
+    @Param('id') id: string,
+    @Request() req
+  ) {
+    return this.commentService.archiveByOrganizer(id, req.user.id);
   }
 }
