@@ -86,4 +86,12 @@ export class EventController {
   ) {
     return this.eventService.cancelRegistration(id, req.user.id);
   }
+
+  @Get('personalized')
+  getPersonalizedEvents(
+    @Request() req
+  ) {
+    return this.eventService.getPersonalizedEvents(req.user.id);
+  }
+
 }
