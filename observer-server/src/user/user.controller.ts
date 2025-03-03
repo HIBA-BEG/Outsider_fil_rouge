@@ -5,9 +5,11 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './entities/update-profile.dto';
 
 @Controller('user')
 export class UserController {
@@ -26,23 +28,41 @@ export class UserController {
     return this.userService.removeInterests(id, body.interests);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.userService.getProfile(req.user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @Patch('profile')
+  updateProfile(
+    @Request() req,
+    @Body() updateProfileDto: UpdateProfileDto
+  ) {
+    return this.userService.updateProfile(req.user.id, updateProfileDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @Get('participants')
+  findAllParticipants(@Request() req) {
+    return this.userService.findAllParticipants(req.user.id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @Get('organizers')
+  findAllOrganizers(@Request() req) {
+    return this.userService.findAllOrganizers(req.user.id);
   }
+
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.userService.findOne(id);
+  // }
+
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  //   return this.userService.update(id, updateUserDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.userService.remove(id);
+  // }
 }
