@@ -88,6 +88,20 @@ export class UserService {
     return users;
   }
 
+  async deleteMyProfile(loggedUserId: string): Promise<{ message: string }> {
+    const user = await this.userModel.findById(loggedUserId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    await this.userModel.findByIdAndUpdate(loggedUserId, { 
+      isArchived: true,
+      email: `archived_${user.email}` 
+    });
+  
+    return { message: 'Profile archived successfully' };
+  }
+
   // async findOne(id: string): Promise<User> {
   //   const user = await this.userModel.findById(id);
   //   if (!user) {

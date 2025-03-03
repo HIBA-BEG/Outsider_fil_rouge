@@ -34,10 +34,7 @@ export class UserController {
   }
 
   @Patch('profile')
-  updateProfile(
-    @Request() req,
-    @Body() updateProfileDto: UpdateProfileDto
-  ) {
+  updateProfile(@Request() req, @Body() updateProfileDto: UpdateProfileDto) {
     return this.userService.updateProfile(req.user.id, updateProfileDto);
   }
 
@@ -49,6 +46,11 @@ export class UserController {
   @Get('organizers')
   findAllOrganizers(@Request() req) {
     return this.userService.findAllOrganizers(req.user.id);
+  }
+
+  @Delete('profile')
+  deleteMyProfile(@Request() req) {
+    return this.userService.deleteMyProfile(req.user.id);
   }
 
   // @Get(':id')
