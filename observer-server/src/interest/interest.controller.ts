@@ -11,7 +11,9 @@ import {
 import { InterestService } from './interest.service';
 import { CreateInterestDto } from './dto/create-interest.dto';
 import { UpdateInterestDto } from './dto/update-interest.dto';
+import { Public } from '../authentication/decorators/public.decorator';
 
+@Public()
 @Controller('interests')
 export class InterestController {
   constructor(private readonly interestService: InterestService) {}

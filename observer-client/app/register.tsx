@@ -1,10 +1,16 @@
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
+import { Interest } from '~/types/interest';
+import { City } from '~/types/city';
+import interestService  from './(services)/interestApi';
+import cityService from './(services)/cityApi';
+import AuthApi from './(services)/authApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +18,15 @@ export default function Register() {
   const { isDarkMode } = useTheme();
   const [image, setImage] = useState<string | null>(null);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [interests, setInterests] = useState<Interest[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -27,25 +42,63 @@ export default function Register() {
     }
   };
 
-  const interests = [
-    'Dance',
-    'Music',
-    'Art',
-    'Sports',
-    'Food',
-    'Travel',
-    'Fashion',
-    'Technology',
-    'Books',
-    'Movies',
-    'TV',
-    'Gaming',
-  ];
-
-  const toggleInterest = (interest: string) => {
+  const toggleInterest = (interest: Interest) => {
     setSelectedInterests((prev) =>
-      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
+      prev.includes(interest._id)
+        ? prev.filter((id) => id !== interest._id)
+        : [...prev, interest._id]
     );
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [interestsData, citiesData] = await Promise.all([
+          interestService.getAllInterests(),
+          cityService.getAllCities(),
+        ]);
+
+        setInterests(interestsData);
+        setCities(citiesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally { 
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleRegister = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('role', role);
+      formData.append('city', selectedCity);
+      formData.append('interests', JSON.stringify(selectedInterests));
+
+      if (image) {
+        formData.append('file', {
+          uri: image,
+          type: 'image/jpeg',
+          name: 'profile.jpg',
+        } as any);
+      }
+
+      const response = await AuthApi.register(formData);
+      if (response.token) {
+        await AsyncStorage.setItem('authToken', response.token);
+        router.replace('/');
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // I will handle the error (show alert wlla message to user)
+    }
   };
 
   return (
@@ -85,6 +138,8 @@ export default function Register() {
                   className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
                   <TextInput
                     placeholder="Enter your first name"
+                    value={firstName}
+                    onChangeText={setFirstName}
                     placeholderTextColor="#ECECED"
                     className={`px-4 py-3 ${isDarkMode ? 'text-white' : 'text-black'}`}
                     autoCapitalize="words"
@@ -101,6 +156,8 @@ export default function Register() {
                   className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
                   <TextInput
                     placeholder="Enter your last name"
+                    value={lastName}
+                    onChangeText={setLastName}
                     placeholderTextColor="#ECECED"
                     className={`px-4 py-3 ${isDarkMode ? 'text-white' : 'text-black'}`}
                     autoCapitalize="words"
@@ -117,6 +174,8 @@ export default function Register() {
                   className={`flex-row items-center rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
                   <TextInput
                     placeholder="email@example.com"
+                    value={email}
+                    onChangeText={setEmail}
                     placeholderTextColor="#ECECED"
                     className={`flex-1 px-4 py-3 ${isDarkMode ? 'text-white' : 'text-black'}`}
                     keyboardType="email-address"
@@ -135,6 +194,8 @@ export default function Register() {
                   className={` flex-row items-center rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
                   <TextInput
                     placeholder="Enter your password"
+                    value={password}
+                    onChangeText={setPassword}
                     placeholderTextColor="#ECECED"
                     className={`flex-1 px-4 py-3 ${isDarkMode ? 'text-white' : 'text-black'}`}
                     secureTextEntry={!showPassword}
@@ -142,6 +203,35 @@ export default function Register() {
                   <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="pr-4">
                     <Text className="text-gray-400">{showPassword ? '👁' : '👁‍🗨'}</Text>
                   </TouchableOpacity>
+                </View>
+              </View>
+
+              <View>
+                <Text
+                  className={`m-2 mt-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
+                  Role
+                </Text>
+                <View
+                  className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
+                  <Picker
+                    dropdownIconColor={isDarkMode ? 'white' : 'black'}
+                    placeholder="Select a role"
+                    selectedValue={role}
+                    onValueChange={setRole}
+                    style={{
+                      color: isDarkMode ? 'white' : 'black',
+                      height: 55,
+                      paddingHorizontal: 16,
+                    }}>
+                    <Picker.Item
+                      label="Select a role"
+                      value=""
+                      enabled={false}
+                      // style={{ color: isDarkMode ? 'white' : 'black' }}
+                    />
+                    <Picker.Item label="Participant" value="participant" />
+                    <Picker.Item label="Organizer" value="organizer" />
+                  </Picker>
                 </View>
               </View>
 
@@ -159,18 +249,17 @@ export default function Register() {
                     placeholder="Select a city"
                     style={{
                       color: isDarkMode ? 'white' : 'black',
-                      height: 50,
+                      height: 55,
                       paddingHorizontal: 16,
                     }}>
-                    <Picker.Item
-                      label="Select a city"
-                      value=""
-                      enabled={false}
-                      // style={{ color: isDarkMode ? 'white' : 'black' }}
-                    />
-                    <Picker.Item label="Rabat" value="Rabat" />
-                    <Picker.Item label="Casablanca" value="Casablanca" />
-                    <Picker.Item label="Fes" value="Fes" />
+                    <Picker.Item label="Select a city" value="" enabled={false} />
+                    {cities.map((city) => (
+                      <Picker.Item
+                        // key={city._id}
+                        label={`${city.name}, ${city.admin_name}`}
+                        value={city._id}
+                      />
+                    ))}
                   </Picker>
                 </View>
               </View>
@@ -220,33 +309,41 @@ export default function Register() {
                 </Text>
                 <View
                   className={`rounded-3xl p-4 ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
-                  <ScrollView className="max-h-32">
-                    <View className="flex-row flex-wrap gap-2">
-                      {interests.map((interest) => (
-                        <TouchableOpacity
-                          key={interest}
-                          onPress={() => toggleInterest(interest)}
-                          className={`rounded-full px-4 py-2 ${
-                            selectedInterests.includes(interest)
-                              ? 'bg-purple-600'
-                              : isDarkMode
-                                ? 'bg-primary-light/20'
-                                : 'bg-primary-dark/20'
-                          }`}>
-                          <Text
-                            className={`${
-                              selectedInterests.includes(interest)
-                                ? 'text-white'
-                                : isDarkMode
-                                  ? 'text-white/70'
-                                  : 'text-black/70'
-                            }`}>
-                            {interest}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+                  {isLoading ? (
+                    <View className="items-center justify-center p-4">
+                      <Text className={`${isDarkMode ? 'text-white' : 'text-black'}`}>
+                        Loading...
+                      </Text>
                     </View>
-                  </ScrollView>
+                  ) : (
+                    <ScrollView className="max-h-32">
+                      <View className="flex-row flex-wrap gap-2">
+                        {interests.map((interest) => (
+                          <TouchableOpacity
+                            key={interest._id}
+                            onPress={() => toggleInterest(interest)}
+                            className={`rounded-full px-4 py-2 ${
+                              selectedInterests.includes(interest._id)
+                                ? 'bg-purple-600'
+                                : isDarkMode
+                                  ? 'bg-primary-light/20'
+                                  : 'bg-primary-dark/20'
+                            }`}>
+                            <Text
+                              className={`${
+                                selectedInterests.includes(interest._id)
+                                  ? 'text-white'
+                                  : isDarkMode
+                                    ? 'text-white/70'
+                                    : 'text-black/70'
+                              }`}>
+                              {interest.category}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  )}
                   {selectedInterests.length > 0 && (
                     <Text
                       className={`mt-2 text-sm ${isDarkMode ? 'text-white/70' : 'text-black/70'}`}>
@@ -288,7 +385,7 @@ export default function Register() {
 
               <TouchableOpacity
                 className="mt-6 rounded-full bg-purple-600 py-3"
-                onPress={() => router.push('/')}>
+                onPress={handleRegister}>
                 <Text
                   className={`text-center text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>
                   Create Account
