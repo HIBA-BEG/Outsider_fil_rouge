@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model, Types } from 'mongoose';
@@ -101,30 +100,4 @@ export class UserService {
   
     return { message: 'Profile archived successfully' };
   }
-
-  // async findOne(id: string): Promise<User> {
-  //   const user = await this.userModel.findById(id);
-  //   if (!user) {
-  //     throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
-  //   }
-  //   return user;
-  // }
-
-  // async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-  //   const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-  //     new: true,
-  //   });
-  //   if (!user) {
-  //     throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-  //   }
-  //   return user;
-  // }
-
-  // async remove(id: string): Promise<{ message: string }> {
-  //   const user = await this.userModel.findByIdAndDelete(id);
-  //   if (!user) {
-  //     throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
-  //   }
-  //   return { message: 'User deleted successfully' };
-  // }
 }

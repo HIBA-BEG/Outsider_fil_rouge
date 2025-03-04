@@ -25,10 +25,26 @@ class AuthApi {
     }
   }
 
+  static async register(formData: FormData): Promise<AuthResponse> {
+    try {
+      console.log('Registering user:', formData);   
+      const response = await axiosInstance.post('/auth/register', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Register error:', error);
+      throw this.handleError(error);
+    }
+  }
+
   static async logout(): Promise<void> {
     AuthApi.clearAuthToken();
     await AsyncStorage.removeItem('authToken');
   }
+
 
   private static handleError(error: any): Error {
     if (axios.isAxiosError(error)) {
