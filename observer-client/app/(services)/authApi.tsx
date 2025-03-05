@@ -16,7 +16,7 @@ class AuthApi {
         email,
         password,
       });
-      console.log('Login response:', response.data);
+      // console.log('Login response:', response.data);
 
       return response.data;
     } catch (error) {

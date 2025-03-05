@@ -22,13 +22,13 @@ export default function Login() {
 
       const response = await AuthApi.login(email, password);
       
-      console.log('response f login', response);
+      // console.log('response f login', response);
 
       await AsyncStorage.setItem('authToken', response.token);
 
       AuthApi.setAuthToken(response.token);
 
-      console.log('token f login', response.token);
+      // console.log('token f login', response.token);
 
       router.push('/');
     } catch (error: any) {
