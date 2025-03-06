@@ -15,10 +15,10 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export function ThemeProvider({ children = null }: { children?: ReactNode }) {
   const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'dark');
+  const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'light');
 
   useEffect(() => {
-    setIsDarkMode(systemColorScheme === 'dark');
+    setIsDarkMode(systemColorScheme === 'light');
   }, [systemColorScheme]);
 
   const toggleTheme = () => {
@@ -36,6 +36,6 @@ export function ThemeProvider({ children = null }: { children?: ReactNode }) {
   );
 }
 
-export const useTheme = () => useContext(ThemeContext); 
+export const useTheme = () => useContext(ThemeContext);
 
 export default ThemeContext;

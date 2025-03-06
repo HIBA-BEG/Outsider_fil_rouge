@@ -1,19 +1,20 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import Illustration from '~/components/ui/Illustration';
-import { Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+
 import { useTheme } from '../context/ThemeContext';
+
+import Illustration from '~/components/ui/Illustration';
 
 export default function Welcome() {
   const screenWidth = Dimensions.get('window').width;
   const { isDarkMode } = useTheme();
 
   return (
-    <View className="bg-primary-dark flex-1 p-6">
+    <View className="flex-1 bg-primary-dark p-6">
       <TouchableOpacity onPress={() => router.back()} className="mb-4">
         <Text className={`text-lg ${isDarkMode ? 'text-primary-dark' : 'text-white'}`}>← Back</Text>
       </TouchableOpacity>
-      <View className="flex-1 items-center justify-center"></View>
+      <View className="flex-1 items-center justify-center" />
       <View className="mb-6 items-center">
         <Illustration width={screenWidth} height={screenWidth * 0.5} />
       </View>
@@ -31,13 +32,13 @@ export default function Welcome() {
         <TouchableOpacity
           onPress={() => router.push('/login')}
           className="mb-4 rounded-full bg-white py-3">
-          <Text className="text-primary-dark text-center text-lg font-semibold">Sign In</Text>
+          <Text className="text-center text-lg font-semibold text-primary-dark">Sign In</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => router.push('/register')}
           className="rounded-full border border-white/30 py-3">
-          <Text className="text-primary-light text-center text-lg font-semibold">Register</Text>
+          <Text className="text-center text-lg font-semibold text-primary-light">Register</Text>
         </TouchableOpacity>
       </View>
     </View>

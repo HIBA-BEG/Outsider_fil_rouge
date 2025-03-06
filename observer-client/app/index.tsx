@@ -1,16 +1,18 @@
-import { View, Text, Image, TextInput, ScrollView, TouchableOpacity, Switch } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
-import ThemeToggle from '../components/ui/ThemeToggle';
-import BottomNavigation from '../components/ui/BottomNavigation';
-import TopEvents from '../components/ui/TopEvents';
-import Categories from '../components/ui/Categories';
-import AllEvents from '~/components/ui/AllEvents';
-import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import { useEffect } from 'react';
+import { View, Text, Image, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import AuthApi from './(services)/authApi';
+import BottomNavigation from '../components/ui/BottomNavigation';
+import Categories from '../components/ui/Categories';
+import ThemeToggle from '../components/ui/ThemeToggle';
+import TopEvents from '../components/ui/TopEvents';
+import { useTheme } from '../context/ThemeContext';
+
+import AllEvents from '~/components/ui/AllEvents';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
@@ -26,7 +28,6 @@ export default function Index() {
     } else {
       router.push('/welcome');
     }
-   
   };
 
   const handleLogout = async () => {
@@ -41,7 +42,7 @@ export default function Index() {
       <SafeAreaView className="flex-1">
         <ThemeToggle />
         <View className="mb-2 mt-2 flex-row items-center justify-between">
-        <TouchableOpacity onPress={handleProfilePress}>
+          <TouchableOpacity onPress={handleProfilePress}>
             <Image
               source={require('../assets/profile-icon.jpg')}
               className="h-10 w-10 rounded-full"
@@ -52,10 +53,11 @@ export default function Index() {
               {/* {user?.firstName} */}
             </Text>
           </View>
-          
+
           <TouchableOpacity onPress={handleLogout}>
-            <View className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'} p-2`}>
-              <Feather name="log-out" size={24} color='white' />
+            <View
+              className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'} p-2`}>
+              <Feather name="log-out" size={24} color="white" />
             </View>
           </TouchableOpacity>
         </View>

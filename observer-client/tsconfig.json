@@ -4,9 +4,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "*"
-      ]
+      "~/*": ["*"]
     }
   },
   "include": [
@@ -15,6 +13,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts",
-    "./app/index.tsx" 
-, "app/index.tsx"  ]
+    "./app/index.tsx",
+    "app/index.tsx"
+  ]
 }

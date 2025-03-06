@@ -1,4 +1,5 @@
 import { View, Switch, Text } from 'react-native';
+
 import { useTheme } from '../../context/ThemeContext';
 
 export default function ThemeToggle() {
@@ -6,13 +7,8 @@ export default function ThemeToggle() {
 
   return (
     <View className="flex-row items-center space-x-2">
-      <Text className={isDarkMode ? 'text-white' : 'text-black'}>
-        {isDarkMode ? '🌙' : '☀️'}
-      </Text>
-      <Switch
-        value={isDarkMode}
-        onValueChange={toggleTheme}
-      />
+      <Text className={isDarkMode ? 'text-white' : 'text-black'}>{isDarkMode ? '🌙' : '☀️'}</Text>
+      <Switch value={isDarkMode} onValueChange={toggleTheme} />
     </View>
   );
-} 
+}
