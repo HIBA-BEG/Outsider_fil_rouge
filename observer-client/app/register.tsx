@@ -1,16 +1,18 @@
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { router } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
-import { Interest } from '~/types/interest';
-import { City } from '~/types/city';
-import interestService  from './(services)/interestApi';
-import cityService from './(services)/cityApi';
+import { router } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useTheme } from '../context/ThemeContext';
 import AuthApi from './(services)/authApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import cityService from './(services)/cityApi';
+import interestService from './(services)/interestApi';
+
+import { City } from '~/types/city';
+import { Interest } from '~/types/interest';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,7 +65,7 @@ export default function Register() {
         setCities(citiesData);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally { 
+      } finally {
         setIsLoading(false);
       }
     };
@@ -102,7 +104,7 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView className={`flex-1`}>
+    <SafeAreaView className="flex-1">
       <View className="relative flex-1">
         <Image
           source={

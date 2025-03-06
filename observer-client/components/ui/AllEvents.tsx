@@ -1,8 +1,10 @@
-import { View, Switch, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
 import { useEffect, useState } from 'react';
-import eventService from '~/app/(services)/eventApi';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+
+import { useTheme } from '../../context/ThemeContext';
 import { Event } from '../../types/event';
+
+import eventService from '~/app/(services)/eventApi';
 
 export default function AllEvents() {
   const { isDarkMode } = useTheme();
@@ -36,22 +38,30 @@ export default function AllEvents() {
       </View>
 
       <View className="mt-2">
-        {events.slice(0, 4).map((event) => (
-          <TouchableOpacity
-            key={event._id}
-            className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-black/80'}`}>
-            <View className="h-32 w-full overflow-hidden rounded-2xl">
-              <Image
-                source={require('../../assets/event1.jpg')}
-                className="h-full w-full"
-                style={{ backgroundColor: '#4B0082' }}
-              />
-            </View>
-            <Text className="mt-2 text-base text-white">{event.title}</Text>
-            <Text className="text-sm text-gray-400">{event.description}</Text>
-            <Text className="text-sm text-gray-400">{new Date(event.startDate).toString()}</Text>
-          </TouchableOpacity>
-        ))}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : events.length === 0 ? (
+          <Text className={`text-center ${isDarkMode ? 'text-white' : 'text-black'}`}>
+            There's nothing available for the moment.
+          </Text>
+        ) : (
+          events.slice(0, 4).map((event) => (
+            <TouchableOpacity
+              key={event._id}
+              className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-black/80'}`}>
+              <View className="h-32 w-full overflow-hidden rounded-2xl">
+                <Image
+                  source={require('../../assets/event1.jpg')}
+                  className="h-full w-full"
+                  style={{ backgroundColor: '#4B0082' }}
+                />
+              </View>
+              <Text className="mt-2 text-base text-white">{event.title}</Text>
+              <Text className="text-sm text-gray-400">{event.description}</Text>
+              <Text className="text-sm text-gray-400">{new Date(event.startDate).toString()}</Text>
+            </TouchableOpacity>
+          ))
+        )}
 
         {/* <TouchableOpacity className={`mt-4 rounded-2xl p-4 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-black/80'}`}>
             <View className="h-32 w-full overflow-hidden rounded-2xl">

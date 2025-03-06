@@ -265,7 +265,7 @@ export class EventService {
       .exec();
 
     if (!events.length) {
-      throw new NotFoundException(`No events found`);
+      console.log('No personalized events found');
     }
 
     // console.log('User interests:', userInterestIds);

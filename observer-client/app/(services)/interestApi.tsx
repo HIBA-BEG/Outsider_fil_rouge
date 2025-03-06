@@ -1,5 +1,6 @@
-import { Interest } from '~/types/interest';
 import axiosInstance from './axiosInstance';
+
+import { Interest } from '~/types/interest';
 
 const interestService = {
   async getAllInterests(): Promise<Interest[]> {
@@ -21,8 +22,7 @@ const interestService = {
       console.error('Error fetching interests by category:', error);
       return [];
     }
-  }
+  },
 };
-
 
 export default interestService;

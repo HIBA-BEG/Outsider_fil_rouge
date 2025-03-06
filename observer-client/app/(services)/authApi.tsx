@@ -1,7 +1,7 @@
-import { User } from '../../types/user';
-import axios from 'axios';
-import axiosInstance from './axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+import axiosInstance from './axiosInstance';
 
 interface AuthResponse {
   token: string;
@@ -27,11 +27,11 @@ class AuthApi {
 
   static async register(formData: FormData): Promise<AuthResponse> {
     try {
-      console.log('Registering user:', formData);   
+      console.log('Registering user:', formData);
       const response = await axiosInstance.post('/auth/register', formData, {
         headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          'Content-Type': 'multipart/form-data',
+        },
       });
       return response.data;
     } catch (error) {
@@ -45,7 +45,6 @@ class AuthApi {
     await AsyncStorage.removeItem('authToken');
   }
 
-
   private static handleError(error: any): Error {
     if (axios.isAxiosError(error)) {
       const message = error.response?.data?.message || error.message;
@@ -54,7 +53,6 @@ class AuthApi {
     return new Error('An unexpected error occurred');
   }
 
-  
   static setAuthToken(token: string): void {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }

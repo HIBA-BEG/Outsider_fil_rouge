@@ -1,10 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
-import { useState } from 'react';
-import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Illustration from '~/components/ui/Illustration';
-import AuthApi from './(services)/authApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import AuthApi from './(services)/authApi';
+
+import Illustration from '~/components/ui/Illustration';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +23,7 @@ export default function Login() {
       setError('');
 
       const response = await AuthApi.login(email, password);
-      
+
       // console.log('response f login', response);
 
       await AsyncStorage.setItem('authToken', response.token);
@@ -40,7 +42,7 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView className="bg-primary-dark flex-1">
+    <SafeAreaView className="flex-1 bg-primary-dark">
       <View className="flex-1">
         <View className="p-6">
           <TouchableOpacity onPress={() => router.back()} className="mb-4">

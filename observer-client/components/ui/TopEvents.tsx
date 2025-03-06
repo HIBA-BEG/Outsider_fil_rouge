@@ -1,7 +1,8 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
-import eventService from '../../app/(services)/eventApi';
 import { useEffect, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+
+import eventService from '../../app/(services)/eventApi';
+import { useTheme } from '../../context/ThemeContext';
 import { Event } from '../../types/event';
 
 export default function TopEvents() {
@@ -31,16 +32,21 @@ export default function TopEvents() {
 
   return (
     <View className="mt-6">
-        <View className="flex-row items-center justify-between">
-          <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>Top Events</Text>
-          <TouchableOpacity>
-            <Text className="text-gray-400">Voir tous</Text>
-          </TouchableOpacity>
-        </View>
+      <View className="flex-row items-center justify-between">
+        <Text
+          className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+          Top Events
+        </Text>
+        <TouchableOpacity>
+          <Text className="text-gray-400">Voir tous</Text>
+        </TouchableOpacity>
+      </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
         {events.slice(0, 4).map((event) => (
-          <TouchableOpacity key={event._id} className={`mr-4 w-40 rounded-2xl p-2 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'}`}>
+          <TouchableOpacity
+            key={event._id}
+            className={`mr-4 flex w-40 items-center rounded-2xl p-2 backdrop-blur-sm ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'}`}>
             <View className="h-32 w-32 overflow-hidden rounded-2xl">
               <Image
                 source={require('../../assets/event1.jpg')}
@@ -53,7 +59,7 @@ export default function TopEvents() {
           </TouchableOpacity>
         ))}
 
-          {/* <TouchableOpacity className={`mr-4 rounded-2xl p-2 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'}`}>
+        {/* <TouchableOpacity className={`mr-4 rounded-2xl p-2 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'}`}>
             <View className="h-32 w-32 overflow-hidden rounded-2xl">
               <Image
                 source={require('../../assets/event1.jpg')}
@@ -64,7 +70,7 @@ export default function TopEvents() {
             <Text className="mt-2 text-base text-white">Jenny Wilson</Text>
             <Text className="text-sm text-gray-400">Danse contemporaine</Text>
           </TouchableOpacity> */}
-          {/* <TouchableOpacity className={`mr-4 rounded-2xl p-2 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-primary-dark/80'}`}>
+        {/* <TouchableOpacity className={`mr-4 rounded-2xl p-2 flex items-center backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-primary-dark/80'}`}>
             <View className="h-32 w-32 overflow-hidden rounded-2xl">
               <Image
                 source={require('../../assets/event2.jpg')}
@@ -97,7 +103,7 @@ export default function TopEvents() {
             <Text className="mt-2 text-base text-white">Wade Warren</Text>
             <Text className="text-sm text-gray-400">Musician</Text>
           </TouchableOpacity> */}
-        </ScrollView>
-      </View>
+      </ScrollView>
+    </View>
   );
-} 
+}

@@ -1,7 +1,5 @@
 export interface Interest {
-    _id: string;
-    category: string;
-    description: string;
+  _id: string;
+  category: string;
+  description: string;
 }
-
-  

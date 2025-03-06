@@ -1,5 +1,6 @@
-import { City } from "~/types/city";
-import axiosInstance from "./axiosInstance";
+import axiosInstance from './axiosInstance';
+
+import { City } from '~/types/city';
 
 const cityService = {
   async getAllCities(): Promise<string[]> {
@@ -16,7 +17,7 @@ const cityService = {
   async getAllRegions(): Promise<string[]> {
     try {
       const response = await axiosInstance.get('/cities/regions');
-    //   console.log('Regions:', response.data);
+      //   console.log('Regions:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching regions:', error);
@@ -42,7 +43,7 @@ const cityService = {
       console.error('Error searching cities:', error);
       return [];
     }
-  }
+  },
 };
 
 export default cityService;

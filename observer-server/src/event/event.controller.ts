@@ -6,14 +6,11 @@ import {
   Patch,
   Param,
   Delete,
-  // UseGuards,
   Request,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-// import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
-// import { RolesGuard } from '../authentication/guards/roles.guard';
 import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
 import { Public } from '../authentication/decorators/public.decorator';
@@ -23,7 +20,6 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post()
-  // @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ORGANIZER)
   create(@Body() createEventDto: CreateEventDto, @Request() req) {
     return this.eventService.create(createEventDto, req.user.id);
@@ -56,10 +52,11 @@ export class EventController {
   remove(@Param('id') id: string, @Request() req) {
     return this.eventService.remove(id, req.user.id);
   }
-
-  @Get('organizer/:id')
-  findByOrganizer(@Param('id') id: string) {
-    return this.eventService.findByOrganizer(id);
+  
+  @Get('organizer/me')
+  @Roles(UserRole.ORGANIZER)
+  findMyEvents(@Request() req) {
+    return this.eventService.findByOrganizer(req.user.id);
   }
 
   @Post(':id/register')
@@ -93,5 +90,4 @@ export class EventController {
   ) {
     return this.eventService.getPersonalizedEvents(req.user.id);
   }
-
 }
