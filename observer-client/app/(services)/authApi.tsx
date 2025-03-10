@@ -27,11 +27,14 @@ class AuthApi {
 
   static async register(formData: FormData): Promise<AuthResponse> {
     try {
-      console.log('Registering user:', formData);
+      console.log('Registering user with form data:', formData);
       const response = await axiosInstance.post('/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
         },
+        transformRequest: (data) => data,
+        timeout: 30000,
       });
       return response.data;
     } catch (error) {

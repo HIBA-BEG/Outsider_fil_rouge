@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -46,14 +47,6 @@ export class AuthenticationService {
       }
 
       console.log('Received interests:', createAuthDto.interests);
-
-      // if (
-      //   !createAuthDto.interests ||
-      //   !Array.isArray(createAuthDto.interests) ||
-      //   createAuthDto.interests.length === 0
-      // ) {
-      //   throw new BadRequestException('At least one interest must be provided');
-      // }
 
       const interests = await Promise.all(
         createAuthDto.interests.map(async (interestId) => {
@@ -157,10 +150,16 @@ export class AuthenticationService {
     }
   }
 
-  private async validateUser(email: string, password: string): Promise<User> {
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.isBanned) {
+      throw new ForbiddenException(
+        'Your account has been banned. Please contact support for assistance.',
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);

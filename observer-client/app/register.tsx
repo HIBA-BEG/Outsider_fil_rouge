@@ -3,7 +3,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../context/ThemeContext';
@@ -75,6 +75,10 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
+      if (!image) {
+        throw new Error('Profile picture is required');
+      }
+
       const formData = new FormData();
       formData.append('firstName', firstName);
       formData.append('lastName', lastName);
@@ -84,13 +88,21 @@ export default function Register() {
       formData.append('city', selectedCity);
       formData.append('interests', JSON.stringify(selectedInterests));
 
-      if (image) {
-        formData.append('file', {
-          uri: image,
-          type: 'image/jpeg',
-          name: 'profile.jpg',
-        } as any);
-      }
+    
+      const filename = image.split('/').pop() || 'profile.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const fileType = match ? `image/${match[1]}` : 'image/jpeg';
+
+      formData.append('file', {
+        uri: Platform.OS === 'android' ? image : image.replace('file://', ''),
+        name: filename,
+        type: fileType,
+      } as any);
+
+      console.log('FormData structure:', Object.keys(formData));
+      console.log('FormData _parts:', formData);
+
+      console.log('FormData contents un registered file:', JSON.stringify(formData));
 
       const response = await AuthApi.register(formData);
       if (response.token) {
@@ -257,7 +269,7 @@ export default function Register() {
                     <Picker.Item label="Select a city" value="" enabled={false} />
                     {cities.map((city) => (
                       <Picker.Item
-                        // key={city._id}
+                        key={city._id}
                         label={`${city.name}, ${city.admin_name}`}
                         value={city._id}
                       />
