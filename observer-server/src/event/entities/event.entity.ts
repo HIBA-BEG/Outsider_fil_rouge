@@ -27,8 +27,8 @@ export class Event {
   @Prop({ required: true })
   city: string;
 
-  @Prop()
-  poster: string;
+  @Prop([String])
+  poster: string[];
 
   @Prop({ required: true })
   maxParticipants: number;

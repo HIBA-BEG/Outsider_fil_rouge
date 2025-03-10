@@ -6,7 +6,7 @@ export interface Event {
   endDate: Date;
   location: string;
   city: string;
-  // poster: string;
+  poster: string;
   maxParticipants: number;
   price: number;
   interests: string[];
@@ -14,6 +14,7 @@ export interface Event {
   isArchived: boolean;
   status: string;
   createdAt: Date;
+  registeredUsers: string[];
   // organizer: string;
 }
 
