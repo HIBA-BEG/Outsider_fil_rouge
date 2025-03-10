@@ -19,9 +19,11 @@ async function bootstrap() {
 
   await fastifyInstance.register(fastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024,
-      // files: 1,
+      fileSize: 10 * 1024 * 1024,
+      files: 10,
+      fieldSize: 2 * 1024 * 1024
     },
+    attachFieldsToBody: true
   });
 
   await app.register(fastifyStatic as any, {
@@ -33,6 +35,12 @@ async function bootstrap() {
   await app.register(fastifyStatic as any, {
     root: join(__dirname, '..', 'uploads-profile'),
     prefix: '/uploads-profile/',
+    decorateReply: false,
+  });
+
+  await app.register(fastifyStatic, {
+    root: join(__dirname, '..', 'uploads-event'),
+    prefix: '/uploads-event/',
     decorateReply: false,
   });
 

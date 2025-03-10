@@ -14,6 +14,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
 import { Public } from '../authentication/decorators/public.decorator';
+import { FileUpload } from '../types/file-upload.interface';
 
 @Controller('events')
 export class EventController {
@@ -21,8 +22,57 @@ export class EventController {
 
   @Post()
   @Roles(UserRole.ORGANIZER)
-  create(@Body() createEventDto: CreateEventDto, @Request() req) {
-    return this.eventService.create(createEventDto, req.user.id);
+    async create(
+    @Body() createEventDto: CreateEventDto,
+    @Request() req,
+  ) {
+    console.log('Request body:', req.body);
+
+    const eventData = {
+      title: req.body.title?.value,
+      description: req.body.description?.value,
+      startDate: req.body.startDate?.value,
+      endDate: req.body.endDate?.value,
+      location: req.body.location?.value,
+      city: req.body.city?.value,
+      maxParticipants: parseInt(req.body.maxParticipants?.value),
+      price: parseFloat(req.body.price?.value),
+      interests: req.body.interests?.value,
+      isPublic: req.body.isPublic?.value === 'true'
+    };
+
+    const processedFiles: FileUpload[] = [];
+
+    // Handle multiple poster files
+    if (Array.isArray(req.body.poster)) {
+      for (const file of req.body.poster) {
+        if (file.type === 'file') {
+          const buffer = await file.toBuffer();
+          processedFiles.push({
+            buffer,
+            mimetype: file.mimetype,
+            originalname: file.filename
+          });
+        }
+      }
+    } else if (req.body.poster?.type === 'file') {
+      const buffer = await req.body.poster.toBuffer();
+      processedFiles.push({
+        buffer,
+        mimetype: req.body.poster.mimetype,
+        originalname: req.body.poster.filename
+      });
+    }
+
+    // console.log('Received files:', processedFiles);
+
+    console.log('Processed files:', processedFiles.length);
+
+    return this.eventService.create(
+      eventData,
+      req.user.id,
+      processedFiles,
+    );
   }
 
   @Public()
@@ -52,7 +102,7 @@ export class EventController {
   remove(@Param('id') id: string, @Request() req) {
     return this.eventService.remove(id, req.user.id);
   }
-  
+
   @Get('organizer/me')
   @Roles(UserRole.ORGANIZER)
   findMyEvents(@Request() req) {
@@ -77,17 +127,12 @@ export class EventController {
   }
 
   @Delete(':id/register')
-  cancelRegistration(
-    @Param('id') id: string,
-    @Request() req,
-  ) {
+  cancelRegistration(@Param('id') id: string, @Request() req) {
     return this.eventService.cancelRegistration(id, req.user.id);
   }
 
   @Get('personalized')
-  getPersonalizedEvents(
-    @Request() req
-  ) {
+  getPersonalizedEvents(@Request() req) {
     return this.eventService.getPersonalizedEvents(req.user.id);
   }
 }

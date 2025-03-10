@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -9,6 +10,10 @@ import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { User, UserRole } from '../user/entities/user.entity';
+import { extname, join } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
+import { v4 as uuidv4 } from 'uuid';
+import { FileUpload } from 'src/types/file-upload.interface';
 
 @Injectable()
 export class EventService {
@@ -17,7 +22,15 @@ export class EventService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string): Promise<Event> {
+  async create(createEventDto: CreateEventDto, userId: string, files: FileUpload[]): Promise<Event> {
+    if (!files || files.length === 0) {
+      throw new Error('At least one image is required');
+    }
+
+    const imageUrls = await Promise.all(
+      files.map(file => this.uploadEventImage(file))
+    );
+
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -29,7 +42,9 @@ export class EventService {
     const event = new this.eventModel({
       ...createEventDto,
       organizer: userId,
+      poster: imageUrls,
     });
+
     const savedEvent = await event.save();
 
     await this.userModel.findByIdAndUpdate(userId, {
@@ -37,6 +52,43 @@ export class EventService {
     });
 
     return savedEvent;
+  }
+
+  
+  async uploadEventImage(file: FileUpload): Promise<string> {
+    try {
+      console.log('File details:', {
+        mimetype: file.mimetype,
+        originalname: file.originalname,
+        // size: file.size
+      });
+
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException(
+          'Invalid file type. Only JPEG, PNG, and GIF are allowed.',
+        );
+      }
+
+      const uploadDir = join(process.cwd(), 'uploads-event');
+      try {
+        await mkdir(uploadDir, { recursive: true });
+      } catch (err) {
+        if (err.code !== 'EEXIST') throw err;
+      }
+
+      const fileExt = extname(file.originalname || '.jpg');
+      const fileName = `${uuidv4()}${fileExt}`;
+      const filePath = join(uploadDir, fileName);
+
+      await writeFile(filePath, file.buffer);
+      console.log('Service: File written successfully:', filePath);
+      const serverUrl = process.env.SERVER_URL;
+      console.log('Generated image URL:', `${serverUrl}/uploads-event/${fileName}`);
+      return `${serverUrl}/uploads-event/${fileName}`;
+    } catch (error) {
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
   }
 
   async findAll(): Promise<Event[]> {

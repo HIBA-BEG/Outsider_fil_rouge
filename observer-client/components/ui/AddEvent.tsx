@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 
 import cityService from '../../app/(services)/cityApi';
@@ -18,6 +19,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { City } from '../../types/city';
 import { EventStatus } from '../../types/event';
 import { Interest } from '../../types/interest';
+import * as ImagePicker from 'expo-image-picker';
 
 const AddEvent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { isDarkMode } = useTheme();
@@ -38,6 +40,23 @@ const AddEvent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [selectedCity, setSelectedCity] = useState('');
   const [interests, setInterests] = useState<Interest[]>([]);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // allowsEditing: false,
+      quality: 0.5,
+      allowsMultipleSelection: true,
+      selectionLimit: 5,
+    });
+
+    if (!result.canceled) {
+      const newImages = result.assets.map(asset => asset.uri);
+      setImages([...images, ...newImages]);
+    }
+  };
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -57,15 +76,19 @@ const AddEvent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setIsLoading(true);
     try {
       const eventData = {
-        ...formData,
-        maxParticipants: parseInt(formData.maxParticipants),
-        price: parseFloat(formData.price),
-        status: EventStatus.SCHEDULED,
+        title: formData.title,
+        description: formData.description,
+        startDate: formData.startDate.toISOString(),
+        endDate: formData.endDate.toISOString(),
+        location: formData.location,
+        maxParticipants: formData.maxParticipants,
+        price: formData.price,
         city: selectedCity,
         interests: selectedInterests,
+        isPublic: formData.isPublic
       };
 
-      await eventService.createEvent(eventData);
+      await eventService.createEvent(eventData, images);
       onClose();
     } catch (error) {
       console.error('Error creating event:', error);
@@ -241,6 +264,40 @@ const AddEvent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <Picker.Item key={interest._id} label={interest.category} value={interest._id} />
                 ))}
               </Picker>
+            </View>
+          </View>
+
+          <View>
+            <Text className={`m-2 mt-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
+              Event Images
+            </Text>
+            <View className="flex-row flex-wrap">
+              {images.map((uri, index) => (
+                <View key={index} className="m-1">
+                  <Image 
+                    source={{ uri }} 
+                    className="h-20 w-20 rounded-lg"
+                  />
+                  <TouchableOpacity 
+                    onPress={() => setImages(images.filter((_, i) => i !== index))}
+                    className="absolute -right-2 -top-2 bg-red-500 rounded-full p-1"
+                  >
+                    <Text className="text-white text-xs">×</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              {images.length < 5 && (
+                <TouchableOpacity
+                  onPress={pickImage}
+                  className={`h-20 w-20 m-1 items-center justify-center rounded-lg border-2 border-dashed
+                    ${isDarkMode ? 'border-white/30' : 'border-black/30'}`}
+                >
+                  <Text className={`text-4xl ${isDarkMode ? 'text-white/50' : 'text-black/50'}`}>
+                    +
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
