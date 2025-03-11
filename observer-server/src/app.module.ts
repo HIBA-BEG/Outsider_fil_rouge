@@ -16,6 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './authentication/guards/jwt-auth.guard';
 import { RolesGuard } from './authentication/guards/roles.guard';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { RolesGuard } from './authentication/guards/roles.guard';
     EventModule,
     RatingModule,
     CommentModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

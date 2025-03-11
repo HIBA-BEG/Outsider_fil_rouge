@@ -45,6 +45,15 @@ export class Event {
   @Prop({ default: false })
   isArchived: boolean;
 
+  @Prop({ default: false })
+  isArchivedByAdmin: boolean;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  archivedBy: Types.ObjectId;
+
+  @Prop()
+  archiveReason: string;
+
   @Prop({ type: String, enum: EventStatus, default: EventStatus.SCHEDULED })
   status: EventStatus;
 

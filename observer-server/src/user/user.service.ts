@@ -1,12 +1,21 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model, Types } from 'mongoose';
 import { UpdateProfileDto } from './entities/update-profile.dto';
+import { Interest } from '../interest/entities/interest.entity';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Interest.name) private interestModel: Model<Interest>,
+  ) {}
 
   async addInterests(userId: string, interestIds: string[]): Promise<User> {
     const user = await this.userModel.findById(userId);
@@ -39,39 +48,53 @@ export class UserService {
   }
 
   async getProfile(userId: string): Promise<User> {
-    const user = await this.userModel.findById(userId)
-      .populate('interests')
-      .populate('registeredEvents')
-      .select('-password');  
-      
+    const user = await this.userModel
+      .findById(userId)
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description'
+      })
+      .populate({
+        path: 'registeredEvents',
+        select: 'title description startDate endDate location poster'
+      })
+      .populate({
+        path: 'createdEvents',
+        select: 'title description startDate endDate location poster'
+      })
+      .select('-password')
+      .exec();
+  
     if (!user) {
       throw new NotFoundException('User not found');
     }
   
     return user;
   }
-
-  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto): Promise<User> {
+  
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<User> {
     const user = await this.userModel
-      .findByIdAndUpdate(
-        userId,
-        updateProfileDto,
-        { new: true }
-      )
+      .findByIdAndUpdate(userId, updateProfileDto, { new: true })
       .populate('interests')
       .populate('registeredEvents')
       .select('-password');
-  
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
+
     return user;
   }
 
   async findAllParticipants(loggedUserId: string): Promise<User[]> {
-    const users = await this.userModel.find({ role: 'participant' ,
-      _id: { $ne: loggedUserId }});
+    const users = await this.userModel.find({
+      role: 'participant',
+      _id: { $ne: loggedUserId },
+    });
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
@@ -79,8 +102,10 @@ export class UserService {
   }
 
   async findAllOrganizers(loggedUserId: string): Promise<User[]> {
-    const users = await this.userModel.find({ role: 'organizer' ,
-      _id: { $ne: loggedUserId }});
+    const users = await this.userModel.find({
+      role: 'organizer',
+      _id: { $ne: loggedUserId },
+    });
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
@@ -92,12 +117,12 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
-    await this.userModel.findByIdAndUpdate(loggedUserId, { 
+
+    await this.userModel.findByIdAndUpdate(loggedUserId, {
       isArchived: true,
-      email: `archived_${user.email}` 
+      email: `archived_${user.email}`,
     });
-  
+
     return { message: 'Profile archived successfully' };
   }
 }
