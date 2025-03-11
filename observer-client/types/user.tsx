@@ -1,3 +1,6 @@
+import { Event } from "./event";
+import { Interest } from "./interest";
+
 export type User = {
   id: number;
   firstName: string;
@@ -5,9 +8,12 @@ export type User = {
   email: string;
   password: string;
   city: number;
-  role: string;
+  role: 'admin' | 'organizer' | 'participant';
   isBanned: boolean;
-  profilePicture?: File;
+  // profilePicture?: File;
+  profilePicture: string | null;
   profileVerified: boolean;
-  interests: number[];
+  interests: Interest[];
+  registeredEvents: Event[];
+  createdEvents: Event[];
 };

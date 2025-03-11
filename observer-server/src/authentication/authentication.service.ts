@@ -55,7 +55,7 @@ export class AuthenticationService {
             if (!interest) {
               throw new BadRequestException(`Interest ${interestId} not found`);
             }
-            return interest._id;
+            return interest._id.toString();
           } catch (error) {
             console.error('Error validating interest:', error);
             throw new BadRequestException(`Invalid interest ID: ${interestId}`);

@@ -20,6 +20,7 @@ export class AdminController {
     return this.adminService.unbanUser(id);
   }
 
+
   @Get('users/banned')
   getBannedUsers() {
     return this.adminService.getBannedUsers();
