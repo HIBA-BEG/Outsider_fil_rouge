@@ -17,6 +17,20 @@ const userService = {
     }
   },
 
+  async updateProfile(updatedData: Partial<User>): Promise<User> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.patch(`/user/profile`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
   async addInterests(userId: string, interests: string[]): Promise<User> {
     try {
       const response = await axiosInstance.patch(`/user/${userId}/interests/add`, {
@@ -41,14 +55,19 @@ const userService = {
 
   async deleteProfile(): Promise<{ message: string }> {
     try {
-      const response = await axiosInstance.delete(`/user/profile`);
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.delete(`/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
   },
 
-   handleError(error: any): Error {
+  handleError(error: any): Error {
     if (error.response) {
       return new Error(error.response.data.message || 'An error occurred');
     } else if (error.request) {
@@ -56,7 +75,7 @@ const userService = {
     } else {
       return new Error('Error setting up request');
     }
-  }
-}
+  },
+};
 
 export default userService;

@@ -13,6 +13,9 @@ import { useTheme } from '../context/ThemeContext';
 import { ActivityIndicator } from 'react-native';
 import { User } from '../types/user';
 import userService from './(services)/userApi';
+import UpdateProfile from '../components/ui/UpdateProfile';
+import CustomAlert from '../components/ui/CustomAlert';
+import { useRouter } from 'expo-router';
 
 const Profile = () => {
   const { isDarkMode } = useTheme();
@@ -20,6 +23,14 @@ const Profile = () => {
   const [screenHeight, setScreenHeight] = useState(Dimensions.get('window').height);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+  
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const router = useRouter();
 
   useEffect(() => {
     loadUserProfile();
@@ -28,12 +39,13 @@ const Profile = () => {
   const loadUserProfile = async () => {
     try {
       const userData = await userService.getProfile();
-      console.log('User Data:', userData); 
-    console.log('Interests:', userData.interests); 
+      // console.log('User Data:', userData); 
+    // console.log('Interests:', userData.interests); 
       setUser(userData);
     } catch (error) {
       console.error('Error loading profile:', error);
-      // i'll handle the error later
+      setErrorMessage('Error loading profile. Please try again.');
+      setShowErrorAlert(true);
     } finally {
       setLoading(false);
     }
@@ -52,6 +64,22 @@ const Profile = () => {
   const headerHeight = screenHeight * 0.35;
   const profileImageSize = screenWidth * 0.22 > 100 ? screenWidth * 0.22 : 100;
   const profileImageTop = headerHeight - profileImageSize / 2;
+
+  const handleUpdateProfile = async (updatedData: Partial<User>) => {
+    try {
+      const updatedUser = await userService.updateProfile(updatedData);
+      setUser(updatedUser);
+      setIsUpdateModalVisible(false);
+      setTimeout(() => {
+        setSuccessMessage('Profile updated successfully');
+        setShowSuccessAlert(true);
+      }, 300);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setErrorMessage('Failed to update profile. Please try again.');
+      setShowErrorAlert(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -112,6 +140,7 @@ const Profile = () => {
 
             <View className="mt-4 flex-row flex-wrap justify-between">
               <TouchableOpacity
+                onPress={() => setIsUpdateModalVisible(true)}
                 className={`mb-2 rounded-full ${
                   isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                 } p-3`}
@@ -202,6 +231,14 @@ const Profile = () => {
           )}
         </ScrollView>
       </View>
+      {user && (
+        <UpdateProfile
+          isVisible={isUpdateModalVisible}
+          onClose={() => setIsUpdateModalVisible(false)}
+          user={user}
+          onUpdate={handleUpdateProfile}
+        />
+      )}
     </SafeAreaView>
   );
 };
