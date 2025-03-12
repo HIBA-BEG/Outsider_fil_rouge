@@ -298,7 +298,7 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
                 </View>
               </View>
 
-              <View className="mt-6 flex-row justify-end space-x-3">
+              <View className="mt-6 flex-row justify-end gap-3">
                 <TouchableOpacity
                   onPress={onClose}
                   className={`rounded-full border px-6 py-2 ${

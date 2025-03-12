@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import Interests from '../components/ui/Interests';
 import eventService from './(services)/eventApi';
 import { Event } from '../types/event';
+import EventDetailsModal from '../components/ui/EventDetails';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
@@ -27,6 +28,9 @@ export default function Index() {
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInterest, setSelectedInterest] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -35,7 +39,7 @@ export default function Index() {
 
   useEffect(() => {
     filterEvents();
-  }, [selectedInterest, events]);
+  }, [selectedInterest, events, searchQuery]);
 
   const handleProfilePress = async () => {
     const token = await AsyncStorage.getItem('authToken');
@@ -66,18 +70,33 @@ export default function Index() {
   };
 
   const filterEvents = () => {
-    if (selectedInterest === 'all') {
-      setFilteredEvents(events);
-    } else {
-      const filtered = events.filter(
-        (event) => event.interests && event.interests._id === selectedInterest
+    let filtered = events;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(event => 
+        (event.title?.toLowerCase() || '').includes(query) ||
+        (event.organizer?.firstName?.toLowerCase() || '').includes(query) ||
+        (event.organizer?.lastName?.toLowerCase() || '').includes(query)
       );
-      setFilteredEvents(filtered);
     }
+
+    if (selectedInterest !== 'all') {
+      filtered = filtered.filter(event => 
+        event.interests && event.interests._id === selectedInterest
+      );
+    }
+
+    setFilteredEvents(filtered);
   };
 
   const handleInterestSelect = (interestId: string) => {
     setSelectedInterest(interestId);
+  };
+
+  const handleEventPress = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalVisible(true);
   };
 
   return (
@@ -91,7 +110,7 @@ export default function Index() {
               className="h-10 w-10 rounded-full"
             />
           </TouchableOpacity>
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-2">
             <Text className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
               {user?.firstName} {user?.lastName}
             </Text>
@@ -106,17 +125,19 @@ export default function Index() {
         </View>
 
         <ScrollView>
-          <View className="mt-4 flex-row ">
-            {/* <Feather name="search" size={20} color="#666" /> */}
+          <View className="mt-4">
             <TextInput
-              placeholder="Search artist"
-              placeholderTextColor="#fff"
-              className={`w-full rounded-full px-4 py-3 text-white ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}
+              placeholder="Search events, or organizers"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              className={`rounded-full px-4 py-3 ${
+                isDarkMode 
+                  ? 'bg-primary-light/30 text-white' 
+                  : 'bg-primary-dark/10 text-primary-dark'
+              }`}
             />
           </View>
           <Interests onSelectInterest={handleInterestSelect} selectedInterest={selectedInterest} />
-          {/* <TopEvents />
-          <AllEvents /> */}
 
           <View className="mt-6">
             <View className="flex-row items-center justify-between">
@@ -133,6 +154,7 @@ export default function Index() {
               {filteredEvents.slice(0, 4).map((event) => (
                 <TouchableOpacity
                   key={event._id}
+                  onPress={() => handleEventPress(event)}
                   className={`mr-4 flex w-40 items-center rounded-2xl p-2 backdrop-blur-sm ${
                     isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'
                   }`}>
@@ -166,6 +188,7 @@ export default function Index() {
                 filteredEvents.map((event) => (
                   <TouchableOpacity
                     key={event._id}
+                    onPress={() => handleEventPress(event)}
                     className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${
                       isDarkMode ? 'bg-white/30' : 'bg-black/80'
                     }`}>
@@ -186,10 +209,18 @@ export default function Index() {
               )}
             </View>
           </View>
+
+          
         </ScrollView>
 
         <BottomNavigation />
       </SafeAreaView>
+
+      <EventDetailsModal
+        visible={isModalVisible}
+        event={selectedEvent}
+        onClose={() => setIsModalVisible(false)}
+      />
     </View>
   );
 }

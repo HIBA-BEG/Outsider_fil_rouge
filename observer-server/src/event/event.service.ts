@@ -96,7 +96,11 @@ export class EventService {
       .find({ isArchived: false })
       .populate('organizer', 'firstName lastName email')
       .populate('interests', 'category description')
-      .exec();
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      });     
   }
 
   async findOne(id: string): Promise<Event> {
@@ -104,8 +108,11 @@ export class EventService {
       .findById(id, { isArchived: false })
       .populate('organizer', 'firstName lastName email')
       .populate('interests', 'category description')
-      .exec();
-
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      });
     if (!event) {
       throw new NotFoundException(`Event #${id} not found`);
     }

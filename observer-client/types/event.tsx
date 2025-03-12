@@ -1,4 +1,6 @@
+import { City } from "./city";
 import { Interest } from "./interest";
+import { User } from "./user";
 
 export interface Event {
   _id: string;
@@ -7,7 +9,7 @@ export interface Event {
   startDate: Date;
   endDate: Date;
   location: string;
-  city: string;
+  city: City;
   poster: string;
   maxParticipants: number;
   price: number;
@@ -17,7 +19,7 @@ export interface Event {
   status: string;
   createdAt: Date;
   registeredUsers: string[];
-  // organizer: string;
+  organizer: User;
 }
 
 export enum EventStatus {
