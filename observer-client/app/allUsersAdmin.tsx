@@ -179,11 +179,11 @@ export default function AllUsersAdmin() {
             </Text>
           </View>
 
-          <View className="space-y-4">
+          <View className="gap-4">
             {users.map((user) => (
               <TouchableOpacity
                 key={user._id}
-                className={`rounded-2xl p-4 mb-4 ${
+                className={`rounded-2xl p-4 ${
                   isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                 }`}
               >

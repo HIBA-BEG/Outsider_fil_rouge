@@ -49,7 +49,7 @@ const CustomAlert = ({ visible, title, message, buttons }: CustomAlertProps) => 
           >
             {message}
           </Text>
-          <View className="flex-row justify-end space-x-4">
+          <View className="flex-row justify-end gap-4">
             {buttons.map((button, index) => (
               <TouchableOpacity
                 key={index}

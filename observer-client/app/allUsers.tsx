@@ -29,7 +29,6 @@ export default function AllUsers() {
   const [activeTab, setActiveTab] = useState<'all' | 'organizers' | 'participants' | 'suggestions'>(
     'suggestions'
   );
-  const [selectedInterest, setSelectedInterest] = useState('all');
 
   const fetchUsers = async () => {
     try {
@@ -78,11 +77,6 @@ export default function AllUsers() {
     }
   };
 
-  const handleInterestSelect = (interestId: string) => {
-    setSelectedInterest(interestId);
-    // You can add additional filtering logic here if needed
-  };
-
   useEffect(() => {
     // console.log('Tab changed to:', activeTab);
     fetchUsers();
@@ -120,11 +114,6 @@ export default function AllUsers() {
               Discover People
             </Text>
 
-            <Interests 
-              onSelectInterest={handleInterestSelect}
-              selectedInterest={selectedInterest}
-            />
-
             <View className="mb-2 mt-4 flex-row rounded-full bg-white/5 p-1">
               <TabButton title="Suggestions" tab="suggestions" />
               <TabButton title="All" tab="all" />
@@ -133,11 +122,11 @@ export default function AllUsers() {
             </View>
           </View>
 
-          <View className="space-y-4">
+          <View className="gap-4">
             {users.map((user) => (
               <TouchableOpacity
                 key={user._id}
-                className={`mb-4 rounded-2xl p-4 ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
+                className={`rounded-2xl p-4 ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
                 <View className="flex-row items-center">
                   <Image
                     source={require('../assets/event4.jpg')}

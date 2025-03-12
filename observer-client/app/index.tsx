@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import Interests from '../components/ui/Interests';
 import eventService from './(services)/eventApi';
 import { Event } from '../types/event';
+import EventDetailsModal from '../components/ui/EventDetails';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
@@ -28,6 +29,8 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInterest, setSelectedInterest] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -91,6 +94,11 @@ export default function Index() {
     setSelectedInterest(interestId);
   };
 
+  const handleEventPress = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalVisible(true);
+  };
+
   return (
     <View className={`flex-1 px-4 ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
       <SafeAreaView className="flex-1">
@@ -102,7 +110,7 @@ export default function Index() {
               className="h-10 w-10 rounded-full"
             />
           </TouchableOpacity>
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-2">
             <Text className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
               {user?.firstName} {user?.lastName}
             </Text>
@@ -146,6 +154,7 @@ export default function Index() {
               {filteredEvents.slice(0, 4).map((event) => (
                 <TouchableOpacity
                   key={event._id}
+                  onPress={() => handleEventPress(event)}
                   className={`mr-4 flex w-40 items-center rounded-2xl p-2 backdrop-blur-sm ${
                     isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'
                   }`}>
@@ -179,6 +188,7 @@ export default function Index() {
                 filteredEvents.map((event) => (
                   <TouchableOpacity
                     key={event._id}
+                    onPress={() => handleEventPress(event)}
                     className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${
                       isDarkMode ? 'bg-white/30' : 'bg-black/80'
                     }`}>
@@ -205,6 +215,12 @@ export default function Index() {
 
         <BottomNavigation />
       </SafeAreaView>
+
+      <EventDetailsModal
+        visible={isModalVisible}
+        event={selectedEvent}
+        onClose={() => setIsModalVisible(false)}
+      />
     </View>
   );
 }
