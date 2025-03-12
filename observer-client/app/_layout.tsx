@@ -23,6 +23,7 @@ export default function RootLayout() {
           <Stack.Screen name="profile" options={{ headerShown: false }} />
           <Stack.Screen name="myEvents" options={{ headerShown: false }} />
           <Stack.Screen name="allUsers" options={{ headerShown: false }} />
+          <Stack.Screen name="allUsersAdmin" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

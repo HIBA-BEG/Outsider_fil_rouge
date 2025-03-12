@@ -4,7 +4,6 @@ import {
   Text,
   SafeAreaView,
   ScrollView,
-  ActivityIndicator,
   TouchableOpacity,
   Image,
   RefreshControl,
@@ -15,7 +14,6 @@ import { User } from '../types/user';
 import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
-import adminService from './(services)/adminApi';
 
 export default function AllUsers() {
   const { isDarkMode } = useTheme();
@@ -25,29 +23,32 @@ export default function AllUsers() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showBanAlert, setShowBanAlert] = useState(false);
-  const [userToBan, setUserToBan] = useState<User | null>(null);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'banned' | 'archived'>('all');
-  const [showUnbanAlert, setShowUnbanAlert] = useState(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'organizers' | 'participants' | 'suggestions'>(
+    'suggestions'
+  );
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       let fetchedUsers;
-      
+
       switch (activeTab) {
-        case 'banned':
-          fetchedUsers = await userService.bannedUsers();
+        case 'organizers':
+          fetchedUsers = await userService.findAllOrganizers();
           break;
-        case 'archived':
-          fetchedUsers = await userService.archivedUsers();
+        case 'participants':
+          fetchedUsers = await userService.findAllParticipants();
+          break;
+        case 'all':
+          fetchedUsers = await userService.allUsers();
           break;
         default:
-          fetchedUsers = await userService.allUsers();
+          fetchedUsers = await userService.suggestedUsers(currentUser?._id || '');
+        //   console.log('Fetched suggested users:', fetchedUsers);
       }
-      
+
       setUsers(fetchedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -64,49 +65,19 @@ export default function AllUsers() {
     fetchUsers();
   };
 
-  const handleBanUser = async (user: User) => {
-    setUserToBan(user);
-    setShowBanAlert(true);
-  };
-
-  const handleUnbanUser = async (user: User) => {
-    setUserToBan(user);
-    setShowUnbanAlert(true);
-  };
-
-  const confirmBanUser = async () => {
-    if (!userToBan) return;
-    
+  const handleAddFriend = async (userId: string) => {
     try {
-      await adminService.banUser(userToBan._id);
-      setShowBanAlert(false);
-      fetchUsers(); 
-      setSuccessMessage('User banned successfully');
-      setShowSuccessAlert(true);
+      // i'll handle the friend request later
+      // setSuccessMessage('Friend request sent successfully');
+      // setShowSuccessAlert(true);
     } catch (error) {
-      console.error('Error banning user:', error);
-      setErrorMessage('Failed to ban user. Please try again.');
-      setShowErrorAlert(true);
-    }
-  };
-
-  const confirmUnbanUser = async () => {
-    if (!userToBan) return;
-    
-    try {
-      await adminService.unbanUser(userToBan._id);
-      setShowUnbanAlert(false);
-      fetchUsers();
-      setSuccessMessage('User unbanned successfully');
-      setShowSuccessAlert(true);
-    } catch (error) {
-      console.error('Error unbanning user:', error);
-      setErrorMessage('Failed to unban user. Please try again.');
+      setErrorMessage('Failed to send friend request');
       setShowErrorAlert(true);
     }
   };
 
   useEffect(() => {
+    // console.log('Tab changed to:', activeTab);
     fetchUsers();
   }, [activeTab]);
 
@@ -114,34 +85,20 @@ export default function AllUsers() {
     <TouchableOpacity
       onPress={() => setActiveTab(tab)}
       className={`flex-1 rounded-full px-4 py-2 ${
-        activeTab === tab
-          ? isDarkMode
-            ? 'bg-white/20'
-            : 'bg-primary-dark'
-          : 'bg-transparent'
-      }`}
-    >
+        activeTab === tab ? (isDarkMode ? 'bg-white/20' : 'bg-primary-dark') : 'bg-transparent'
+      }`}>
       <Text
         className={`text-center ${
           activeTab === tab
-            ? 'text-white font-semibold'
+            ? 'font-semibold text-white'
             : isDarkMode
-            ? 'text-white/60'
-            : 'text-primary-dark/60'
-        }`}
-      >
+              ? 'text-white/60'
+              : 'text-primary-dark/60'
+        }`}>
         {title}
       </Text>
     </TouchableOpacity>
   );
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={isDarkMode ? '#fff' : '#000'} />
-      </View>
-    );
-  }
 
   return (
     <>
@@ -149,47 +106,29 @@ export default function AllUsers() {
         <ScrollView
           className="flex-1 px-4"
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-          }
-        >
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}>
           <View className="py-4">
             <Text
-              className={`text-2xl font-bold ${
-                isDarkMode ? 'text-white' : 'text-primary-dark'
-              }`}
-            >
-              Users Management
+              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+              Discover People
             </Text>
-            
-            <View className="flex-row space-x-2 mt-4 mb-2 p-1 rounded-full bg-white/5">
-              <TabButton title="All Users" tab="all" />
-              <TabButton title="Banned" tab="banned" />
-              <TabButton title="Archived" tab="archived" />
-            </View>
 
-            <Text
-              className={`mt-2 ${
-                isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-              }`}
-            >
-              {activeTab === 'all' && 'All active users in the community'}
-              {activeTab === 'banned' && 'Users who have been banned'}
-              {activeTab === 'archived' && 'Users who have deleted their accounts'}
-            </Text>
+            <View className="mb-2 mt-4 flex-row rounded-full bg-white/5 p-1">
+              <TabButton title="Suggestions" tab="suggestions" />
+              <TabButton title="All" tab="all" />
+              <TabButton title="Organizers" tab="organizers" />
+              <TabButton title="Participants" tab="participants" />
+            </View>
           </View>
 
           <View className="space-y-4">
             {users.map((user) => (
               <TouchableOpacity
                 key={user._id}
-                className={`rounded-2xl p-4 mb-4 ${
-                  isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
-                }`}
-              >
+                className={`mb-4 rounded-2xl p-4 ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
                 <View className="flex-row items-center">
                   <Image
-                    source={ require('../assets/event4.jpg')}
+                    source={require('../assets/event4.jpg')}
                     // source={
                     //   user.profilePicture
                     //     ? { uri: user.profilePicture }
@@ -203,77 +142,50 @@ export default function AllUsers() {
                         <Text
                           className={`text-lg font-semibold ${
                             isDarkMode ? 'text-white' : 'text-primary-dark'
-                          }`}
-                        >
+                          }`}>
                           {user.firstName} {user.lastName}
                         </Text>
                         {user.role === 'organizer' && (
-                          <View 
+                          <View
                             className={`ml-2 rounded-full px-2 py-0.5 ${
                               isDarkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'
-                            }`}
-                          >
-                            <Text 
+                            }`}>
+                            <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-purple-300' : 'text-purple-600'
-                              }`}
-                            >
+                              }`}>
                               Organizer
                             </Text>
                           </View>
                         )}
                         {user.role === 'participant' && (
-                          <View 
+                          <View
                             className={`ml-2 rounded-full px-2 py-0.5 ${
                               isDarkMode ? 'bg-green-500/20' : 'bg-green-500/10'
-                            }`}
-                          >
-                            <Text 
+                            }`}>
+                            <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-green-300' : 'text-green-600'
-                              }`}
-                            >
+                              }`}>
                               Participant
                             </Text>
                           </View>
                         )}
                       </View>
-                      {currentUser?.role === 'admin' && !user.isArchived && (
-                        user.isBanned ? (
-                          <TouchableOpacity
-                            onPress={() => handleUnbanUser(user)}
-                            className={`rounded-full p-2 ${
-                              isDarkMode ? 'bg-blue-600/20' : 'bg-blue-600/10'
-                            }`}
-                          >
-                            <Feather 
-                              name="user-check" 
-                              size={18} 
-                              color={isDarkMode ? '#3b82f6' : '#2563eb'} 
-                            />
-                          </TouchableOpacity>
-                        ) : (
-                          <TouchableOpacity
-                            onPress={() => handleBanUser(user)}
-                            className={`rounded-full p-2 ${
-                              isDarkMode ? 'bg-red-500/20' : 'bg-red-500/10'
-                            }`}
-                          >
-                            <Feather 
-                              name="slash" 
-                              size={18} 
-                              color={isDarkMode ? '#ef4444' : '#dc2626'} 
-                            />
-                          </TouchableOpacity>
-                        )
-                      )}
+                      <TouchableOpacity
+                        onPress={() => handleAddFriend(user._id)}
+                        className={`rounded-full p-2 ${
+                          isDarkMode ? 'bg-blue-500/20' : 'bg-blue-500/10'
+                        }`}>
+                        <Feather
+                          name="user-plus"
+                          size={18}
+                          color={isDarkMode ? '#3b82f6' : '#2563eb'}
+                        />
+                      </TouchableOpacity>
                     </View>
                     {user.city && (
-                      <Text
-                        className={`${
-                          isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                        }`}
-                      >
+                      <Text className={`${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
                         📍 {user.city.name}
                       </Text>
                     )}
@@ -284,13 +196,11 @@ export default function AllUsers() {
                             key={interest._id}
                             className={`mr-2 mt-1 rounded-full px-2 py-1 ${
                               isDarkMode ? 'bg-white/20' : 'bg-primary-dark/20'
-                            }`}
-                          >
+                            }`}>
                             <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-white' : 'text-primary-dark'
-                              }`}
-                            >
+                              }`}>
                               {interest.category}
                             </Text>
                           </View>
@@ -299,8 +209,7 @@ export default function AllUsers() {
                           <Text
                             className={`mt-1 text-xs ${
                               isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                            }`}
-                          >
+                            }`}>
                             +{user.interests.length - 3} more
                           </Text>
                         )}
@@ -314,11 +223,8 @@ export default function AllUsers() {
             {users.length === 0 && (
               <View className="mt-4 items-center">
                 <Text
-                  className={`text-lg ${
-                    isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                  }`}
-                >
-                  No users found in this category
+                  className={`text-lg ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                  No users found
                 </Text>
               </View>
             )}
@@ -327,63 +233,28 @@ export default function AllUsers() {
       </SafeAreaView>
 
       <CustomAlert
-        visible={showBanAlert}
-        title="Ban User"
-        message={`Are you sure you want to ban ${userToBan?.firstName} ${userToBan?.lastName}? This action cannot be undone.`}
-        buttons={[
-          {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => setShowBanAlert(false)
-          },
-          {
-            text: "Ban",
-            style: "destructive",
-            onPress: confirmBanUser
-          }
-        ]}
-      />
-
-      <CustomAlert
-        visible={showUnbanAlert}
-        title="Unban User"
-        message={`Are you sure you want to unban ${userToBan?.firstName} ${userToBan?.lastName}?`}
-        buttons={[
-          {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => setShowUnbanAlert(false)
-          },
-          {
-            text: "Unban",
-            onPress: confirmUnbanUser
-          }
-        ]}
-      />
-
-      <CustomAlert
         visible={showErrorAlert}
         title="Error"
         message={errorMessage}
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowErrorAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowErrorAlert(false),
+          },
         ]}
       />
 
       <CustomAlert
-        visible={showSuccessAlert}
-        title="Success"
-        message={successMessage}
-        buttons={[
-          {
-            text: "OK",
-            onPress: () => setShowSuccessAlert(false)
-          }
-        ]}
-      />
+          visible={showSuccessAlert}
+          title="Success"
+          message={successMessage}
+          buttons={[
+            {
+              text: "OK",
+              onPress: () => setShowSuccessAlert(false)
+            }
+          ]}
+        />
     </>
   );
 }

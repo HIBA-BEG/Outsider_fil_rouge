@@ -16,9 +16,14 @@ export default function BottomNavigation() {
     router.push('/');
   };
 
+  const handleAllUsersAdmin = () => {
+    router.push('/allUsersAdmin');
+  };
+  
   const handleAllUsers = () => {
     router.push('/allUsers');
   };
+
 
 
   return (
@@ -30,10 +35,22 @@ export default function BottomNavigation() {
           {/* <Text className="text-gray-400">Home</Text> */}
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleAllUsers}>
-          <FontAwesome6 name="users" color="text-black" size={24} style={{ textAlign: 'center' }} />
-          {/* <Text className="text-gray-400">All Users</Text> */}
-        </TouchableOpacity>
+        {
+          user?.role === 'admin' && (
+            <TouchableOpacity onPress={handleAllUsersAdmin}>
+              <FontAwesome6 name="users" color="text-black" size={24} style={{ textAlign: 'center' }} />
+              {/* <Text className="text-gray-400">All Users</Text> */}
+            </TouchableOpacity>
+          )
+        }
+        {
+          (user?.role === 'organizer' || user?.role === 'participant') && (
+            <TouchableOpacity onPress={handleAllUsers}>
+              <FontAwesome6 name="users" color="text-black" size={24} style={{ textAlign: 'center' }} />
+              {/* <Text className="text-gray-400">All Users</Text> */}
+            </TouchableOpacity>
+          )
+        }
         {
           user?.role === 'organizer' && (
             <TouchableOpacity onPress={handleMyEvents}>

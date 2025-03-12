@@ -107,6 +107,43 @@ const userService = {
     return response.data;
   },
 
+  async findAllParticipants(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/participants', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async findAllOrganizers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/organizers', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async suggestedUsers(userId: string): Promise<User[]> {
+    try {
+      // console.log('Calling suggested users API for userId:', userId);
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get(`/user/suggested`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log('Suggested users response:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('Error in suggestedUsers:', error);
+      throw error;
+    }
+  },
 };
 
 export default userService;

@@ -91,10 +91,21 @@ export class UserService {
   }
 
   async findAllParticipants(loggedUserId: string): Promise<User[]> {
-    const users = await this.userModel.find({
-      role: 'participant',
-      _id: { $ne: loggedUserId },
-    });
+    const users = await this.userModel
+      .find({
+        role: 'participant',
+        _id: { $ne: loggedUserId },
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      });
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
@@ -102,10 +113,21 @@ export class UserService {
   }
 
   async findAllOrganizers(loggedUserId: string): Promise<User[]> {
-    const users = await this.userModel.find({
-      role: 'organizer',
-      _id: { $ne: loggedUserId },
-    });
+    const users = await this.userModel
+      .find({
+        role: 'organizer',
+        _id: { $ne: loggedUserId },
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      });
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
@@ -184,6 +206,39 @@ export class UserService {
     if (!users) {
       throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
     }
+    return users;
+  }
+
+  async suggestedUsers(loggedUserId: string): Promise<User[]> {
+    const loggedUser = await this.userModel.findById(loggedUserId);
+    if (!loggedUser || !loggedUser.city || !loggedUser.interests) {
+      return [];
+    }
+    const users = await this.userModel
+      .find({
+        _id: { $ne: loggedUserId },
+        city: loggedUser.city,
+        interests: { $in: loggedUser.interests },
+        isArchived: false,
+        isBanned: false,
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      });
+
+    // console.log('Found Users:', users.length);
+    // console.log('Query Criteria:', {
+    //   notId: loggedUserId,
+    //   city: loggedUser.city,
+    //   interests: loggedUser.interests
+    // });
     return users;
   }
 }

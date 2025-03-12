@@ -70,4 +70,9 @@ export class UserController {
   bannedUsers() {
     return this.userService.bannedUsers();
   }
+
+  @Get('suggested')
+  suggestedUsers(@Request() req) {
+    return this.userService.suggestedUsers(req.user.id);
+  }
 }
