@@ -139,7 +139,7 @@ export class AuthenticationService {
         role: user.role,
       };
 
-      console.log('Login payload:', payload);
+      // console.log('Login payload:', payload);
 
       const token = this.jwtService.sign(payload);
 
