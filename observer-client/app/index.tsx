@@ -27,6 +27,7 @@ export default function Index() {
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInterest, setSelectedInterest] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchEvents();
@@ -35,7 +36,7 @@ export default function Index() {
 
   useEffect(() => {
     filterEvents();
-  }, [selectedInterest, events]);
+  }, [selectedInterest, events, searchQuery]);
 
   const handleProfilePress = async () => {
     const token = await AsyncStorage.getItem('authToken');
@@ -66,14 +67,24 @@ export default function Index() {
   };
 
   const filterEvents = () => {
-    if (selectedInterest === 'all') {
-      setFilteredEvents(events);
-    } else {
-      const filtered = events.filter(
-        (event) => event.interests && event.interests._id === selectedInterest
+    let filtered = events;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(event => 
+        (event.title?.toLowerCase() || '').includes(query) ||
+        (event.organizer?.firstName?.toLowerCase() || '').includes(query) ||
+        (event.organizer?.lastName?.toLowerCase() || '').includes(query)
       );
-      setFilteredEvents(filtered);
     }
+
+    if (selectedInterest !== 'all') {
+      filtered = filtered.filter(event => 
+        event.interests && event.interests._id === selectedInterest
+      );
+    }
+
+    setFilteredEvents(filtered);
   };
 
   const handleInterestSelect = (interestId: string) => {
@@ -106,17 +117,19 @@ export default function Index() {
         </View>
 
         <ScrollView>
-          <View className="mt-4 flex-row ">
-            {/* <Feather name="search" size={20} color="#666" /> */}
+          <View className="mt-4">
             <TextInput
-              placeholder="Search artist"
-              placeholderTextColor="#fff"
-              className={`w-full rounded-full px-4 py-3 text-white ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}
+              placeholder="Search events, or organizers"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              className={`rounded-full px-4 py-3 ${
+                isDarkMode 
+                  ? 'bg-primary-light/30 text-white' 
+                  : 'bg-primary-dark/10 text-primary-dark'
+              }`}
             />
           </View>
           <Interests onSelectInterest={handleInterestSelect} selectedInterest={selectedInterest} />
-          {/* <TopEvents />
-          <AllEvents /> */}
 
           <View className="mt-6">
             <View className="flex-row items-center justify-between">
@@ -186,6 +199,8 @@ export default function Index() {
               )}
             </View>
           </View>
+
+          
         </ScrollView>
 
         <BottomNavigation />
