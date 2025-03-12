@@ -37,13 +37,12 @@ export class EventController {
       city: req.body.city?.value,
       maxParticipants: parseInt(req.body.maxParticipants?.value),
       price: parseFloat(req.body.price?.value),
-      interests: req.body.interests?.value,
+      interests: req.body.interests?.value?.split(',') || [],
       isPublic: req.body.isPublic?.value === 'true'
     };
 
     const processedFiles: FileUpload[] = [];
 
-    // Handle multiple poster files
     if (Array.isArray(req.body.poster)) {
       for (const file of req.body.poster) {
         if (file.type === 'file') {

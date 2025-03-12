@@ -1,3 +1,5 @@
+import { Interest } from "./interest";
+
 export interface Event {
   _id: string;
   title: string;
@@ -9,7 +11,7 @@ export interface Event {
   poster: string;
   maxParticipants: number;
   price: number;
-  interests: string[];
+  interests: Interest[];
   isPublic: boolean;
   isArchived: boolean;
   status: string;

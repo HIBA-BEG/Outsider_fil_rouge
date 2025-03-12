@@ -14,6 +14,7 @@ import { User } from '../types/user';
 import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
+import Interests from '../components/ui/Interests';
 
 export default function AllUsers() {
   const { isDarkMode } = useTheme();
@@ -28,6 +29,7 @@ export default function AllUsers() {
   const [activeTab, setActiveTab] = useState<'all' | 'organizers' | 'participants' | 'suggestions'>(
     'suggestions'
   );
+  const [selectedInterest, setSelectedInterest] = useState('all');
 
   const fetchUsers = async () => {
     try {
@@ -76,6 +78,11 @@ export default function AllUsers() {
     }
   };
 
+  const handleInterestSelect = (interestId: string) => {
+    setSelectedInterest(interestId);
+    // You can add additional filtering logic here if needed
+  };
+
   useEffect(() => {
     // console.log('Tab changed to:', activeTab);
     fetchUsers();
@@ -112,6 +119,11 @@ export default function AllUsers() {
               className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
               Discover People
             </Text>
+
+            <Interests 
+              onSelectInterest={handleInterestSelect}
+              selectedInterest={selectedInterest}
+            />
 
             <View className="mb-2 mt-4 flex-row rounded-full bg-white/5 p-1">
               <TabButton title="Suggestions" tab="suggestions" />

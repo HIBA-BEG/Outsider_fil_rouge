@@ -1,6 +1,6 @@
 import axiosInstance from './axiosInstance';
 
-import { Interest } from '~/types/interest';
+import { Interest } from '../../types/interest';
 
 const interestService = {
   async getAllInterests(): Promise<Interest[]> {
