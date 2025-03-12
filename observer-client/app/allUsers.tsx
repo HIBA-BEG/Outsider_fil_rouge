@@ -30,6 +30,7 @@ export default function AllUsers() {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'banned' | 'archived'>('all');
+  const [showUnbanAlert, setShowUnbanAlert] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -68,6 +69,11 @@ export default function AllUsers() {
     setShowBanAlert(true);
   };
 
+  const handleUnbanUser = async (user: User) => {
+    setUserToBan(user);
+    setShowUnbanAlert(true);
+  };
+
   const confirmBanUser = async () => {
     if (!userToBan) return;
     
@@ -80,6 +86,22 @@ export default function AllUsers() {
     } catch (error) {
       console.error('Error banning user:', error);
       setErrorMessage('Failed to ban user. Please try again.');
+      setShowErrorAlert(true);
+    }
+  };
+
+  const confirmUnbanUser = async () => {
+    if (!userToBan) return;
+    
+    try {
+      await adminService.unbanUser(userToBan._id);
+      setShowUnbanAlert(false);
+      fetchUsers();
+      setSuccessMessage('User unbanned successfully');
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error('Error unbanning user:', error);
+      setErrorMessage('Failed to unban user. Please try again.');
       setShowErrorAlert(true);
     }
   };
@@ -216,19 +238,34 @@ export default function AllUsers() {
                           </View>
                         )}
                       </View>
-                      {currentUser?.role === 'admin' && (
-                        <TouchableOpacity
-                          onPress={() => handleBanUser(user)}
-                          className={`rounded-full p-2 ${
-                            isDarkMode ? 'bg-red-500/20' : 'bg-red-500/10'
-                          }`}
-                        >
-                          <Feather 
-                            name="slash" 
-                            size={18} 
-                            color={isDarkMode ? '#ef4444' : '#dc2626'} 
-                          />
-                        </TouchableOpacity>
+                      {currentUser?.role === 'admin' && !user.isArchived && (
+                        user.isBanned ? (
+                          <TouchableOpacity
+                            onPress={() => handleUnbanUser(user)}
+                            className={`rounded-full p-2 ${
+                              isDarkMode ? 'bg-blue-600/20' : 'bg-blue-600/10'
+                            }`}
+                          >
+                            <Feather 
+                              name="user-check" 
+                              size={18} 
+                              color={isDarkMode ? '#3b82f6' : '#2563eb'} 
+                            />
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={() => handleBanUser(user)}
+                            className={`rounded-full p-2 ${
+                              isDarkMode ? 'bg-red-500/20' : 'bg-red-500/10'
+                            }`}
+                          >
+                            <Feather 
+                              name="slash" 
+                              size={18} 
+                              color={isDarkMode ? '#ef4444' : '#dc2626'} 
+                            />
+                          </TouchableOpacity>
+                        )
                       )}
                     </View>
                     {user.city && (
@@ -303,6 +340,23 @@ export default function AllUsers() {
             text: "Ban",
             style: "destructive",
             onPress: confirmBanUser
+          }
+        ]}
+      />
+
+      <CustomAlert
+        visible={showUnbanAlert}
+        title="Unban User"
+        message={`Are you sure you want to unban ${userToBan?.firstName} ${userToBan?.lastName}?`}
+        buttons={[
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => setShowUnbanAlert(false)
+          },
+          {
+            text: "Unban",
+            onPress: confirmUnbanUser
           }
         ]}
       />

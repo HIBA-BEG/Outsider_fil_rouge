@@ -11,6 +11,7 @@ export type User = {
   city: City[];
   role: 'admin' | 'organizer' | 'participant';
   isBanned: boolean;
+  isArchived: boolean;
   // profilePicture?: File;
   profilePicture: string | null;
   profileVerified: boolean;
