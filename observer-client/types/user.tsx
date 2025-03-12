@@ -1,15 +1,17 @@
+import { City } from "./city";
 import { Event } from "./event";
 import { Interest } from "./interest";
 
 export type User = {
-  id: number;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  city: number;
+  city: City[];
   role: 'admin' | 'organizer' | 'participant';
   isBanned: boolean;
+  isArchived: boolean;
   // profilePicture?: File;
   profilePicture: string | null;
   profileVerified: boolean;

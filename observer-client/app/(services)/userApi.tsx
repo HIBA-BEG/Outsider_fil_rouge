@@ -76,6 +76,74 @@ const userService = {
       return new Error('Error setting up request');
     }
   },
+
+  async allUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/all', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async archivedUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/archived', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async bannedUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/banned', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async findAllParticipants(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/participants', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async findAllOrganizers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/organizers', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async suggestedUsers(userId: string): Promise<User[]> {
+    try {
+      // console.log('Calling suggested users API for userId:', userId);
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get(`/user/suggested`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log('Suggested users response:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('Error in suggestedUsers:', error);
+      throw error;
+    }
+  },
 };
 
 export default userService;

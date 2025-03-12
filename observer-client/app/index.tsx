@@ -12,10 +12,13 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import TopEvents from '../components/ui/TopEvents';
 import { useTheme } from '../context/ThemeContext';
 
-import AllEvents from '~/components/ui/AllEvents';
+import AllEvents from '../components/ui/AllEvents';
+import { useAuth } from '../context/AuthContext';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
+  const { logout} =useAuth();
 
   useEffect(() => {
     handleProfilePress();
@@ -32,9 +35,8 @@ export default function Index() {
 
   const handleLogout = async () => {
     await AuthApi.logout();
-    // await AsyncStorage.removeItem('authToken');
+    await logout();
     console.log('Logged out');
-    router.push('/');
   };
 
   return (
@@ -50,7 +52,7 @@ export default function Index() {
           </TouchableOpacity>
           <View className="flex-row items-center space-x-2">
             <Text className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              {/* {user?.firstName} */}
+              {user?.firstName} {user?.lastName}
             </Text>
           </View>
 

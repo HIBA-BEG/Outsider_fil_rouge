@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './entities/update-profile.dto';
+import { Roles } from 'src/authentication/decorators/roles.decorator';
+import { UserRole } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
@@ -50,5 +52,27 @@ export class UserController {
   @Delete('profile')
   deleteMyProfile(@Request() req) {
     return this.userService.deleteMyProfile(req.user.id);
+  }
+
+  @Get('all')
+  allUsers(@Request() req) {
+    return this.userService.allUsers(req.user.id);
+  }
+
+  @Get('archived')
+  @Roles(UserRole.ADMIN)
+  archivedUsers() {
+    return this.userService.archivedUsers();
+  }
+  
+  @Get('banned')
+  @Roles(UserRole.ADMIN)
+  bannedUsers() {
+    return this.userService.bannedUsers();
+  }
+
+  @Get('suggested')
+  suggestedUsers(@Request() req) {
+    return this.userService.suggestedUsers(req.user.id);
   }
 }
