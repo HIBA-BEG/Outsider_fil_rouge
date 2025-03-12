@@ -14,8 +14,6 @@ import { ActivityIndicator } from 'react-native';
 import { User } from '../types/user';
 import userService from './(services)/userApi';
 import UpdateProfile from '../components/ui/UpdateProfile';
-import CustomAlert from '../components/ui/CustomAlert';
-import { useRouter } from 'expo-router';
 
 const Profile = () => {
   const { isDarkMode } = useTheme();
@@ -30,7 +28,6 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const router = useRouter();
 
   useEffect(() => {
     loadUserProfile();

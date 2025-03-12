@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AuthApi from './(services)/authApi';
 
-import Illustration from '~/components/ui/Illustration';
+import Illustration from '../components/ui/Illustration';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +18,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const { login } = useAuth();
+
   const handleLogin = async () => {
     try {
       setLoading(true);
@@ -26,9 +29,12 @@ export default function Login() {
 
       // console.log('response f login', response);
 
-      await AsyncStorage.setItem('authToken', response.token);
+      // await AsyncStorage.setItem('authToken', response.token);
 
       AuthApi.setAuthToken(response.token);
+      
+      await login(response.token);
+
 
       // console.log('token f login', response.token);
 

@@ -76,6 +76,37 @@ const userService = {
       return new Error('Error setting up request');
     }
   },
+
+  async allUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/all', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async archivedUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/archived', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
+  async bannedUsers(): Promise<User[]> {
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await axiosInstance.get('/user/banned', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+
 };
 
 export default userService;

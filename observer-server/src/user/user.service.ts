@@ -53,26 +53,26 @@ export class UserService {
       .populate({
         path: 'interests',
         model: 'Interest',
-        select: 'category description'
+        select: 'category description',
       })
       .populate({
         path: 'registeredEvents',
-        select: 'title description startDate endDate location poster'
+        select: 'title description startDate endDate location poster',
       })
       .populate({
         path: 'createdEvents',
-        select: 'title description startDate endDate location poster'
+        select: 'title description startDate endDate location poster',
       })
       .select('-password')
       .exec();
-  
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
+
     return user;
   }
-  
+
   async updateProfile(
     userId: string,
     updateProfileDto: UpdateProfileDto,
@@ -120,9 +120,70 @@ export class UserService {
 
     await this.userModel.findByIdAndUpdate(loggedUserId, {
       isArchived: true,
-      email: `archived_${user.email}`,
     });
 
     return { message: 'Profile archived successfully' };
+  }
+
+  async allUsers(loggedUserId: string): Promise<User[]> {
+    const users = await this.userModel
+      .find({
+        isArchived: false,
+        isBanned: false,
+        _id: { $ne: loggedUserId },
+        role: { $ne: 'admin' },
+      })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      });
+    if (!users) {
+      throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
+    }
+    return users;
+  }
+
+  async archivedUsers(): Promise<User[]> {
+    const users = await this.userModel
+      .find({ isArchived: true })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      });
+    if (!users) {
+      throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
+    }
+    return users;
+  }
+
+  async bannedUsers(): Promise<User[]> {
+    const users = await this.userModel
+      .find({ isBanned: true })
+      .populate({
+        path: 'city',
+        model: 'City',
+        select: 'name admin_name',
+      })
+      .populate({
+        path: 'interests',
+        model: 'Interest',
+        select: 'category description',
+      });
+    if (!users) {
+      throw new HttpException('No Users Found', HttpStatus.NOT_FOUND);
+    }
+    return users;
   }
 }
