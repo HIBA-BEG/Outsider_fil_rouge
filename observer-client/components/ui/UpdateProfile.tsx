@@ -65,18 +65,21 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
   const handleInterestToggle = (interestId: string) => {
     setFormData((prev) => {
       const currentInterests = Array.isArray(prev.interests)
-        ? prev.interests.map((i) => (typeof i === 'string' ? i : i._id))
+        ? prev.interests
         : [];
-
-      if (currentInterests.includes(interestId)) {
+  
+      const isInterestSelected = currentInterests.some((i) => i._id === interestId);
+  
+      if (isInterestSelected) {
         return {
           ...prev,
-          interests: currentInterests.filter((id) => id !== interestId),
+          interests: currentInterests.filter((i) => i._id !== interestId),
         };
       } else {
+        const newInterest = interests.find((i) => i._id === interestId);
         return {
           ...prev,
-          interests: [...currentInterests, interestId],
+          interests: newInterest ? [...currentInterests, newInterest] : currentInterests,
         };
       }
     });
@@ -298,32 +301,16 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
                 </View>
               </View>
 
-              <View className="mt-6 flex-row justify-end gap-3">
-                <TouchableOpacity
-                  onPress={onClose}
-                  className={`rounded-full border px-6 py-2 ${
-                    isDarkMode 
-                      ? 'border-white/20' 
-                      : 'border-primary-dark/20'
-                  }`}>
-                  <Text 
-                    className={`${
-                      isDarkMode ? 'text-primary-light' : 'text-primary-dark'
-                    }`}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-
+              <View className="mt-10 flex-row justify-center gap-3">
                 <TouchableOpacity
                   onPress={handleUpdate}
                   disabled={loading}
-                  className={`rounded-full px-6 py-2 ${
-                    isDarkMode ? 'bg-white/20' : 'bg-primary-dark'
-                  }`}>
+                  className={`rounded-full border border-green-500 bg-green-500/10 px-6 py-2`}
+
+                  >
                   <Text 
-                    className={`${
-                      isDarkMode ? 'text-primary-light' : 'text-white'
-                    }`}>
+                    className="text-green-500"
+                    >
                     {loading ? 'Updating...' : 'Update'}
                   </Text>
                 </TouchableOpacity>
