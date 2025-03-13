@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { Event } from '../../types/event';
 
 import eventService from '~/app/(services)/eventApi';
+import { API_URL } from '~/config';
 
 export default function AllEvents() {
   const { isDarkMode } = useTheme();
@@ -51,7 +52,11 @@ export default function AllEvents() {
               className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${isDarkMode ? 'bg-white/30' : 'bg-black/80'}`}>
               <View className="h-32 w-full overflow-hidden rounded-2xl">
                 <Image
-                  source={require('../../assets/event1.jpg')}
+                  source={
+                    API_URL + event.poster
+                      ? { uri: API_URL + event.poster[0] }
+                      : require('../assets/event1.jpg')
+                  }
                   className="h-full w-full"
                   style={{ backgroundColor: '#4B0082' }}
                 />

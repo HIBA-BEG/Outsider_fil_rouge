@@ -17,6 +17,7 @@ import eventService from './(services)/eventApi';
 import UpdateProfile from '../components/ui/UpdateProfile';
 import { Event } from '../types/event';
 import { router } from 'expo-router';
+import { API_URL } from '../config';
 const Profile = () => {
   const { isDarkMode } = useTheme();
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -119,15 +120,20 @@ const Profile = () => {
     );
   }
 
+  // console.log(profilePictureUrl)
   return (
     <SafeAreaView className={`flex-1 ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
       <View className="relative flex-1">
         <Image
-          // source={user.profilePicture ? { uri: user.profilePicture } : require('../assets/event1.jpg')}
-          source={require('../assets/event1.jpg')}
+          source={
+            API_URL + user.profilePicture
+              ? { uri: API_URL + user.profilePicture }
+              : require('../assets/profile-icon.jpg')
+          }
           className="absolute left-0 top-0 w-full"
           style={{ height: headerHeight }}
           resizeMode="cover"
+          onError={(error) => console.log('Image load error:', error.nativeEvent)}
         />
 
         <View
@@ -139,8 +145,11 @@ const Profile = () => {
             height: profileImageSize,
           }}>
           <Image
-            // source={user.profilePicture ? { uri: user.profilePicture } : require('../assets/event3.jpg')}
-            source={require('../assets/event3.jpg')}
+            source={
+              API_URL + user.profilePicture
+                ? { uri: API_URL + user.profilePicture }
+                : require('../assets/profile-icon.jpg')
+            }
             className="h-full w-full"
             resizeMode="cover"
           />
@@ -265,7 +274,11 @@ const Profile = () => {
                     }`}>
                     <View className="h-32 w-full overflow-hidden rounded-2xl">
                       <Image
-                        source={require('../assets/event1.jpg')}
+                        source={
+                          API_URL + event.poster
+                            ? { uri: API_URL + event.poster[0] }
+                            : require('../assets/event1.jpg')
+                        }
                         className="h-full w-full"
                         style={{ backgroundColor: '#4B0082' }}
                       />

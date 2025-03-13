@@ -109,8 +109,7 @@ export class AuthenticationService {
 
       await writeFile(filePath, file.buffer);
       console.log('Service: File written successfully:', filePath);
-      const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
-      return `${serverUrl}/uploads-profile/${fileName}`;
+      return `/uploads-profile/${fileName}`;
     } catch (error) {
       throw new Error(`Failed to upload image: ${error.message}`);
     }

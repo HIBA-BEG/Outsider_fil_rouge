@@ -6,8 +6,6 @@ import {
 } from '@nestjs/platform-fastify';
 import fastifyMultipart from '@fastify/multipart';
 import { join } from 'path';
-import fastifyStatic from '@fastify/static';
-import { FastifyInstance } from 'fastify';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -15,33 +13,37 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  const fastifyInstance: FastifyInstance = app.getHttpAdapter().getInstance();
-
-  await fastifyInstance.register(fastifyMultipart, {
+  await app.register(fastifyMultipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024,
+      fileSize: 10 * 1024 * 1024, 
       files: 10,
-      fieldSize: 2 * 1024 * 1024
+      fieldSize: 2 * 1024 * 1024, 
     },
-    attachFieldsToBody: true
+    attachFieldsToBody: true,
   });
 
-  await app.register(fastifyStatic as any, {
-    root: join(__dirname, '..', 'uploads'),
-    prefix: '/uploads/',
-    decorateReply: false,
-  });
-
-  await app.register(fastifyStatic as any, {
-    root: join(__dirname, '..', 'uploads-profile'),
+  const staticPath = join(process.cwd(), 'uploads-profile');
+  console.log('Serving static files from:', staticPath);
+  app.useStaticAssets({
+    root: staticPath,
     prefix: '/uploads-profile/',
-    decorateReply: false,
+    decorateReply: false
+  });
+  
+  const staticPathEvent = join(process.cwd(), 'uploads-event');
+  console.log('Serving static files from:', staticPathEvent);
+  app.useStaticAssets({
+    root: staticPathEvent,
+    prefix: '/uploads-event/',
+    decorateReply: false
   });
 
-  await app.register(fastifyStatic, {
-    root: join(__dirname, '..', 'uploads-event'),
-    prefix: '/uploads-event/',
-    decorateReply: false,
+  const uploadsPath = join(__dirname, '..', 'uploads');
+  console.log('Serving static files from:', uploadsPath);
+  app.useStaticAssets({
+    root: uploadsPath,
+    prefix: '/uploads/',
+    decorateReply: false
   });
 
   app.enableCors({
@@ -54,7 +56,19 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // await app.listen(process.env.PORT ?? 3000);
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
+
 bootstrap();
+
+
+
+
+
+
+ 
+
+
+
+
+

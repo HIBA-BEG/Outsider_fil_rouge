@@ -16,6 +16,7 @@ import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import adminService from './(services)/adminApi';
+import { API_URL } from '../config';
 
 export default function AllUsersAdmin() {
   const { isDarkMode } = useTheme();
@@ -189,12 +190,11 @@ export default function AllUsersAdmin() {
               >
                 <View className="flex-row items-center">
                   <Image
-                    source={ require('../assets/event4.jpg')}
-                    // source={
-                    //   user.profilePicture
-                    //     ? { uri: user.profilePicture }
-                    //     : require('../assets/event4.jpg')
-                    // }
+                    source={
+                      API_URL + user.profilePicture
+                        ? { uri: API_URL + user.profilePicture }
+                        : require('../assets/profile-icon.jpg')
+                    }
                     className="h-16 w-16 rounded-full"
                   />
                   <View className="flex-1 pl-4">

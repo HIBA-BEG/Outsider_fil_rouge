@@ -18,6 +18,7 @@ import Interests from '../components/ui/Interests';
 import eventService from './(services)/eventApi';
 import { Event } from '../types/event';
 import EventDetailsModal from '../components/ui/EventDetails';
+import { API_URL } from '~/config';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
@@ -40,7 +41,7 @@ export default function Index() {
   useEffect(() => {
     filterEvents();
   }, [selectedInterest, events, searchQuery]);
-  
+
   const handleProfilePress = async () => {
     // console.log('Profile button pressed');
     // const token = await AsyncStorage.getItem('authToken');
@@ -77,16 +78,17 @@ export default function Index() {
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(event => 
-        (event.title?.toLowerCase() || '').includes(query) ||
-        (event.organizer?.firstName?.toLowerCase() || '').includes(query) ||
-        (event.organizer?.lastName?.toLowerCase() || '').includes(query)
+      filtered = filtered.filter(
+        (event) =>
+          (event.title?.toLowerCase() || '').includes(query) ||
+          (event.organizer?.firstName?.toLowerCase() || '').includes(query) ||
+          (event.organizer?.lastName?.toLowerCase() || '').includes(query)
       );
     }
 
     if (selectedInterest !== 'all') {
-      filtered = filtered.filter(event => 
-        event.interests && event.interests._id === selectedInterest
+      filtered = filtered.filter(
+        (event) => event.interests && event.interests._id === selectedInterest
       );
     }
 
@@ -109,7 +111,11 @@ export default function Index() {
         <View className="mb-2 mt-2 flex-row items-center justify-between">
           <TouchableOpacity onPress={handleProfilePress}>
             <Image
-              source={require('../assets/profile-icon.jpg')}
+              source={
+                API_URL + user?.profilePicture
+                  ? { uri: API_URL + user?.profilePicture }
+                  : require('../assets/profile-icon.jpg')
+              }
               className="h-10 w-10 rounded-full"
             />
           </TouchableOpacity>
@@ -134,8 +140,8 @@ export default function Index() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               className={`rounded-full px-4 py-3 ${
-                isDarkMode 
-                  ? 'bg-primary-light/30 text-white' 
+                isDarkMode
+                  ? 'bg-primary-light/30 text-white'
                   : 'bg-primary-dark/10 text-primary-dark'
               }`}
             />
@@ -164,7 +170,11 @@ export default function Index() {
                   }`}>
                   <View className="h-32 w-32 overflow-hidden rounded-2xl">
                     <Image
-                      source={require('../assets/event2.jpg')}
+                      source={
+                        API_URL + event.poster
+                          ? { uri: API_URL + event.poster }
+                          : require('../assets/event3.jpg')
+                      }
                       className="h-full w-full"
                       style={{ backgroundColor: '#4B0082' }}
                     />
@@ -199,7 +209,11 @@ export default function Index() {
                     }`}>
                     <View className="h-32 w-full overflow-hidden rounded-2xl">
                       <Image
-                        source={require('../assets/event1.jpg')}
+                        source={
+                          API_URL + event.poster
+                            ? { uri: API_URL + event.poster[0] }
+                            : require('../assets/event1.jpg')
+                        }
                         className="h-full w-full"
                         style={{ backgroundColor: '#4B0082' }}
                       />
@@ -214,8 +228,6 @@ export default function Index() {
               )}
             </View>
           </View>
-
-          
         </ScrollView>
 
         <BottomNavigation />
