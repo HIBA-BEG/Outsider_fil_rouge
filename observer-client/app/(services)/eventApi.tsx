@@ -107,7 +107,62 @@ const eventService = {
       console.error('Error deleting event:', error);
       throw error;
     }
-  }
+  },
+
+  async registerForEvent(eventId: string): Promise<Event> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.post(`/events/${eventId}/register`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error registering for event:', error);
+      throw error;
+    }
+  },
+
+  async cancelRegistration(eventId: string): Promise<Event> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.delete(`/events/${eventId}/register`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error canceling registration:', error);
+      throw error;
+    }
+  },
+
+  async getAvailableSpots(eventId: string): Promise<number> {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/available-spots`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting available spots:', error);
+      throw error;
+    }
+  },
+
+  async getRegisteredEvents(): Promise<Event[]> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get('/events/user/registered', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching registered events:', error);
+      return [];
+    }
+  },
 };
 
 export default eventService;

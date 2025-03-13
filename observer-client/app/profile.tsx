@@ -13,8 +13,10 @@ import { useTheme } from '../context/ThemeContext';
 import { ActivityIndicator } from 'react-native';
 import { User } from '../types/user';
 import userService from './(services)/userApi';
+import eventService from './(services)/eventApi';
 import UpdateProfile from '../components/ui/UpdateProfile';
-
+import { Event } from '../types/event';
+import { router } from 'expo-router';
 const Profile = () => {
   const { isDarkMode } = useTheme();
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -22,22 +24,24 @@ const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
-  
+  const [registeredEvents, setRegisteredEvents] = useState<Event[]>([]);
+  const [showAllEvents, setShowAllEvents] = useState(false);
+
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-
   useEffect(() => {
     loadUserProfile();
+    loadRegisteredEvents();
   }, []);
 
   const loadUserProfile = async () => {
     try {
       const userData = await userService.getProfile();
-      // console.log('User Data:', userData); 
-    // console.log('Interests:', userData.interests); 
+      // console.log('User Data:', userData);
+      // console.log('Interests:', userData.interests);
       setUser(userData);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -45,6 +49,15 @@ const Profile = () => {
       setShowErrorAlert(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRegisteredEvents = async () => {
+    try {
+      const events = await eventService.getRegisteredEvents();
+      setRegisteredEvents(events);
+    } catch (error) {
+      console.error('Error loading registered events:', error);
     }
   };
 
@@ -76,6 +89,18 @@ const Profile = () => {
       setErrorMessage('Failed to update profile. Please try again.');
       setShowErrorAlert(true);
     }
+  };
+
+  const handleEventPress = (eventId: string) => {
+    router.push({
+      pathname: '/details',
+      params: { id: eventId },
+    });
+    // console.log('eventId', eventId);
+  };
+
+  const handleViewMoreEvents = () => {
+    setShowAllEvents(true);
   };
 
   if (loading) {
@@ -128,12 +153,44 @@ const Profile = () => {
             paddingTop: Platform.OS === 'ios' ? 0 : 10,
           }}>
           <View className="mb-4">
-            <Text 
-              className={`text-2xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`} 
-              style={{ fontSize: screenWidth * 0.06 }}
-            >
-              {`${user.firstName} ${user.lastName}`}
-            </Text>
+            <View className="flex-row items-center">
+              <Text
+                className={`text-2xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}
+                style={{ fontSize: screenWidth * 0.06 }}>
+                {`${user.firstName} ${user.lastName}`}
+              </Text>
+
+              {user.role === 'admin' && (
+                <View
+                  className={`ml-2 rounded-full px-2 py-0.5 ${
+                    isDarkMode ? 'bg-red-500/20' : 'bg-red-500/10'
+                  }`}>
+                  <Text className={`text-xs ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>
+                    Admin
+                  </Text>
+                </View>
+              )}
+              {user.role === 'organizer' && (
+                <View
+                  className={`ml-2 rounded-full px-2 py-0.5 ${
+                    isDarkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'
+                  }`}>
+                  <Text className={`text-xs ${isDarkMode ? 'text-purple-300' : 'text-purple-600'}`}>
+                    Organizer
+                  </Text>
+                </View>
+              )}
+              {user.role === 'participant' && (
+                <View
+                  className={`ml-2 rounded-full px-2 py-0.5 ${
+                    isDarkMode ? 'bg-green-500/20' : 'bg-green-500/10'
+                  }`}>
+                  <Text className={`text-xs ${isDarkMode ? 'text-green-300' : 'text-green-600'}`}>
+                    Participant
+                  </Text>
+                </View>
+              )}
+            </View>
 
             <View className="mt-4 flex-row flex-wrap justify-between">
               <TouchableOpacity
@@ -174,9 +231,9 @@ const Profile = () => {
                   <TouchableOpacity
                     key={typeof interest === 'string' ? interest : interest._id}
                     className={`mr-3 rounded-full ${
-                      isDarkMode 
-                        ? 'bg-white/10 border border-white/20' 
-                        : 'bg-primary-dark/10 border border-primary-dark/20'
+                      isDarkMode
+                        ? 'border border-white/20 bg-white/10'
+                        : 'border border-primary-dark/20 bg-primary-dark/10'
                     } px-4 py-2`}>
                     <Text
                       className={`${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}
@@ -196,34 +253,54 @@ const Profile = () => {
                   isDarkMode ? 'text-primary-light' : 'text-primary-dark'
                 }`}
                 style={{ fontSize: screenWidth * 0.045 }}>
-                My Events
+                Registered Events
               </Text>
-              <View className="flex-row flex-wrap justify-between">
-                {user.registeredEvents.map((event, index) => (
-                  <Image
+              <View className="flex-row flex-wrap justify-center gap-4">
+                {(showAllEvents ? registeredEvents : registeredEvents.slice(0, 2)).map((event) => (
+                  <TouchableOpacity
                     key={event._id}
-                    source={{ uri: event.poster }}
-                    className="mb-3 rounded-lg"
-                    style={{
-                      width: screenWidth > 600 ? (screenWidth - 32) / 3 - 4 : (screenWidth - 32) / 2 - 4,
-                      height: screenWidth * 0.3,
-                    }}
-                  />
+                    onPress={() => handleEventPress(event._id)}
+                    className={`flex w-44 rounded-2xl p-2 backdrop-blur-sm ${
+                      isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
+                    }`}>
+                    <View className="h-32 w-full overflow-hidden rounded-2xl">
+                      <Image
+                        source={require('../assets/event1.jpg')}
+                        className="h-full w-full"
+                        style={{ backgroundColor: '#4B0082' }}
+                      />
+                    </View>
+                    <Text
+                      className={`font-bold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
+                      {event.title}
+                    </Text>
+                    <Text
+                      className={`${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
+                      <Text className="font-bold">Start: </Text>
+                      {new Date(event.startDate).toLocaleString()}
+                    </Text>
+                    <Text
+                      className={`${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
+                      <Text className="font-bold">End: </Text>
+                      {new Date(event.endDate).toLocaleString()}
+                    </Text>
+                  </TouchableOpacity>
                 ))}
               </View>
 
-              <TouchableOpacity 
-                className={`my-5 rounded-full ${
-                  isDarkMode ? 'bg-white/20' : 'bg-primary-dark'
-                } p-3`}
-              >
-                <Text 
-                  className="text-center text-primary-light" 
-                  style={{ fontSize: screenWidth * 0.04 }}
-                >
-                  View More Events
-                </Text>
-              </TouchableOpacity>
+              {registeredEvents.length > 2 && !showAllEvents && (
+                <TouchableOpacity
+                  onPress={handleViewMoreEvents}
+                  className={`my-5 rounded-full ${
+                    isDarkMode ? 'bg-white/20' : 'bg-primary-dark'
+                  } p-3`}>
+                  <Text
+                    className="text-center text-primary-light"
+                    style={{ fontSize: screenWidth * 0.04 }}>
+                    View More Events
+                  </Text>
+                </TouchableOpacity>
+              )}
             </>
           )}
         </ScrollView>
