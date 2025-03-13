@@ -17,6 +17,7 @@ import { Event } from '../types/event';
 import EventDetailsModal from '../components/ui/EventDetails';
 import CustomAlert from '../components/ui/CustomAlert';
 import { Feather } from '@expo/vector-icons';
+import UpdateEvent from '~/components/ui/UpdateEvent';
 
 export default function MyEvents() {
   const { isDarkMode } = useTheme();
@@ -35,12 +36,14 @@ export default function MyEvents() {
   const [showCreateErrorAlert, setShowCreateErrorAlert] = useState(false);
   const [createErrorMessage, setCreateErrorMessage] = useState('');
 
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+
   const fetchMyEvents = async () => {
     try {
       setIsLoading(true);
       setIsError(false);
       const MyEvents = await eventService.findByOrganizer();
-      
+
       if (MyEvents && Array.isArray(MyEvents)) {
         const sortedEvents = MyEvents.sort((a, b) => {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -72,7 +75,7 @@ export default function MyEvents() {
     if (success) {
       setTimeout(() => {
         setShowCreateSuccessAlert(true);
-        fetchMyEvents(); 
+        fetchMyEvents();
       }, 300);
     } else if (error) {
       setCreateErrorMessage(error);
@@ -82,9 +85,24 @@ export default function MyEvents() {
     }
   };
 
-  const handleUpdateEvent = (eventId: string) => {
-    // I'll implement this later
-    // console.log('Update event:', eventId);
+  const handleUpdateEvent = async (updatedData: Partial<Event>) => {
+    try {
+      if (!selectedEvent?._id) return;
+
+      await eventService.updateEvent(
+        selectedEvent._id,
+        updatedData,
+        Array.isArray(updatedData.poster) ? updatedData.poster : []
+      );
+
+      setIsUpdateModalVisible(false);
+      fetchMyEvents();
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error('Error updating event:', error);
+      setErrorMessage('Failed to update event. Please try again.');
+      setShowErrorAlert(true);
+    }
   };
 
   const handleDeleteEvent = (eventId: string) => {
@@ -94,7 +112,7 @@ export default function MyEvents() {
 
   const confirmDeleteEvent = async () => {
     if (!eventToDelete) return;
-    
+
     try {
       await eventService.deleteEvent(eventToDelete);
       setShowDeleteAlert(false);
@@ -128,17 +146,15 @@ export default function MyEvents() {
 
   if (isError) {
     return (
-      <View className={`flex-1 items-center justify-center ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
-        <Text className={`text-lg mb-4 ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+      <View
+        className={`flex-1 items-center justify-center ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
+        <Text className={`mb-4 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
           Unable to load events
         </Text>
         <TouchableOpacity
           onPress={fetchMyEvents}
-          className={`rounded-full px-6 py-3 ${isDarkMode ? 'bg-white/20' : 'bg-primary-dark'}`}
-        >
-          <Text className={isDarkMode ? 'text-white' : 'text-white'}>
-            Try Again
-          </Text>
+          className={`rounded-full px-6 py-3 ${isDarkMode ? 'bg-white/20' : 'bg-primary-dark'}`}>
+          <Text className={isDarkMode ? 'text-white' : 'text-white'}>Try Again</Text>
         </TouchableOpacity>
       </View>
     );
@@ -156,21 +172,12 @@ export default function MyEvents() {
                   ← Back
                 </Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity onPress={handleAddEvent}>
-                <Text
-                  className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-                  Add Event
-                </Text> */}
-              {/* </TouchableOpacity> */}
-                <TouchableOpacity
-                  onPress={handleAddEvent}
-                  className={`rounded-full border flex flex-row items-center gap-2 border-red-500 bg-red-500/10 px-6 py-2`}
-                >
-                  <Feather name="plus" size={24} color="red" />
-                  <Text className="text-red-500">
-                  Add Event
-                  </Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleAddEvent}
+                className={`flex flex-row items-center gap-2 rounded-full border border-red-500 bg-red-500/10 px-6 py-2`}>
+                <Feather name="plus" size={24} color="red" />
+                <Text className="text-red-500">Add Event</Text>
+              </TouchableOpacity>
             </View>
 
             {events.length === 0 ? (
@@ -184,6 +191,7 @@ export default function MyEvents() {
                 {events.map((event) => {
                   console.log('Event poster:', event.poster);
                   const startDate = new Date(event.startDate);
+                  const endDate = new Date(event.endDate);
                   return (
                     <TouchableOpacity
                       key={event._id}
@@ -203,11 +211,21 @@ export default function MyEvents() {
                           resizeMode="cover"
                         />
                       </View>
-                      <Text className={`font-bold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
+                      <Text
+                        className={`font-bold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
                         {event.title}
                       </Text>
                       <Text className="mt-1 text-sm text-gray-400">
-                        {isNaN(startDate.getTime()) ? 'Invalid date' : startDate.toLocaleDateString()}
+                        Start:{' '}
+                        {isNaN(startDate.getTime())
+                          ? 'Invalid date'
+                          : startDate.toLocaleString([], { dateStyle: 'full', timeStyle: 'short' })}
+                      </Text>
+                      <Text className="mt-1 text-sm text-gray-400">
+                        End:{' '}
+                        {isNaN(endDate.getTime())
+                          ? 'Invalid date'
+                          : endDate.toLocaleString([], { dateStyle: 'full', timeStyle: 'short' })}
                       </Text>
                       {event.description && (
                         <Text className="mt-1 text-sm text-gray-400">{event.description}</Text>
@@ -215,14 +233,12 @@ export default function MyEvents() {
 
                       <View className="mb-2 flex-row justify-end">
                         <TouchableOpacity
-                          onPress={() => handleUpdateEvent(event._id)}
-                          className="mr-4">
-                          <Text className="text-green-400">✎</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => handleDeleteEvent(event._id)}
-                          className="mr-2">
-                          <Text className="text-red-400">🗑</Text>
+                          onPress={() => {
+                            setSelectedEvent(event);
+                            setIsUpdateModalVisible(true);
+                          }}
+                          className="rounded-full border border-red-500 bg-red-500/10 px-6 py-2">
+                          <Text className="text-red-500">Manage Event</Text>
                         </TouchableOpacity>
                       </View>
                     </TouchableOpacity>
@@ -240,6 +256,14 @@ export default function MyEvents() {
           event={selectedEvent}
           onClose={handleCloseEventDetails}
         />
+        {selectedEvent && (
+          <UpdateEvent
+            isVisible={isUpdateModalVisible}
+            onClose={() => setIsUpdateModalVisible(false)}
+            event={selectedEvent}
+            onUpdate={handleUpdateEvent}
+          />
+        )}
       </View>
 
       <CustomAlert
@@ -248,15 +272,15 @@ export default function MyEvents() {
         message="Are you sure you want to delete this event? This action cannot be undone."
         buttons={[
           {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => setShowDeleteAlert(false)
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setShowDeleteAlert(false),
           },
           {
-            text: "Delete",
-            style: "destructive",
-            onPress: confirmDeleteEvent
-          }
+            text: 'Delete',
+            style: 'destructive',
+            onPress: confirmDeleteEvent,
+          },
         ]}
       />
 
@@ -266,9 +290,9 @@ export default function MyEvents() {
         message="Event deleted successfully"
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowSuccessAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowSuccessAlert(false),
+          },
         ]}
       />
 
@@ -278,9 +302,9 @@ export default function MyEvents() {
         message={errorMessage}
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowErrorAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowErrorAlert(false),
+          },
         ]}
       />
 
@@ -290,9 +314,9 @@ export default function MyEvents() {
         message="Event created successfully"
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowCreateSuccessAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowCreateSuccessAlert(false),
+          },
         ]}
       />
 
@@ -302,9 +326,9 @@ export default function MyEvents() {
         message={createErrorMessage}
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowCreateErrorAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowCreateErrorAlert(false),
+          },
         ]}
       />
     </>

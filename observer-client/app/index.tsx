@@ -40,12 +40,15 @@ export default function Index() {
   useEffect(() => {
     filterEvents();
   }, [selectedInterest, events, searchQuery]);
-
+  
   const handleProfilePress = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    if (token) {
+    // console.log('Profile button pressed');
+    // const token = await AsyncStorage.getItem('authToken');
+    if (user) {
+      console.log('Navigating to /profile');
       router.push('/profile');
     } else {
+      console.log('Navigating to /welcome');
       router.push('/welcome');
     }
   };
