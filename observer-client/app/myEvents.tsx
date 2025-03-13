@@ -231,14 +231,22 @@ export default function MyEvents() {
                         <Text className="mt-1 text-sm text-gray-400">{event.description}</Text>
                       )}
 
-                      <View className="mb-2 flex-row justify-end">
+                      <View className="mb-2 flex-row justify-end gap-2">
                         <TouchableOpacity
                           onPress={() => {
                             setSelectedEvent(event);
                             setIsUpdateModalVisible(true);
                           }}
+                          className="rounded-full border border-green-500 bg-green-500/10 px-6 py-2">
+                          <Text className="text-green-500">Update</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setEventToDelete(event._id);
+                            setShowDeleteAlert(true);
+                          }}
                           className="rounded-full border border-red-500 bg-red-500/10 px-6 py-2">
-                          <Text className="text-red-500">Manage Event</Text>
+                          <Text className="text-red-500">Delete</Text>
                         </TouchableOpacity>
                       </View>
                     </TouchableOpacity>

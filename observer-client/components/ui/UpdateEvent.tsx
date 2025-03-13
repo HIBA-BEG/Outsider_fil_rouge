@@ -41,10 +41,9 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-  const [images, setImages] = useState<string[]>(event.images || []);
+  const [images, setImages] = useState<string[]>(event.poster || []);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   useEffect(() => {
@@ -78,22 +77,6 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
       setShowErrorAlert(true);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDeleteEvent = () => {
-    setShowDeleteAlert(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      await eventService.deleteEvent(event._id);
-      setShowDeleteAlert(false);
-      setShowSuccessAlert(true);
-    } catch (error) {
-      setShowDeleteAlert(false);
-      setErrorMessage('Failed to delete event. Please try again.');
-      setShowErrorAlert(true);
     }
   };
 
@@ -140,6 +123,13 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                 }`}>
                 Update Event
               </Text>
+
+              
+              <View
+                className={`mb-4 h-[1px] w-full ${
+                  isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
+                }`}
+              />
 
               <View className="mb-4">
                 <Text
@@ -496,62 +486,10 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                 </TouchableOpacity>
               </View>
 
-              <View
-                className={`my-6 h-[1px] w-full ${
-                  isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
-                }`}
-              />
-
-              <View className="items-center">
-                <TouchableOpacity
-                  onPress={handleDeleteEvent}
-                  className="rounded-full border border-red-500 bg-red-500/10 px-6 py-2">
-                  <Text className="text-red-500">Delete Event</Text>
-                </TouchableOpacity>
-                <Text
-                  className={`mt-2 text-xs ${
-                    isDarkMode ? 'text-white/50' : 'text-primary-dark/50'
-                  }`}>
-                  This action cannot be undone
-                </Text>
-              </View>
             </ScrollView>
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-
-      <CustomAlert
-        visible={showDeleteAlert}
-        title="Delete Event"
-        message="Are you sure you want to delete this event? This action cannot be undone."
-        buttons={[
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => setShowDeleteAlert(false),
-          },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: handleDeleteConfirm,
-          },
-        ]}
-      />
-
-      <CustomAlert
-        visible={showSuccessAlert}
-        title="Success"
-        message="Event has been deleted successfully"
-        buttons={[
-          {
-            text: 'OK',
-            onPress: () => {
-              setShowSuccessAlert(false);
-              onClose();
-            },
-          },
-        ]}
-      />
 
       <CustomAlert
         visible={showErrorAlert}
