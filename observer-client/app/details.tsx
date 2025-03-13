@@ -8,6 +8,7 @@ import { Feather } from '@expo/vector-icons';
 import eventService from './(services)/eventApi';
 import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '~/context/AuthContext';
+import { API_URL } from '../config';
 
 export default function Details() {
   const { isDarkMode } = useTheme();
@@ -223,8 +224,8 @@ export default function Details() {
         <View className="relative h-64">
           <Image
             source={
-              event.poster && event.poster.length > 0
-                ? { uri: event.poster[0] }
+              API_URL + event.poster && event.poster.length > 0
+                ? { uri: API_URL + event.poster[0] }
                 : require('../assets/event1.jpg')
             }
             className="h-full w-full"

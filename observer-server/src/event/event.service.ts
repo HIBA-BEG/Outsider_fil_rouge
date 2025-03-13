@@ -86,12 +86,12 @@ export class EventService {
 
       await writeFile(filePath, file.buffer);
       console.log('Service: File written successfully:', filePath);
-      const serverUrl = process.env.SERVER_URL;
-      console.log(
-        'Generated image URL:',
-        `${serverUrl}/uploads-event/${fileName}`,
-      );
-      return `${serverUrl}/uploads-event/${fileName}`;
+      // const serverUrl = process.env.SERVER_URL;
+      // console.log(
+      //   'Generated image URL:',
+      //   `/uploads-event/${fileName}`,
+      // );
+      return `/uploads-event/${fileName}`;
     } catch (error) {
       throw new Error(`Failed to upload image: ${error.message}`);
     }

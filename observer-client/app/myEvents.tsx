@@ -18,6 +18,7 @@ import EventDetailsModal from '../components/ui/EventDetails';
 import CustomAlert from '../components/ui/CustomAlert';
 import { Feather } from '@expo/vector-icons';
 import UpdateEvent from '~/components/ui/UpdateEvent';
+import { API_URL } from '../config';
 
 export default function MyEvents() {
   const { isDarkMode } = useTheme();
@@ -201,10 +202,9 @@ export default function MyEvents() {
                       }`}>
                       <View className="h-32 w-full overflow-hidden rounded-2xl">
                         <Image
-                          // source={require('../assets/event1.jpg')}
                           source={
-                            event.poster && event.poster.length > 0
-                              ? { uri: event.poster[0] }
+                            API_URL + event.poster && event.poster.length > 0
+                              ? { uri: API_URL + event.poster[0] }
                               : require('../assets/event1.jpg')
                           }
                           className="h-full w-full"

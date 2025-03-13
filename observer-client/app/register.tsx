@@ -10,6 +10,7 @@ import { useTheme } from '../context/ThemeContext';
 import AuthApi from './(services)/authApi';
 import cityService from './(services)/cityApi';
 import interestService from './(services)/interestApi';
+import CustomAlert from '../components/ui/CustomAlert';
 
 import { City } from '~/types/city';
 import { Interest } from '~/types/interest';
@@ -29,6 +30,13 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    buttons: [] as { text: string; onPress: () => void }[]
+  });
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -76,7 +84,13 @@ export default function Register() {
   const handleRegister = async () => {
     try {
       if (!image) {
-        throw new Error('Profile picture is required');
+        setAlertConfig({
+          visible: true,
+          title: 'Missing Image',
+          message: 'Please select a profile picture',
+          buttons: [{ text: 'OK', onPress: () => setAlertConfig(prev => ({ ...prev, visible: false })) }]
+        });
+        return;
       }
 
       const formData = new FormData();
@@ -106,17 +120,38 @@ export default function Register() {
 
       const response = await AuthApi.register(formData);
       if (response.token) {
-        await AsyncStorage.setItem('authToken', response.token);
-        router.replace('/');
+        setAlertConfig({
+          visible: true,
+          title: 'Success!',
+          message: 'Your account has been created successfully',
+          buttons: [{
+            text: 'Continue',
+            onPress: async () => {
+              setAlertConfig(prev => ({ ...prev, visible: false }));
+              await AsyncStorage.setItem('authToken', response.token);
+              router.replace('/');
+            }
+          }]
+        });
       }
     } catch (error) {
-      console.error('Registration failed:', error);
-      // I will handle the error (show alert wlla message to user)
+      setAlertConfig({
+        visible: true,
+        title: 'Registration Failed',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+        buttons: [{ text: 'OK', onPress: () => setAlertConfig(prev => ({ ...prev, visible: false })) }]
+      });
     }
   };
 
   return (
     <SafeAreaView className="flex-1">
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+      />
       <View className="relative flex-1">
         <Image
           source={
@@ -277,44 +312,6 @@ export default function Register() {
                   </Picker>
                 </View>
               </View>
-
-              {/* <View>
-              <Text className={`m-2 mt-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
-                Interests
-              </Text>
-              <View
-                className={`rounded-full ${isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/70'}`}>
-                <Picker
-                  selectedValue={selectedCity}
-                  onValueChange={(itemValue) => setSelectedCity(itemValue)}
-                  dropdownIconColor={isDarkMode ? 'white' : 'black'}
-                  placeholder="Select one or many interests"
-                  style={{
-                    color: isDarkMode ? 'white' : 'black',
-                    height: 50,
-                    paddingHorizontal: 16,
-                  }}>
-                  <Picker.Item
-                    label="Select one or many interests"
-                    value=""
-                    enabled={false}
-                    // style={{ color: isDarkMode ? 'white' : 'black' }}
-                  />
-                  <Picker.Item label="Dance" value="Dance" />
-                  <Picker.Item label="Music" value="Music" />
-                  <Picker.Item label="Art" value="Art" />
-                  <Picker.Item label="Sports" value="Sports" />
-                  <Picker.Item label="Food" value="Food" />
-                  <Picker.Item label="Travel" value="Travel" />
-                  <Picker.Item label="Fashion" value="Fashion" />
-                  <Picker.Item label="Technology" value="Technology" />
-                  <Picker.Item label="Books" value="Books" />
-                  <Picker.Item label="Movies" value="Movies" />
-                  <Picker.Item label="TV" value="TV" />
-                  <Picker.Item label="Gaming" value="Gaming" />
-                </Picker>
-              </View>
-            </View> */}
 
               <View>
                 <Text
