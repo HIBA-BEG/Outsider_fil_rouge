@@ -16,6 +16,7 @@ import { useTheme } from '../context/ThemeContext';
 import { Event } from '../types/event';
 import EventDetailsModal from '../components/ui/EventDetails';
 import CustomAlert from '../components/ui/CustomAlert';
+import { Feather } from '@expo/vector-icons';
 
 export default function MyEvents() {
   const { isDarkMode } = useTheme();
@@ -155,12 +156,21 @@ export default function MyEvents() {
                   ← Back
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleAddEvent}>
+              {/* <TouchableOpacity onPress={handleAddEvent}>
                 <Text
                   className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
                   Add Event
-                </Text>
-              </TouchableOpacity>
+                </Text> */}
+              {/* </TouchableOpacity> */}
+                <TouchableOpacity
+                  onPress={handleAddEvent}
+                  className={`rounded-full border flex flex-row items-center gap-2 border-red-500 bg-red-500/10 px-6 py-2`}
+                >
+                  <Feather name="plus" size={24} color="red" />
+                  <Text className="text-red-500">
+                  Add Event
+                  </Text>
+                </TouchableOpacity>
             </View>
 
             {events.length === 0 ? (
@@ -179,7 +189,7 @@ export default function MyEvents() {
                       key={event._id}
                       onPress={() => handleEventPress(event)}
                       className={`mt-4 flex rounded-2xl p-4 backdrop-blur-sm ${
-                        isDarkMode ? 'bg-white/30' : 'bg-black/80'
+                        isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                       }`}>
                       <View className="h-32 w-full overflow-hidden rounded-2xl">
                         <Image
@@ -193,7 +203,9 @@ export default function MyEvents() {
                           resizeMode="cover"
                         />
                       </View>
-                      <Text className="text-base font-medium text-white">{event.title}</Text>
+                      <Text className={`font-bold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'} mt-2 text-base`}>
+                        {event.title}
+                      </Text>
                       <Text className="mt-1 text-sm text-gray-400">
                         {isNaN(startDate.getTime()) ? 'Invalid date' : startDate.toLocaleDateString()}
                       </Text>

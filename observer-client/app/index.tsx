@@ -156,7 +156,8 @@ export default function Index() {
                   key={event._id}
                   onPress={() => handleEventPress(event)}
                   className={`mr-4 flex w-40 items-center rounded-2xl p-2 backdrop-blur-sm ${
-                    isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'
+                    // isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'
+                    isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                   }`}>
                   <View className="h-32 w-32 overflow-hidden rounded-2xl">
                     <Image
@@ -190,7 +191,8 @@ export default function Index() {
                     key={event._id}
                     onPress={() => handleEventPress(event)}
                     className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${
-                      isDarkMode ? 'bg-white/30' : 'bg-black/80'
+                      // isDarkMode ? 'bg-white/30' : 'bg-black/80'
+                      isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                     }`}>
                     <View className="h-32 w-full overflow-hidden rounded-2xl">
                       <Image
