@@ -22,13 +22,17 @@ export class EventService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async create(createEventDto: CreateEventDto, userId: string, files: FileUpload[]): Promise<Event> {
+  async create(
+    createEventDto: CreateEventDto,
+    userId: string,
+    files: FileUpload[],
+  ): Promise<Event> {
     if (!files || files.length === 0) {
       throw new Error('At least one image is required');
     }
 
     const imageUrls = await Promise.all(
-      files.map(file => this.uploadEventImage(file))
+      files.map((file) => this.uploadEventImage(file)),
     );
 
     const user = await this.userModel.findById(userId);
@@ -54,7 +58,6 @@ export class EventService {
     return savedEvent;
   }
 
-  
   async uploadEventImage(file: FileUpload): Promise<string> {
     try {
       console.log('File details:', {
@@ -84,7 +87,10 @@ export class EventService {
       await writeFile(filePath, file.buffer);
       console.log('Service: File written successfully:', filePath);
       const serverUrl = process.env.SERVER_URL;
-      console.log('Generated image URL:', `${serverUrl}/uploads-event/${fileName}`);
+      console.log(
+        'Generated image URL:',
+        `${serverUrl}/uploads-event/${fileName}`,
+      );
       return `${serverUrl}/uploads-event/${fileName}`;
     } catch (error) {
       throw new Error(`Failed to upload image: ${error.message}`);
@@ -100,7 +106,7 @@ export class EventService {
         path: 'city',
         model: 'City',
         select: 'name admin_name',
-      });     
+      });
   }
 
   async findOne(id: string): Promise<Event> {
@@ -123,6 +129,7 @@ export class EventService {
     id: string,
     updateEventDto: UpdateEventDto,
     userId: string,
+    files?: FileUpload[],
   ): Promise<Event> {
     const event = await this.eventModel.findById(id, { isArchived: false });
     if (!event) {
@@ -135,8 +142,40 @@ export class EventService {
       );
     }
 
+    const updateData: any = {};
+
+    if (updateEventDto.title) updateData.title = updateEventDto.title;
+    if (updateEventDto.description)
+      updateData.description = updateEventDto.description;
+    if (updateEventDto.location) updateData.location = updateEventDto.location;
+    if (updateEventDto.startDate)
+      updateData.startDate = updateEventDto.startDate;
+    if (updateEventDto.endDate) updateData.endDate = updateEventDto.endDate;
+    if (updateEventDto.maxParticipants)
+      updateData.maxParticipants = updateEventDto.maxParticipants;
+    if (updateEventDto.price) updateData.price = updateEventDto.price;
+    if (updateEventDto.isPublic !== undefined)
+      updateData.isPublic = updateEventDto.isPublic;
+
+    if (updateEventDto.city) {
+      updateData.city = updateEventDto.city;
+    }
+
+    if (updateEventDto.interests && updateEventDto.interests.length > 0) {
+      updateData.interests = updateEventDto.interests;
+    }
+
+    if (files && files.length > 0) {
+      const imageUrls = await Promise.all(
+        files.map((file) => this.uploadEventImage(file)),
+      );
+      updateData.poster = imageUrls;
+    }
+
+    console.log('Update data:', updateData);
+
     const updatedEvent = await this.eventModel
-      .findByIdAndUpdate(id, updateEventDto, { new: true })
+      .findByIdAndUpdate(id, updateData, { new: true })
       .populate('organizer', 'firstName lastName email')
       .populate('interests', 'category description')
       .exec();
@@ -312,7 +351,7 @@ export class EventService {
       city: user.city,
       $or: [
         { interests: { $in: userInterestIds } },
-        { interests: { $exists: true } }
+        { interests: { $exists: true } },
       ],
     };
 

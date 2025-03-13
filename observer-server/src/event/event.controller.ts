@@ -22,10 +22,7 @@ export class EventController {
 
   @Post()
   @Roles(UserRole.ORGANIZER)
-    async create(
-    @Body() createEventDto: CreateEventDto,
-    @Request() req,
-  ) {
+  async create(@Body() createEventDto: CreateEventDto, @Request() req) {
     console.log('Request body:', req.body);
 
     const eventData = {
@@ -38,7 +35,7 @@ export class EventController {
       maxParticipants: parseInt(req.body.maxParticipants?.value),
       price: parseFloat(req.body.price?.value),
       interests: req.body.interests?.value?.split(',') || [],
-      isPublic: req.body.isPublic?.value === 'true'
+      isPublic: req.body.isPublic?.value === 'true',
     };
 
     const processedFiles: FileUpload[] = [];
@@ -50,7 +47,7 @@ export class EventController {
           processedFiles.push({
             buffer,
             mimetype: file.mimetype,
-            originalname: file.filename
+            originalname: file.filename,
           });
         }
       }
@@ -59,7 +56,7 @@ export class EventController {
       processedFiles.push({
         buffer,
         mimetype: req.body.poster.mimetype,
-        originalname: req.body.poster.filename
+        originalname: req.body.poster.filename,
       });
     }
 
@@ -67,11 +64,7 @@ export class EventController {
 
     console.log('Processed files:', processedFiles.length);
 
-    return this.eventService.create(
-      eventData,
-      req.user.id,
-      processedFiles,
-    );
+    return this.eventService.create(eventData, req.user.id, processedFiles);
   }
 
   @Public()
@@ -88,12 +81,60 @@ export class EventController {
 
   @Patch(':id')
   @Roles(UserRole.ORGANIZER)
-  update(
-    @Param('id') id: string,
-    @Body() updateEventDto: UpdateEventDto,
-    @Request() req,
-  ) {
-    return this.eventService.update(id, updateEventDto, req.user.id);
+  async update(@Param('id') id: string, @Request() req) {
+    console.log('Update event request body:', req.body);
+
+    const eventData = {
+      title: req.body.title?.value || req.body.title,
+      description: req.body.description?.value || req.body.description,
+      startDate: req.body.startDate?.value || req.body.startDate,
+      endDate: req.body.endDate?.value || req.body.endDate,
+      location: req.body.location?.value || req.body.location,
+      city: req.body.city?.value || req.body.city,
+      maxParticipants: req.body.maxParticipants?.value
+        ? parseInt(req.body.maxParticipants.value)
+        : req.body.maxParticipants
+          ? parseInt(req.body.maxParticipants)
+          : undefined,
+      price: req.body.price?.value
+        ? parseFloat(req.body.price.value)
+        : req.body.price
+          ? parseFloat(req.body.price)
+          : undefined,
+      interests: req.body.interests?.value
+        ? req.body.interests.value.split(',')
+        : req.body.interests
+          ? req.body.interests.split(',')
+          : [],
+      isPublic:
+        req.body.isPublic?.value === 'true' || req.body.isPublic === 'true',
+    };
+
+    const processedFiles: FileUpload[] = [];
+
+    if (Array.isArray(req.body.poster)) {
+      for (const file of req.body.poster) {
+        if (file.type === 'file') {
+          const buffer = await file.toBuffer();
+          processedFiles.push({
+            buffer,
+            mimetype: file.mimetype,
+            originalname: file.filename,
+          });
+        }
+      }
+    } else if (req.body.poster?.type === 'file') {
+      const buffer = await req.body.poster.toBuffer();
+      processedFiles.push({
+        buffer,
+        mimetype: req.body.poster.mimetype,
+        originalname: req.body.poster.filename,
+      });
+    }
+
+    console.log('Processed files for update:', processedFiles.length);
+
+    return this.eventService.update(id, eventData, req.user.id, processedFiles);
   }
 
   @Delete(':id')

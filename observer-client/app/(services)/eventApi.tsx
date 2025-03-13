@@ -3,6 +3,7 @@ import * as FileSystem from 'expo-file-system';
 
 import axiosInstance from './axiosInstance';
 import { Event } from '../../types/event';
+import { Interest } from '../../types/interest';
 
 const eventService = {
   async getPersonalizedEvents(): Promise<Event[]> {
@@ -163,6 +164,82 @@ const eventService = {
       return [];
     }
   },
+
+  async updateEvent(eventId: string, eventData: any, images?: string[]): Promise<Event> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const formData = new FormData();
+      
+      if (eventData.title) formData.append('title', eventData.title);
+      if (eventData.description) formData.append('description', eventData.description);
+      if (eventData.location) formData.append('location', eventData.location);
+      
+      if (eventData.startDate) {
+        const startDate = typeof eventData.startDate === 'string' 
+          ? eventData.startDate 
+          : new Date(eventData.startDate).toISOString();
+        formData.append('startDate', startDate);
+      }
+      
+      if (eventData.endDate) {
+        const endDate = typeof eventData.endDate === 'string' 
+          ? eventData.endDate 
+          : new Date(eventData.endDate).toISOString();
+        formData.append('endDate', endDate);
+      }
+      
+      if (eventData.maxParticipants) formData.append('maxParticipants', String(eventData.maxParticipants));
+      if (eventData.price) formData.append('price', String(eventData.price));
+      
+      if (eventData.city && eventData.city._id) {
+        formData.append('city', eventData.city._id);
+      }
+      
+      if (Array.isArray(eventData.interests) && eventData.interests.length > 0) {
+        const interestIds = eventData.interests.map((interest: Interest) => interest._id);
+        formData.append('interests', interestIds.join(','));
+      }
+      
+      if (eventData.isPublic !== undefined) {
+        formData.append('isPublic', String(eventData.isPublic));
+      }
+      
+      if (images && images.length > 0) {
+        for (const imageUri of images) {
+          if (imageUri.startsWith('http://') || imageUri.startsWith('https://')) {
+            continue;
+          }
+          
+          const fileInfo = await FileSystem.getInfoAsync(imageUri);
+          
+          if (!fileInfo.exists) {
+            console.error('File does not exist:', imageUri);
+            continue;
+          }
+          
+          formData.append('poster', {
+            uri: imageUri,
+            type: 'image/jpeg',
+            name: 'image.jpg',
+            size: fileInfo.size
+          } as any);
+        }
+      }
+      
+      console.log('Sending update formData:', formData);
+
+      const response = await axiosInstance.patch(`/events/${eventId}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating event:', error);
+      throw error;
+    }
+  }
 };
 
 export default eventService;
