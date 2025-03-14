@@ -47,7 +47,7 @@ export default function Index() {
     // const token = await AsyncStorage.getItem('authToken');
     if (user) {
       console.log('Navigating to /profile');
-      router.push('/profile');
+      router.push('profile');
     } else {
       console.log('Navigating to /welcome');
       router.push('/welcome');

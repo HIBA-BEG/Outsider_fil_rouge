@@ -10,6 +10,7 @@ import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '~/context/AuthContext';
 import { API_URL } from '../config';
 import CommentSection from '../components/ui/CommentSection';
+import ratingService from './(services)/ratingApi';
 
 export default function Details() {
   const { isDarkMode } = useTheme();
@@ -30,8 +31,9 @@ export default function Details() {
     message: '',
     buttons: []
   });
-
-  const mockRating = 4.5;
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
 
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
@@ -70,6 +72,28 @@ export default function Details() {
     };
     fetchEventDetails();
   }, [params.id, currentUser?._id]);
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (!event) return;
+      try {
+        const [average, ratings] = await Promise.all([
+          ratingService.getEventAverageRating(event._id),
+          ratingService.getEventRatings(event._id)
+        ]);
+        setAverageRating(average);
+        
+        const userRating = ratings.find(r => r.user._id === currentUser?._id);
+        if (userRating) {
+          setUserRating(userRating.score);
+        }
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
+      }
+    };
+    
+    fetchRatings();
+  }, [event?._id, currentUser?._id]);
 
   const showAlert = (config: typeof alertConfig) => {
     setAlertConfig({ ...config, visible: true });
@@ -195,6 +219,35 @@ export default function Details() {
     }
   };
 
+  const handleRating = async (score: number) => {
+    if (!event || !currentUser) return;
+
+    setIsRatingLoading(true);
+    try {
+      if (userRating) {
+        await ratingService.cancelRating(event._id);
+        setUserRating(null);
+      }
+      
+      if (userRating !== score) {
+        await ratingService.createRating(event._id, score);
+        setUserRating(score);
+      }
+      
+      const newAverage = await ratingService.getEventAverageRating(event._id);
+      setAverageRating(newAverage);
+    } catch (error: any) {
+      showAlert({
+        visible: true,
+        title: "Error",
+        message: error.response?.data?.message || "Failed to update rating",
+        buttons: [{ text: "OK", onPress: hideAlert }]
+      });
+    } finally {
+      setIsRatingLoading(false);
+    }
+  };
+
   if (!event) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -286,20 +339,38 @@ export default function Details() {
             <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
               Ratings
             </Text>
-            <View className="mt-2 flex-row items-center">
-              <Text className={`text-3xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-                {mockRating}
-              </Text>
-              <View className="ml-2 flex-row">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Feather
-                    key={star}
-                    name="star"
-                    size={20}
-                    color={star <= mockRating ? '#FFD700' : '#808080'}
-                  />
-                ))}
+            <View className="mt-2">
+              <View className="flex-row items-center">
+                <Text className={`text-3xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+                  {averageRating.toFixed(1)}
+                </Text>
+                <View className="ml-2 flex-row">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      disabled={isRatingLoading || !event || new Date() < new Date(event.endDate)}
+                      onPress={() => handleRating(star)}
+                    >
+                      <Feather
+                        name={star <= (userRating || averageRating) ? "star" : "star"}
+                        size={20}
+                        color={star <= (userRating || averageRating) ? '#FFD700' : '#808080'}
+                        style={{ opacity: isRatingLoading ? 0.5 : 1 }}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
+              {new Date() < new Date(event?.endDate || '') && (
+                <Text className="mt-2 text-sm text-gray-500">
+                  Rating will be available after the event ends
+                </Text>
+              )}
+              {userRating && (
+                <Text className={`mt-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Your rating: {userRating}/5
+                </Text>
+              )}
             </View>
           </View>
 
