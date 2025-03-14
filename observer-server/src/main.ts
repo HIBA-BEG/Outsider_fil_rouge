@@ -15,9 +15,9 @@ async function bootstrap() {
 
   await app.register(fastifyMultipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024, 
+      fileSize: 10 * 1024 * 1024,
       files: 10,
-      fieldSize: 2 * 1024 * 1024, 
+      fieldSize: 2 * 1024 * 1024,
     },
     attachFieldsToBody: true,
   });
@@ -27,15 +27,15 @@ async function bootstrap() {
   app.useStaticAssets({
     root: staticPath,
     prefix: '/uploads-profile/',
-    decorateReply: false
+    decorateReply: false,
   });
-  
+
   const staticPathEvent = join(process.cwd(), 'uploads-event');
   console.log('Serving static files from:', staticPathEvent);
   app.useStaticAssets({
     root: staticPathEvent,
     prefix: '/uploads-event/',
-    decorateReply: false
+    decorateReply: false,
   });
 
   const uploadsPath = join(__dirname, '..', 'uploads');
@@ -43,7 +43,7 @@ async function bootstrap() {
   app.useStaticAssets({
     root: uploadsPath,
     prefix: '/uploads/',
-    decorateReply: false
+    decorateReply: false,
   });
 
   app.enableCors({
@@ -59,16 +59,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 
-bootstrap();
-
-
-
-
-
-
- 
-
-
-
-
-
+bootstrap().catch((err) => {
+  console.error('Failed to start application:', err);
+  process.exit(1);
+});

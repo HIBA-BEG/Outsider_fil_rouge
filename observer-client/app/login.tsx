@@ -1,11 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AuthApi from './(services)/authApi';
-
 import Illustration from '../components/ui/Illustration';
 import { useAuth } from '../context/AuthContext';
 
@@ -32,9 +30,8 @@ export default function Login() {
       // await AsyncStorage.setItem('authToken', response.token);
 
       AuthApi.setAuthToken(response.token);
-      
-      await login(response.token);
 
+      await login(response.token);
 
       // console.log('token f login', response.token);
 

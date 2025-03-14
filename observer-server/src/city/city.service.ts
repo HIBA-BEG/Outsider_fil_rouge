@@ -35,7 +35,7 @@ export class CityService {
   async getAllRegions() {
     return this.cityModel.distinct('admin_name').exec();
   }
-  
+
   async getAllCities() {
     return this.cityModel.find().exec();
   }

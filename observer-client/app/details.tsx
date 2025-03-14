@@ -1,14 +1,17 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+
 import { useTheme } from '../context/ThemeContext';
 import { Event, EventStatus } from '../types/event';
-import { useState, useEffect } from 'react';
-import { Feather } from '@expo/vector-icons';
 import eventService from './(services)/eventApi';
+import CommentSection from '../components/ui/CommentSection';
 import CustomAlert from '../components/ui/CustomAlert';
-import { useAuth } from '~/context/AuthContext';
 import { API_URL } from '../config';
+import ratingService from './(services)/ratingApi';
+
+import { useAuth } from '~/context/AuthContext';
 
 export default function Details() {
   const { isDarkMode } = useTheme();
@@ -22,31 +25,16 @@ export default function Details() {
     visible: boolean;
     title: string;
     message: string;
-    buttons: { text: string; style?: 'default' | 'cancel' | 'destructive'; onPress: () => void; }[];
+    buttons: { text: string; style?: 'default' | 'cancel' | 'destructive'; onPress: () => void }[];
   }>({
     visible: false,
     title: '',
     message: '',
-    buttons: []
+    buttons: [],
   });
-
-  const mockRating = 4.5;
-  const mockComments = [
-    {
-      id: 1,
-      user: 'John Doe',
-      rating: 5,
-      comment: 'Amazing event! Would definitely recommend.',
-      date: '2024-03-15'
-    },
-    {
-      id: 2,
-      user: 'Jane Smith',
-      rating: 4,
-      comment: 'Great organization, but the venue was a bit small.',
-      date: '2024-03-14'
-    }
-  ];
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
 
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
@@ -65,9 +53,9 @@ export default function Details() {
     const fetchEventDetails = async () => {
       if (params.id) {
         const events = await eventService.findAll();
-        const foundEvent = events.find(e => e._id === params.id);
+        const foundEvent = events.find((e) => e._id === params.id);
         setEvent(foundEvent || null);
-        
+
         try {
           const spots = await eventService.getAvailableSpots(params.id as string);
           setAvailableSpots(spots);
@@ -86,12 +74,34 @@ export default function Details() {
     fetchEventDetails();
   }, [params.id, currentUser?._id]);
 
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (!event) return;
+      try {
+        const [average, ratings] = await Promise.all([
+          ratingService.getEventAverageRating(event._id),
+          ratingService.getEventRatings(event._id),
+        ]);
+        setAverageRating(average);
+
+        const userRating = ratings.find((r: any) => r.user._id === currentUser?._id);
+        if (userRating) {
+          setUserRating(userRating.score);
+        }
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
+      }
+    };
+
+    fetchRatings();
+  }, [event?._id, currentUser?._id]);
+
   const showAlert = (config: typeof alertConfig) => {
     setAlertConfig({ ...config, visible: true });
   };
 
   const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
+    setAlertConfig((prev) => ({ ...prev, visible: false }));
   };
 
   const canCancelReservation = (startDate: string): boolean => {
@@ -108,54 +118,52 @@ export default function Details() {
       if (!canCancelReservation(event.startDate.toString())) {
         showAlert({
           visible: true,
-          title: "Cannot Cancel Reservation",
-          message: "Reservations can only be cancelled up to 48 hours before the event starts.",
-          buttons: [
-            { text: "OK", onPress: hideAlert }
-          ]
+          title: 'Cannot Cancel Reservation',
+          message: 'Reservations can only be cancelled up to 48 hours before the event starts.',
+          buttons: [{ text: 'OK', onPress: hideAlert }],
         });
         return;
       }
 
       showAlert({
         visible: true,
-        title: "Cancel Reservation",
-        message: "Are you sure you want to cancel your reservation?",
+        title: 'Cancel Reservation',
+        message: 'Are you sure you want to cancel your reservation?',
         buttons: [
           {
-            text: "Cancel",
-            style: "cancel",
-            onPress: hideAlert
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: hideAlert,
           },
           {
-            text: "Yes, Cancel",
-            style: "destructive",
+            text: 'Yes, Cancel',
+            style: 'destructive',
             onPress: async () => {
               hideAlert();
               await processCancellation();
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
     } else {
       showAlert({
         visible: true,
-        title: "Confirm Reservation",
-        message: "Would you like to reserve a ticket for this event?",
+        title: 'Confirm Reservation',
+        message: 'Would you like to reserve a ticket for this event?',
         buttons: [
           {
-            text: "Cancel",
-            style: "cancel",
-            onPress: hideAlert
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: hideAlert,
           },
           {
-            text: "Reserve",
+            text: 'Reserve',
             onPress: async () => {
               hideAlert();
               await processReservation();
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
     }
   };
@@ -169,16 +177,17 @@ export default function Details() {
       setAvailableSpots(spots);
       showAlert({
         visible: true,
-        title: "Success",
-        message: "Your reservation has been confirmed!",
-        buttons: [{ text: "OK", onPress: hideAlert }]
+        title: 'Success',
+        message: 'Your reservation has been confirmed!',
+        buttons: [{ text: 'OK', onPress: hideAlert }],
       });
     } catch (error) {
+      console.log('Error making reservation:', error);
       showAlert({
         visible: true,
-        title: "Error",
-        message: "Failed to make reservation. Please try again.",
-        buttons: [{ text: "OK", onPress: hideAlert }]
+        title: 'Error',
+        message: 'Failed to make reservation. Please try again.',
+        buttons: [{ text: 'OK', onPress: hideAlert }],
       });
     } finally {
       setIsLoading(false);
@@ -194,19 +203,49 @@ export default function Details() {
       setAvailableSpots(spots);
       showAlert({
         visible: true,
-        title: "Success",
-        message: "Your reservation has been cancelled.",
-        buttons: [{ text: "OK", onPress: hideAlert }]
+        title: 'Success',
+        message: 'Your reservation has been cancelled.',
+        buttons: [{ text: 'OK', onPress: hideAlert }],
       });
     } catch (error) {
+      console.log('Error cancelling reservation:', error);
       showAlert({
         visible: true,
-        title: "Error",
-        message: "Failed to cancel reservation. Please try again.",
-        buttons: [{ text: "OK", onPress: hideAlert }]
+        title: 'Error',
+        message: 'Failed to cancel reservation. Please try again.',
+        buttons: [{ text: 'OK', onPress: hideAlert }],
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRating = async (score: number) => {
+    if (!event || !currentUser) return;
+
+    setIsRatingLoading(true);
+    try {
+      if (userRating) {
+        await ratingService.cancelRating(event._id);
+        setUserRating(null);
+      }
+
+      if (userRating !== score) {
+        await ratingService.createRating(event._id, score);
+        setUserRating(score);
+      }
+
+      const newAverage = await ratingService.getEventAverageRating(event._id);
+      setAverageRating(newAverage);
+    } catch (error: any) {
+      showAlert({
+        visible: true,
+        title: 'Error',
+        message: error.response?.data?.message || 'Failed to update rating',
+        buttons: [{ text: 'OK', onPress: hideAlert }],
+      });
+    } finally {
+      setIsRatingLoading(false);
     }
   };
 
@@ -242,20 +281,20 @@ export default function Details() {
               onPress={handleReservation}
               disabled={isLoading || availableSpots === 0}
               className={`absolute bottom-4 left-4 right-4 rounded-full p-4 ${
-                isLoading 
-                  ? 'bg-gray-500' 
-                  : availableSpots === 0 
+                isLoading
+                  ? 'bg-gray-500'
+                  : availableSpots === 0
                     ? 'bg-red-500'
-                    : isRegistered 
+                    : isRegistered
                       ? 'bg-red-500'
                       : 'bg-blue-500'
               }`}>
-              <Text className="text-center text-white font-semibold">
-                {isLoading 
-                  ? 'Processing...' 
-                  : availableSpots === 0 
+              <Text className="text-center font-semibold text-white">
+                {isLoading
+                  ? 'Processing...'
+                  : availableSpots === 0
                     ? 'Event Full'
-                    : isRegistered 
+                    : isRegistered
                       ? 'Cancel Reservation'
                       : `Reserve a Ticket (${availableSpots} left)`}
               </Text>
@@ -277,19 +316,65 @@ export default function Details() {
           </View>
 
           <View className="mt-4 gap-3">
-            <DetailRow icon="user" label="Organizer" value={`${event.organizer?.firstName} ${event.organizer?.lastName}`} isDarkMode={isDarkMode} />
-            <DetailRow icon="calendar" label="Start" value={new Date(event.startDate).toLocaleString()} isDarkMode={isDarkMode} />
-            <DetailRow icon="calendar" label="End" value={new Date(event.endDate).toLocaleString()} isDarkMode={isDarkMode} />
-            <DetailRow icon="map-pin" label="Location" value={event.location} isDarkMode={isDarkMode} />
-            <DetailRow icon="map" label="City" value={event.city?.name || 'No city specified'} isDarkMode={isDarkMode} />
-            <DetailRow icon="dollar-sign" label="Price" value={`${event.price} DH`} isDarkMode={isDarkMode} />
-            <DetailRow icon="users" label="Capacity" value={`${event.maxParticipants} participants`} isDarkMode={isDarkMode} />
-            <DetailRow icon="user-check" label="Registered" value={`${event.registeredUsers?.length || 0} participants`} isDarkMode={isDarkMode} />
-            <DetailRow icon="eye" label="Visibility" value={event.isPublic ? 'Public' : 'Private'} isDarkMode={isDarkMode} />
+            <DetailRow
+              icon="user"
+              label="Organizer"
+              value={`${event.organizer?.firstName} ${event.organizer?.lastName}`}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="calendar"
+              label="Start"
+              value={new Date(event.startDate).toLocaleString()}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="calendar"
+              label="End"
+              value={new Date(event.endDate).toLocaleString()}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="map-pin"
+              label="Location"
+              value={event.location}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="map"
+              label="City"
+              value={event.city?.name || 'No city specified'}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="dollar-sign"
+              label="Price"
+              value={`${event.price} DH`}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="users"
+              label="Capacity"
+              value={`${event.maxParticipants} participants`}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="user-check"
+              label="Registered"
+              value={`${event.registeredUsers?.length || 0} participants`}
+              isDarkMode={isDarkMode}
+            />
+            <DetailRow
+              icon="eye"
+              label="Visibility"
+              value={event.isPublic ? 'Public' : 'Private'}
+              isDarkMode={isDarkMode}
+            />
           </View>
 
           <View className="mt-4">
-            <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+            <Text
+              className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
               Description
             </Text>
             <Text className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -298,57 +383,49 @@ export default function Details() {
           </View>
 
           <View className="mt-8">
-            <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+            <Text
+              className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
               Ratings
             </Text>
-            <View className="mt-2 flex-row items-center">
-              <Text className={`text-3xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-                {mockRating}
-              </Text>
-              <View className="ml-2 flex-row">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Feather
-                    key={star}
-                    name="star"
-                    size={20}
-                    color={star <= mockRating ? '#FFD700' : '#808080'}
-                  />
-                ))}
+            <View className="mt-2">
+              <View className="flex-row items-center">
+                <Text
+                  className={`text-3xl font-bold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+                  {averageRating.toFixed(1)}
+                </Text>
+                <View className="ml-2 flex-row">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      disabled={isRatingLoading || !event || new Date() < new Date(event.endDate)}
+                      onPress={() => handleRating(star)}>
+                      <Feather
+                        name={star <= (userRating || averageRating) ? 'star' : 'star'}
+                        size={20}
+                        color={star <= (userRating || averageRating) ? '#FFD700' : '#808080'}
+                        style={{ opacity: isRatingLoading ? 0.5 : 1 }}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
+              {new Date() < new Date(event?.endDate || '') && (
+                <Text className="mt-2 text-sm text-gray-500">
+                  Rating will be available after the event ends
+                </Text>
+              )}
+              {userRating && (
+                <Text className={`mt-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Your rating: {userRating}/5
+                </Text>
+              )}
             </View>
           </View>
 
-          <View className="mt-8">
-            <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-              Comments
-            </Text>
-            {mockComments.map((comment) => (
-              <View key={comment.id} className="mt-4 rounded-lg bg-gray-800/20 p-4">
-                <View className="flex-row items-center justify-between">
-                  <Text className={`font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-                    {comment.user}
-                  </Text>
-                  <View className="flex-row">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Feather
-                        key={star}
-                        name="star"
-                        size={16}
-                        color={star <= comment.rating ? '#FFD700' : '#808080'}
-                      />
-                    ))}
-                  </View>
-                </View>
-                <Text className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {comment.comment}
-                </Text>
-                <Text className="mt-2 text-sm text-gray-500">{comment.date}</Text>
-              </View>
-            ))}
-          </View>
+          <CommentSection eventId={event._id} organizerId={event.organizer._id} />
         </View>
       </ScrollView>
-      
+
       <CustomAlert
         visible={alertConfig.visible}
         title={alertConfig.title}
@@ -359,11 +436,22 @@ export default function Details() {
   );
 }
 
-function DetailRow({ icon, label, value, isDarkMode }: { icon: any; label: string; value: string; isDarkMode: boolean }) {
+function DetailRow({
+  icon,
+  label,
+  value,
+  isDarkMode,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  isDarkMode: boolean;
+}) {
   return (
     <View className="flex-row items-center">
       <Feather name={icon} size={20} color={isDarkMode ? '#fff' : '#000'} />
-      <Text className={`ml-2 font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
+      <Text
+        className={`ml-2 font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
         {label}:
       </Text>
       <Text className={`ml-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{value}</Text>

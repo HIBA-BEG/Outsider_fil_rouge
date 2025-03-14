@@ -34,10 +34,7 @@ export class RatingController {
   }
 
   @Delete('event/:id')
-  cancelRating(
-    @Param('id') eventId: string, 
-    @Request() req
-  ) {
+  cancelRating(@Param('id') eventId: string, @Request() req) {
     return this.ratingService.cancelRating(eventId, req.user.id);
   }
 }

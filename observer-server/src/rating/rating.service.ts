@@ -1,6 +1,10 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Rating } from './entities/rating.entity';
 import { Event } from '../event/entities/event.entity';
 import { CreateRatingDto } from './dto/create-rating.dto';
@@ -22,7 +26,9 @@ export class RatingService {
       throw new NotFoundException('Event not found');
     }
 
-    const isRegistered = event.registeredUsers.some((id) => id.toString() === userId );
+    const isRegistered = event.registeredUsers.some(
+      (id) => id.toString() === userId,
+    );
 
     if (!isRegistered) {
       throw new ForbiddenException(
@@ -31,9 +37,7 @@ export class RatingService {
     }
 
     if (new Date() < new Date(event.endDate)) {
-      throw new ForbiddenException(
-        'Cannot rate an event before it has ended',
-      );
+      throw new ForbiddenException('Cannot rate an event before it has ended');
     }
 
     const existingRating = await this.ratingModel.findOne({
@@ -70,7 +74,10 @@ export class RatingService {
   }
 
   async cancelRating(eventId: string, userId: string): Promise<Rating> {
-    const rating = await this.ratingModel.findOneAndDelete({ event: eventId, user: userId });
+    const rating = await this.ratingModel.findOneAndDelete({
+      event: eventId,
+      user: userId,
+    });
     if (!rating) {
       throw new NotFoundException('Rating not found');
     }
