@@ -9,6 +9,7 @@ import eventService from './(services)/eventApi';
 import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '~/context/AuthContext';
 import { API_URL } from '../config';
+import CommentSection from '../components/ui/CommentSection';
 
 export default function Details() {
   const { isDarkMode } = useTheme();
@@ -31,22 +32,6 @@ export default function Details() {
   });
 
   const mockRating = 4.5;
-  const mockComments = [
-    {
-      id: 1,
-      user: 'John Doe',
-      rating: 5,
-      comment: 'Amazing event! Would definitely recommend.',
-      date: '2024-03-15'
-    },
-    {
-      id: 2,
-      user: 'Jane Smith',
-      rating: 4,
-      comment: 'Great organization, but the venue was a bit small.',
-      date: '2024-03-14'
-    }
-  ];
 
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
@@ -318,34 +303,7 @@ export default function Details() {
             </View>
           </View>
 
-          <View className="mt-8">
-            <Text className={`text-lg font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-              Comments
-            </Text>
-            {mockComments.map((comment) => (
-              <View key={comment.id} className="mt-4 rounded-lg bg-gray-800/20 p-4">
-                <View className="flex-row items-center justify-between">
-                  <Text className={`font-semibold ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
-                    {comment.user}
-                  </Text>
-                  <View className="flex-row">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Feather
-                        key={star}
-                        name="star"
-                        size={16}
-                        color={star <= comment.rating ? '#FFD700' : '#808080'}
-                      />
-                    ))}
-                  </View>
-                </View>
-                <Text className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {comment.comment}
-                </Text>
-                <Text className="mt-2 text-sm text-gray-500">{comment.date}</Text>
-              </View>
-            ))}
-          </View>
+          <CommentSection eventId={event._id} organizerId={event.organizer._id} />
         </View>
       </ScrollView>
       
