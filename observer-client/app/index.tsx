@@ -108,7 +108,7 @@ export default function Index() {
     <View className={`flex-1 px-4 ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
       <SafeAreaView className="flex-1">
         <ThemeToggle />
-        <View className="mb-2 mt-2 flex-row items-center justify-between">
+        <View className="mb-2 mt-2 flex-row items-center gap-2">
           <TouchableOpacity onPress={handleProfilePress}>
             <Image
               source={
@@ -119,11 +119,23 @@ export default function Index() {
               className="h-10 w-10 rounded-full"
             />
           </TouchableOpacity>
-          <View className="flex-row items-center gap-2">
+          {/* <View className="flex-row items-center gap-2">
             <Text className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
               {user?.firstName} {user?.lastName}
             </Text>
-          </View>
+          </View> */}
+
+            <TextInput
+              placeholder="Search events, or organizers"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor={isDarkMode ? '#ffffff80' : '#14132A80'}
+              className={`flex-1 rounded-full border px-4 py-3 ${
+                isDarkMode
+                  ? 'border-white/20 bg-white/10 text-white'
+                  : 'border-primary-dark/20 bg-primary-dark/10 text-primary-dark'
+              }`}
+            />
 
           <TouchableOpacity onPress={handleLogout}>
             <View
@@ -134,18 +146,19 @@ export default function Index() {
         </View>
 
         <ScrollView>
-          <View className="mt-4">
+          {/* <View className="mt-4">
             <TextInput
               placeholder="Search events, or organizers"
               value={searchQuery}
               onChangeText={setSearchQuery}
-              className={`rounded-full px-4 py-3 ${
+              placeholderTextColor={isDarkMode ? '#ffffff80' : '#14132A80'}
+              className={`rounded-full border px-4 py-3 ${
                 isDarkMode
-                  ? 'bg-primary-light/30 text-white'
-                  : 'bg-primary-dark/10 text-primary-dark'
+                  ? 'border-white/20 bg-white/10 text-white'
+                  : 'border-primary-dark/20 bg-primary-dark/10 text-primary-dark'
               }`}
             />
-          </View>
+          </View> */}
           <Interests onSelectInterest={handleInterestSelect} selectedInterest={selectedInterest} />
 
           <View className="mt-6">
@@ -155,7 +168,9 @@ export default function Index() {
                 Top Events
               </Text>
               <TouchableOpacity>
-                <Text className="text-gray-400">Voir tous</Text>
+                <Text className={isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}>
+                  See all
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -164,11 +179,10 @@ export default function Index() {
                 <TouchableOpacity
                   key={event._id}
                   onPress={() => handleEventPress(event)}
-                  className={`mr-4 flex w-40 items-center rounded-2xl p-2 backdrop-blur-sm ${
-                    // isDarkMode ? 'bg-primary-light/30' : 'bg-primary-dark/80'
+                  className={`mr-4 w-40 rounded-2xl p-4 ${
                     isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                   }`}>
-                  <View className="h-32 w-32 overflow-hidden rounded-2xl">
+                  <View className="h-32 w-full overflow-hidden rounded-2xl">
                     <Image
                       source={
                         API_URL + event.poster
@@ -176,11 +190,16 @@ export default function Index() {
                           : require('../assets/event3.jpg')
                       }
                       className="h-full w-full"
-                      style={{ backgroundColor: '#4B0082' }}
                     />
                   </View>
-                  <Text className="mt-2 text-base text-white">{event.title}</Text>
-                  <Text className="text-sm text-gray-400">{event.description}</Text>
+                  <Text
+                    className={`mt-2 font-semibold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+                    {event.title}
+                  </Text>
+                  <Text
+                    className={`text-sm ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                    {event.description}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -203,11 +222,10 @@ export default function Index() {
                   <TouchableOpacity
                     key={event._id}
                     onPress={() => handleEventPress(event)}
-                    className={`mt-4 flex items-center rounded-2xl p-4 backdrop-blur-sm ${
-                      // isDarkMode ? 'bg-white/30' : 'bg-black/80'
+                    className={`mt-4 rounded-2xl p-4 ${
                       isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                     }`}>
-                    <View className="h-32 w-full overflow-hidden rounded-2xl">
+                    <View className="h-48 w-full overflow-hidden rounded-2xl">
                       <Image
                         source={
                           API_URL + event.poster
@@ -215,14 +233,22 @@ export default function Index() {
                             : require('../assets/event1.jpg')
                         }
                         className="h-full w-full"
-                        style={{ backgroundColor: '#4B0082' }}
                       />
                     </View>
-                    <Text className="mt-2 text-base text-white">{event.title}</Text>
-                    <Text className="text-sm text-gray-400">{event.description}</Text>
-                    <Text className="text-sm text-gray-400">
-                      {new Date(event.startDate).toLocaleDateString()}
-                    </Text>
+                    <View className="mt-3">
+                      <Text
+                        className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+                        {event.title}
+                      </Text>
+                      <Text
+                        className={`mt-1 text-sm ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                        {event.description}
+                      </Text>
+                      <Text
+                        className={`mt-2 text-sm ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                        📅 {new Date(event.startDate).toLocaleDateString()}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 ))
               )}
