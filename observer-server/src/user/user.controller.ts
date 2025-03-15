@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Request,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './entities/update-profile.dto';
@@ -74,5 +75,20 @@ export class UserController {
   @Get('suggested')
   suggestedUsers(@Request() req) {
     return this.userService.suggestedUsers(req.user.id);
+  }
+
+  @Post('friends/request/:receiverId')
+  sendFriendRequest(@Request() req, @Param('receiverId') receiverId: string) {
+    return this.userService.sendFriendRequest(req.user.id, receiverId);
+  }
+
+  @Get('friends/requests')
+  getReceivedFriendRequests(@Request() req) {
+    return this.userService.getReceivedFriendRequests(req.user.id);
+  }
+
+  @Post('friends/accept/:senderId')
+  acceptFriendRequest(@Request() req, @Param('senderId') senderId: string) {
+    return this.userService.acceptFriendRequest(req.user.id, senderId);
   }
 }
