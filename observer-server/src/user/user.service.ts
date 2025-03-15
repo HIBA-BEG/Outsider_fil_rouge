@@ -412,4 +412,28 @@ export class UserService {
         : 'Friend request cancelled',
     };
   }
+
+  async getFriends(userId: string): Promise<User[]> {
+    const user = await this.userModel.findById(userId).populate({
+      path: 'friends',
+      model: 'User',
+      select: 'firstName lastName email profilePicture city interests',
+      populate: [
+        {
+          path: 'city',
+          select: 'name admin_name',
+        },
+        {
+          path: 'interests',
+          select: 'category description',
+        },
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.friends as unknown as User[];
+  }
 }

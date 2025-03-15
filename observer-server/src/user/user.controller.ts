@@ -106,4 +106,9 @@ export class UserController {
   rejectFriendRequest(@Request() req, @Param('senderId') senderId: string) {
     return this.userService.cancelFriendRequest(senderId, req.user.id, true);
   }
+
+  @Get('myFriends')
+  getFriends(@Request() req) {
+    return this.userService.getFriends(req.user.id);
+  }
 }
