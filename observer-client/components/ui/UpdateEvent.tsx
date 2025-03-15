@@ -1,16 +1,16 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
+
+import CustomAlert from './CustomAlert';
+import cityService from '../../app/(services)/cityApi';
+import interestService from '../../app/(services)/interestApi';
 import { useTheme } from '../../context/ThemeContext';
+import { City } from '../../types/city';
 import { Event } from '../../types/event';
 import { Interest } from '../../types/interest';
-import { City } from '../../types/city';
-import interestService from '../../app/(services)/interestApi';
-import cityService from '../../app/(services)/cityApi';
-import eventService from '../../app/(services)/eventApi';
-import CustomAlert from './CustomAlert';
-import * as ImagePicker from 'expo-image-picker';
 
 interface UpdateEventProps {
   isVisible: boolean;
@@ -41,10 +41,12 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-  const [images, setImages] = useState<string[]>(event.poster || []);
+  // const [images, setImages] = useState<string[]>(event.poster || []);
+  const [images, setImages] = useState<string[]>(
+    Array.isArray(event.poster) ? event.poster : event.poster ? [event.poster] : []
+  );
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,9 +72,14 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
   const handleUpdate = async () => {
     try {
       setLoading(true);
-      await onUpdate(formData);
+      await onUpdate({
+        ...formData,
+        maxParticipants: parseInt(formData.maxParticipants, 10),
+        price: parseFloat(formData.price),
+      });
       onClose();
     } catch (error) {
+      console.error('Error updating event:', error);
       setErrorMessage('Failed to update event. Please try again.');
       setShowErrorAlert(true);
     } finally {
@@ -96,7 +103,7 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
 
   return (
     <>
-      <Modal visible={isVisible} animationType="slide" transparent={true}>
+      <Modal visible={isVisible} animationType="slide" transparent>
         <TouchableOpacity
           activeOpacity={1}
           onPress={onClose}
@@ -124,7 +131,6 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                 Update Event
               </Text>
 
-              
               <View
                 className={`mb-4 h-[1px] w-full ${
                   isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
@@ -356,21 +362,24 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                     <TouchableOpacity
                       key={interest._id}
                       onPress={() => {
-                        setFormData(prev => {
-                          const currentInterests = Array.isArray(prev.interests) ? prev.interests : [];
-                          const isSelected = currentInterests.some(i => i._id === interest._id);
+                        setFormData((prev) => {
+                          const currentInterests = Array.isArray(prev.interests)
+                            ? prev.interests
+                            : [];
+                          const isSelected = currentInterests.some((i) => i._id === interest._id);
                           return {
                             ...prev,
                             interests: isSelected
-                              ? currentInterests.filter(i => i._id !== interest._id)
-                              : [...currentInterests, interest]
+                              ? currentInterests.filter((i) => i._id !== interest._id)
+                              : [...currentInterests, interest],
                           };
                         });
                       }}
                       className={`rounded-full px-4 py-2 ${
-                        (Array.isArray(formData.interests) && formData.interests.some(i => i._id === interest._id))
-                          ? isDarkMode 
-                            ? 'border-white/40 bg-white/20' 
+                        Array.isArray(formData.interests) &&
+                        formData.interests.some((i) => i._id === interest._id)
+                          ? isDarkMode
+                            ? 'border-white/40 bg-white/20'
                             : 'border-primary-dark bg-primary-dark'
                           : isDarkMode
                             ? 'border-white/20 bg-white/10'
@@ -378,7 +387,8 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                       } border`}>
                       <Text
                         className={`${
-                          (Array.isArray(formData.interests) && formData.interests.some(i => i._id === interest._id))
+                          Array.isArray(formData.interests) &&
+                          formData.interests.some((i) => i._id === interest._id)
                             ? 'text-white'
                             : isDarkMode
                               ? 'text-white/80'
@@ -485,7 +495,6 @@ const UpdateEvent = ({ isVisible, onClose, event, onUpdate }: UpdateEventProps) 
                   <Text className="text-green-500">{loading ? 'Updating...' : 'Update'}</Text>
                 </TouchableOpacity>
               </View>
-
             </ScrollView>
           </TouchableOpacity>
         </TouchableOpacity>

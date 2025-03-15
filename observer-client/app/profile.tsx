@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,16 +9,18 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
+
+import { API_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
-import { ActivityIndicator } from 'react-native';
 import { User } from '../types/user';
-import userService from './(services)/userApi';
 import eventService from './(services)/eventApi';
+import userService from './(services)/userApi';
+import CustomAlert from '../components/ui/CustomAlert';
 import UpdateProfile from '../components/ui/UpdateProfile';
 import { Event } from '../types/event';
-import { router } from 'expo-router';
-import { API_URL } from '../config';
+
 const Profile = () => {
   const { isDarkMode } = useTheme();
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -326,6 +329,30 @@ const Profile = () => {
           onUpdate={handleUpdateProfile}
         />
       )}
+
+      <CustomAlert
+        visible={showSuccessAlert}
+        title="Success"
+        message={successMessage}
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowSuccessAlert(false),
+          },
+        ]}
+      />
+
+      <CustomAlert
+        visible={showErrorAlert}
+        title="Error"
+        message={errorMessage}
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowErrorAlert(false),
+          },
+        ]}
+      />
     </SafeAreaView>
   );
 };

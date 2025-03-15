@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '../../types/user';
+
 import axiosInstance from './axiosInstance';
+import { User } from '../../types/user';
 
 const userService = {
   async getProfile(): Promise<User> {

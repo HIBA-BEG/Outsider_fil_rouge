@@ -64,7 +64,7 @@ export class UserController {
   archivedUsers() {
     return this.userService.archivedUsers();
   }
-  
+
   @Get('banned')
   @Roles(UserRole.ADMIN)
   bannedUsers() {

@@ -1,6 +1,6 @@
-import { City } from "./city";
-import { Interest } from "./interest";
-import { User } from "./user";
+import { City } from './city';
+import { Interest } from './interest';
+import { User } from './user';
 
 export interface Event {
   _id: string;

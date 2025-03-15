@@ -9,8 +9,6 @@ import {
   Request,
 } from '@nestjs/common';
 import { EventService } from './event.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
 import { Public } from '../authentication/decorators/public.decorator';
@@ -22,7 +20,7 @@ export class EventController {
 
   @Post()
   @Roles(UserRole.ORGANIZER)
-  async create(@Body() createEventDto: CreateEventDto, @Request() req) {
+  async create(@Body() @Request() req) {
     console.log('Request body:', req.body);
 
     const eventData = {

@@ -1,11 +1,13 @@
+import { Feather } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
-import commentService from '../../app/(services)/commentApi';
+
 import CustomAlert from './CustomAlert';
+import commentService from '../../app/(services)/commentApi';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Comment } from '../../types/comment';
+
 import { API_URL } from '~/config';
 
 interface CommentSectionProps {
@@ -39,6 +41,7 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
       const data = await commentService.getEventComments(eventId);
       setComments(data);
     } catch (error) {
+      console.log('Error loading comments:', error);
       setErrorMessage('Failed to load comments');
       setShowErrorAlert(true);
     }
@@ -53,6 +56,7 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
       setNewComment('');
       await loadComments();
     } catch (error) {
+      console.log('Error adding comment:', error);
       setErrorMessage('Failed to add comment');
       setShowErrorAlert(true);
     } finally {
@@ -69,6 +73,7 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
       setEditingComment(null);
       await loadComments();
     } catch (error) {
+      console.log('Error updating comment:', error);
       setErrorMessage('Failed to update comment');
       setShowErrorAlert(true);
     } finally {
@@ -94,6 +99,7 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
       }
       await loadComments();
     } catch (error) {
+      console.log('Error deleting comment:', error);
       setErrorMessage('Failed to delete comment');
       setShowErrorAlert(true);
     } finally {
@@ -107,6 +113,8 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
         className={`text-lg font-semibold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
         Comments
       </Text>
+
+      {isLoading && <ActivityIndicator size="large" color={isDarkMode ? '#fff' : '#000'} />}
 
       <View className="mt-4 flex-row items-center gap-2">
         <TextInput
@@ -192,12 +200,12 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
               <View className="mt-2 flex-row justify-end gap-2">
                 <TouchableOpacity
                   onPress={() => setEditingComment(null)}
-                  className={`rounded-full border border-red-500 bg-red-500/10 px-4 py-2`}>
+                  className="rounded-full border border-red-500 bg-red-500/10 px-4 py-2">
                   <Text className="text-red-500">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleUpdateComment}
-                  className={`rounded-full border border-green-500 bg-green-500/10 px-4 py-2`}>
+                  className="rounded-full border border-green-500 bg-green-500/10 px-4 py-2">
                   <Text className="text-green-500">Save</Text>
                 </TouchableOpacity>
               </View>
