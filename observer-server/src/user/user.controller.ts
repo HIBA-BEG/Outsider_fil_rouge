@@ -82,9 +82,14 @@ export class UserController {
     return this.userService.sendFriendRequest(req.user.id, receiverId);
   }
 
-  @Get('friends/requests')
+  @Get('friends/requests/received')
   getReceivedFriendRequests(@Request() req) {
     return this.userService.getReceivedFriendRequests(req.user.id);
+  }
+
+  @Get('friends/requests/sent')
+  getSentFriendRequests(@Request() req) {
+    return this.userService.getSentFriendRequests(req.user.id);
   }
 
   @Post('friends/accept/:senderId')

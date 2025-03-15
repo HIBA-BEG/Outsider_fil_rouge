@@ -298,6 +298,35 @@ export class UserService {
     return user.friendRequestsReceived as unknown as User[];
   }
 
+  async getSentFriendRequests(userId: string): Promise<User[]> {
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password')
+      .populate({
+        path: 'friendRequestsSent',
+        model: 'User',
+        select: 'firstName lastName email profilePicture city interests',
+        populate: [
+          {
+            path: 'interests',
+            select: 'category description',
+          },
+          {
+            path: 'city',
+            model: 'City',
+            select: 'name admin_name',
+          },
+        ],
+      });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // console.log('sent friend requests', user);
+    return user.friendRequestsSent as unknown as User[];
+  }
+
   async acceptFriendRequest(
     userId: string,
     senderId: string,
@@ -332,4 +361,5 @@ export class UserService {
 
     return { message: 'Friend request accepted' };
   }
+
 }
