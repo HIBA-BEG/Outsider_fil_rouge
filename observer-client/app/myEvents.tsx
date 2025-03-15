@@ -29,6 +29,7 @@ export default function MyEvents() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -113,7 +114,7 @@ export default function MyEvents() {
     try {
       await eventService.deleteEvent(eventToDelete);
       setShowDeleteAlert(false);
-      setShowSuccessAlert(true);
+      setShowDeleteSuccessAlert(true);
       fetchMyEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
@@ -289,9 +290,21 @@ export default function MyEvents() {
       />
 
       <CustomAlert
-        visible={showSuccessAlert}
+        visible={showDeleteSuccessAlert}
         title="Success"
         message="Event deleted successfully"
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowDeleteSuccessAlert(false),
+          },
+        ]}
+      />
+
+      <CustomAlert
+        visible={showSuccessAlert}
+        title="Success"
+        message="Event updated successfully"
         buttons={[
           {
             text: 'OK',

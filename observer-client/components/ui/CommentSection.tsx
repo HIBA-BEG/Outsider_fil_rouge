@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 
 import CustomAlert from './CustomAlert';
 import commentService from '../../app/(services)/commentApi';
@@ -113,6 +113,8 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
         className={`text-lg font-semibold underline ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}>
         Comments
       </Text>
+
+      {isLoading && <ActivityIndicator size="large" color={isDarkMode ? '#fff' : '#000'} />}
 
       <View className="mt-4 flex-row items-center gap-2">
         <TextInput

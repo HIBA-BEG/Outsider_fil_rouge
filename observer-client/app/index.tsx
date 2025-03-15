@@ -160,10 +160,11 @@ export default function Index() {
               placeholder="Search events, or organizers"
               value={searchQuery}
               onChangeText={setSearchQuery}
-              className={`rounded-full px-4 py-3 ${
+              placeholderTextColor={isDarkMode ? '#ffffff80' : '#14132A80'}
+              className={`rounded-full border px-4 py-3 ${
                 isDarkMode
-                  ? 'bg-primary-light/30 text-white'
-                  : 'bg-primary-dark/10 text-primary-dark'
+                  ? 'border-white/20 bg-white/10 text-white'
+                  : 'border-primary-dark/20 bg-primary-dark/10 text-primary-dark'
               }`}
             />
           </View> */}

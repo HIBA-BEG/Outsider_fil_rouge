@@ -27,8 +27,8 @@ export class CommentController {
     return this.commentService.create(eventId, req.user.id, createCommentDto);
   }
 
-  @Get('event/:id')
   @Public()
+  @Get('event/:id')
   findByEvent(@Param('id') eventId: string) {
     return this.commentService.findByEvent(eventId);
   }

@@ -84,7 +84,7 @@ export default function Details() {
         ]);
         setAverageRating(average);
 
-        const userRating = ratings.find((r: any) => r.user._id === currentUser?._id);
+        const userRating = ratings.find((r) => r.user._id === currentUser?._id);
         if (userRating) {
           setUserRating(userRating.score);
         }

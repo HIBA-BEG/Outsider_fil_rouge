@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
+import { Public } from '../authentication/decorators/public.decorator';
 
 @Controller('ratings')
 export class RatingController {
@@ -24,11 +25,13 @@ export class RatingController {
   }
 
   @Get('event/:id/average')
+  @Public()
   getEventAverageRating(@Param('id') eventId: string) {
     return this.ratingService.getEventAverageRating(eventId);
   }
 
   @Get('event/:id')
+  @Public()
   getEventRatings(@Param('id') eventId: string) {
     return this.ratingService.getEventRatings(eventId);
   }
