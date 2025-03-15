@@ -362,4 +362,54 @@ export class UserService {
     return { message: 'Friend request accepted' };
   }
 
+  async cancelFriendRequest(
+    senderId: string,
+    receiverId: string,
+    isReceiverRejecting: boolean,
+  ): Promise<{ message: string }> {
+    const [sender, receiver] = await Promise.all([
+      this.userModel.findById(senderId),
+      this.userModel.findById(receiverId),
+    ]);
+
+    if (!sender || !receiver) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (isReceiverRejecting) {
+      if (
+        !receiver.friendRequestsReceived.includes(new Types.ObjectId(senderId))
+      ) {
+        throw new HttpException(
+          'Friend request not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } else {
+      if (!sender.friendRequestsSent.includes(new Types.ObjectId(receiverId))) {
+        throw new HttpException(
+          'Friend request not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    // console.log('sender', sender.friendRequestsSent);
+    // console.log('receiver', receiver.friendRequestsReceived);
+
+    sender.friendRequestsSent = sender.friendRequestsSent.filter(
+      (id) => id.toString() !== receiverId,
+    );
+    receiver.friendRequestsReceived = receiver.friendRequestsReceived.filter(
+      (id) => id.toString() !== senderId,
+    );
+
+    await Promise.all([sender.save(), receiver.save()]);
+
+    return {
+      message: isReceiverRejecting
+        ? 'Friend request rejected'
+        : 'Friend request cancelled',
+    };
+  }
 }
