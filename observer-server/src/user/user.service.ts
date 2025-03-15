@@ -436,4 +436,28 @@ export class UserService {
 
     return user.friends as unknown as User[];
   }
+
+  async removeFriend(
+    loggedUserId: string,
+    friendId: string,
+  ): Promise<{ message: string }> {
+    const [loggedUser, friend] = await Promise.all([
+      this.userModel.findById(loggedUserId),
+      this.userModel.findById(friendId),
+    ]);
+
+    if (!loggedUser || !friend) {
+      throw new NotFoundException('User not found');
+    }
+
+    loggedUser.friends = loggedUser.friends.filter(
+      (id) => id.toString() !== friendId,
+    );
+    friend.friends = friend.friends.filter(
+      (id) => id.toString() !== loggedUserId,
+    );
+
+    await Promise.all([loggedUser.save(), friend.save()]);
+    return { message: 'Friend removed' };
+  }
 }

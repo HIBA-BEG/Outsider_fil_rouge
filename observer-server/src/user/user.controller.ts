@@ -111,4 +111,9 @@ export class UserController {
   getFriends(@Request() req) {
     return this.userService.getFriends(req.user.id);
   }
+
+  @Delete('friends/:friendId')
+  removeFriend(@Request() req, @Param('friendId') friendId: string) {
+    return this.userService.removeFriend(req.user.id, friendId);
+  }
 }
