@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-
 import { Interest } from '../../types/interest';
 
 const interestService = {
@@ -24,7 +23,6 @@ const interestService = {
     }
   },
 
-
   createInterest: async (data: { category: string; description: string }): Promise<Interest> => {
     try {
       const response = await axiosInstance.post('/interests', data);
@@ -35,7 +33,10 @@ const interestService = {
     }
   },
 
-  updateInterest: async (id: string, data: { category: string; description: string }): Promise<Interest> => {
+  updateInterest: async (
+    id: string,
+    data: { category: string; description: string }
+  ): Promise<Interest> => {
     try {
       const response = await axiosInstance.patch(`/interests/${id}`, data);
       return response.data;

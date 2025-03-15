@@ -35,7 +35,7 @@ export default function Register() {
     visible: false,
     title: '',
     message: '',
-    buttons: [] as { text: string; onPress: () => void }[]
+    buttons: [] as { text: string; onPress: () => void }[],
   });
 
   const pickImage = async () => {
@@ -88,7 +88,9 @@ export default function Register() {
           visible: true,
           title: 'Missing Image',
           message: 'Please select a profile picture',
-          buttons: [{ text: 'OK', onPress: () => setAlertConfig(prev => ({ ...prev, visible: false })) }]
+          buttons: [
+            { text: 'OK', onPress: () => setAlertConfig((prev) => ({ ...prev, visible: false })) },
+          ],
         });
         return;
       }
@@ -102,7 +104,6 @@ export default function Register() {
       formData.append('city', selectedCity);
       formData.append('interests', JSON.stringify(selectedInterests));
 
-    
       const filename = image.split('/').pop() || 'profile.jpg';
       const match = /\.(\w+)$/.exec(filename);
       const fileType = match ? `image/${match[1]}` : 'image/jpeg';
@@ -124,14 +125,16 @@ export default function Register() {
           visible: true,
           title: 'Success!',
           message: 'Your account has been created successfully',
-          buttons: [{
-            text: 'Continue',
-            onPress: async () => {
-              setAlertConfig(prev => ({ ...prev, visible: false }));
-              await AsyncStorage.setItem('authToken', response.token);
-              router.replace('/');
-            }
-          }]
+          buttons: [
+            {
+              text: 'Continue',
+              onPress: async () => {
+                setAlertConfig((prev) => ({ ...prev, visible: false }));
+                await AsyncStorage.setItem('authToken', response.token);
+                router.replace('/');
+              },
+            },
+          ],
         });
       }
     } catch (error) {
@@ -139,7 +142,9 @@ export default function Register() {
         visible: true,
         title: 'Registration Failed',
         message: error instanceof Error ? error.message : 'An unexpected error occurred',
-        buttons: [{ text: 'OK', onPress: () => setAlertConfig(prev => ({ ...prev, visible: false })) }]
+        buttons: [
+          { text: 'OK', onPress: () => setAlertConfig((prev) => ({ ...prev, visible: false })) },
+        ],
       });
     }
   };

@@ -1,5 +1,5 @@
-import { User } from "./user";
-import { Event } from "./event";
+import { Event } from './event';
+import { User } from './user';
 
 export interface Comment {
   _id: string;
@@ -11,4 +11,3 @@ export interface Comment {
   createdAt: Date;
   updatedAt: Date;
 }
-

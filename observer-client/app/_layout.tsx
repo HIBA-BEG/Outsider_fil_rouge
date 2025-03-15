@@ -2,8 +2,8 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 
-import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import { ThemeProvider } from '../context/ThemeContext';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.

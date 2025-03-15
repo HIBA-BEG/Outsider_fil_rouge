@@ -1,6 +1,7 @@
-import axios from 'axios';
-import { API_URL } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+import { API_URL } from '../../config';
 const ratingService = {
   createRating: async (eventId: string, score: number) => {
     const token = await AsyncStorage.getItem('authToken');

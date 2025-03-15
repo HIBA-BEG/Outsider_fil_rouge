@@ -1,14 +1,15 @@
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+
 import { useTheme } from '../context/ThemeContext';
 import interestService from './(services)/interestApi';
-import CustomAlert from '../components/ui/CustomAlert';
-import { Interest } from '../types/interest';
 import AddInterest from '../components/ui/AddInterest';
+import CustomAlert from '../components/ui/CustomAlert';
 import UpdateInterest from '../components/ui/UpdateInterest';
+import { Interest } from '../types/interest';
 
 export default function InterestManagement() {
   const { isDarkMode } = useTheme();
@@ -37,6 +38,7 @@ export default function InterestManagement() {
       );
       setInterests(sortedInterests);
     } catch (error) {
+      console.log('Error loading interests:', error);
       setErrorMessage('Failed to load interests');
       setShowErrorAlert(true);
     } finally {
@@ -54,6 +56,7 @@ export default function InterestManagement() {
       loadInterests();
       setShowSuccessAlert(true);
     } catch (error) {
+      console.log('Error updating interest:', error);
       setErrorMessage('Failed to update interest');
       setShowErrorAlert(true);
     }
@@ -73,6 +76,7 @@ export default function InterestManagement() {
       loadInterests();
       setShowSuccessAlert(true);
     } catch (error) {
+      console.log('Error deleting interest:', error);
       setErrorMessage('Failed to delete interest');
       setShowDeleteAlert(false);
       setShowErrorAlert(true);
@@ -107,7 +111,8 @@ export default function InterestManagement() {
               </TouchableOpacity>
             </View>
 
-            <Text className={`text-2xl mt-6 text-center font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
+            <Text
+              className={`mt-6 text-center text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
               Manage Interests
             </Text>
 

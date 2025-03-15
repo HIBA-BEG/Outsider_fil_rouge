@@ -3,7 +3,7 @@ import axiosInstance from './axiosInstance';
 import { City } from '~/types/city';
 
 const cityService = {
-  async getAllCities(): Promise<string[]> {
+  async getAllCities(): Promise<City[]> {
     try {
       const response = await axiosInstance.get('/cities/all');
       // console.log('Cities:', response.data);

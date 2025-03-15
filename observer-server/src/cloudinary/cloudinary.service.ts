@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   UploadApiResponse,
   UploadApiErrorResponse,
-  v2 as cloudinary,
+  // v2 as cloudinary,
   v2,
 } from 'cloudinary';
-import { Readable } from 'stream';
 import toStream from 'buffer-to-stream';
 
 @Injectable()
