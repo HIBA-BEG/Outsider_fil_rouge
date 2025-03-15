@@ -82,13 +82,38 @@ export class UserController {
     return this.userService.sendFriendRequest(req.user.id, receiverId);
   }
 
-  @Get('friends/requests')
+  @Get('friends/requests/received')
   getReceivedFriendRequests(@Request() req) {
     return this.userService.getReceivedFriendRequests(req.user.id);
+  }
+
+  @Get('friends/requests/sent')
+  getSentFriendRequests(@Request() req) {
+    return this.userService.getSentFriendRequests(req.user.id);
   }
 
   @Post('friends/accept/:senderId')
   acceptFriendRequest(@Request() req, @Param('senderId') senderId: string) {
     return this.userService.acceptFriendRequest(req.user.id, senderId);
+  }
+
+  @Delete('friends/cancel/:receiverId')
+  cancelFriendRequest(@Request() req, @Param('receiverId') receiverId: string) {
+    return this.userService.cancelFriendRequest(req.user.id, receiverId, false);
+  }
+
+  @Delete('friends/reject/:senderId')
+  rejectFriendRequest(@Request() req, @Param('senderId') senderId: string) {
+    return this.userService.cancelFriendRequest(senderId, req.user.id, true);
+  }
+
+  @Get('myFriends')
+  getFriends(@Request() req) {
+    return this.userService.getFriends(req.user.id);
+  }
+
+  @Delete('friends/:friendId')
+  removeFriend(@Request() req, @Param('friendId') friendId: string) {
+    return this.userService.removeFriend(req.user.id, friendId);
   }
 }

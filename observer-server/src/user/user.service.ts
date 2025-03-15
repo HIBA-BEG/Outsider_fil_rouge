@@ -298,6 +298,35 @@ export class UserService {
     return user.friendRequestsReceived as unknown as User[];
   }
 
+  async getSentFriendRequests(userId: string): Promise<User[]> {
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password')
+      .populate({
+        path: 'friendRequestsSent',
+        model: 'User',
+        select: 'firstName lastName email profilePicture city interests',
+        populate: [
+          {
+            path: 'interests',
+            select: 'category description',
+          },
+          {
+            path: 'city',
+            model: 'City',
+            select: 'name admin_name',
+          },
+        ],
+      });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // console.log('sent friend requests', user);
+    return user.friendRequestsSent as unknown as User[];
+  }
+
   async acceptFriendRequest(
     userId: string,
     senderId: string,
@@ -331,5 +360,104 @@ export class UserService {
     await Promise.all([user.save(), sender.save()]);
 
     return { message: 'Friend request accepted' };
+  }
+
+  async cancelFriendRequest(
+    senderId: string,
+    receiverId: string,
+    isReceiverRejecting: boolean,
+  ): Promise<{ message: string }> {
+    const [sender, receiver] = await Promise.all([
+      this.userModel.findById(senderId),
+      this.userModel.findById(receiverId),
+    ]);
+
+    if (!sender || !receiver) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (isReceiverRejecting) {
+      if (
+        !receiver.friendRequestsReceived.includes(new Types.ObjectId(senderId))
+      ) {
+        throw new HttpException(
+          'Friend request not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } else {
+      if (!sender.friendRequestsSent.includes(new Types.ObjectId(receiverId))) {
+        throw new HttpException(
+          'Friend request not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    // console.log('sender', sender.friendRequestsSent);
+    // console.log('receiver', receiver.friendRequestsReceived);
+
+    sender.friendRequestsSent = sender.friendRequestsSent.filter(
+      (id) => id.toString() !== receiverId,
+    );
+    receiver.friendRequestsReceived = receiver.friendRequestsReceived.filter(
+      (id) => id.toString() !== senderId,
+    );
+
+    await Promise.all([sender.save(), receiver.save()]);
+
+    return {
+      message: isReceiverRejecting
+        ? 'Friend request rejected'
+        : 'Friend request cancelled',
+    };
+  }
+
+  async getFriends(userId: string): Promise<User[]> {
+    const user = await this.userModel.findById(userId).populate({
+      path: 'friends',
+      model: 'User',
+      select: 'firstName lastName email profilePicture city interests',
+      populate: [
+        {
+          path: 'city',
+          select: 'name admin_name',
+        },
+        {
+          path: 'interests',
+          select: 'category description',
+        },
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.friends as unknown as User[];
+  }
+
+  async removeFriend(
+    loggedUserId: string,
+    friendId: string,
+  ): Promise<{ message: string }> {
+    const [loggedUser, friend] = await Promise.all([
+      this.userModel.findById(loggedUserId),
+      this.userModel.findById(friendId),
+    ]);
+
+    if (!loggedUser || !friend) {
+      throw new NotFoundException('User not found');
+    }
+
+    loggedUser.friends = loggedUser.friends.filter(
+      (id) => id.toString() !== friendId,
+    );
+    friend.friends = friend.friends.filter(
+      (id) => id.toString() !== loggedUserId,
+    );
+
+    await Promise.all([loggedUser.save(), friend.save()]);
+    return { message: 'Friend removed' };
   }
 }
