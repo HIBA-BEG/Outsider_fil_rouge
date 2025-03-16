@@ -188,6 +188,82 @@ const userService = {
           Authorization: `Bearer ${token}`,
         },
       });
+      // console.log('Sent friend requests response::', response.data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async getReceivedFriendRequests(): Promise<User[]> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get('/user/friends/requests/received', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async acceptFriendRequest(senderId: string): Promise<{ message: string }> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.post(
+        `/user/friends/accept/${senderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async rejectFriendRequest(senderId: string): Promise<{ message: string }> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.delete(`/user/friends/reject/${senderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async getFriends(): Promise<User[]> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get('/user/myFriends', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('my Friends response::', response.data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async removeFriend(friendId: string): Promise<{ message: string }> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.delete(`/user/friends/${friendId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
