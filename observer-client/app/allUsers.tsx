@@ -21,12 +21,15 @@ export default function AllUsers() {
   const { isDarkMode } = useTheme();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [sentFriendRequests, setSentFriendRequests] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  // const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  // const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
+  const [userToCancel, setUserToCancel] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'organizers' | 'participants' | 'suggestions'>(
     'suggestions'
   );
@@ -69,9 +72,10 @@ export default function AllUsers() {
 
   const handleAddFriend = async (userId: string) => {
     try {
-      // i'll handle the friend request later
-      // setSuccessMessage('Friend request sent successfully');
-      // setShowSuccessAlert(true);
+      await userService.sendFriendRequest(userId);
+      setSentFriendRequests((prev) => [...prev, userId]);
+      setSuccessMessage('Friend request sent successfully');
+      setShowSuccessAlert(true);
     } catch (error) {
       console.log('Error sending friend request:', error);
       setErrorMessage('Failed to send friend request');
@@ -79,15 +83,48 @@ export default function AllUsers() {
     }
   };
 
+  const handleCancelRequest = (userId: string) => {
+    setUserToCancel(userId);
+    setShowConfirmationAlert(true);
+  };
+
+  const confirmCancelRequest = async () => {
+    if (!userToCancel) return;
+
+    try {
+      await userService.cancelFriendRequest(userToCancel);
+      setSentFriendRequests((prev) => prev.filter((id) => id !== userToCancel));
+      setSuccessMessage('Friend request cancelled successfully');
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.log('Error cancelling friend request:', error);
+      setErrorMessage('Failed to cancel friend request');
+      setShowErrorAlert(true);
+    } finally {
+      setShowConfirmationAlert(false);
+      setUserToCancel(null);
+    }
+  };
+
+  const fetchSentFriendRequests = async () => {
+    try {
+      const requests = await userService.getSentFriendRequests();
+      setSentFriendRequests(requests.map((user) => user._id));
+    } catch (error) {
+      console.error('Error fetching sent friend requests:', error);
+    }
+  };
+
   useEffect(() => {
     // console.log('Tab changed to:', activeTab);
     fetchUsers();
+    fetchSentFriendRequests();
   }, [activeTab]);
 
   const TabButton = ({ title, tab }: { title: string; tab: typeof activeTab }) => (
     <TouchableOpacity
       onPress={() => setActiveTab(tab)}
-      className={`flex-1 rounded-full px-4 py-2 ${
+      className={`flex-1 rounded-full p-2 ${
         activeTab === tab ? (isDarkMode ? 'bg-white/20' : 'bg-primary-dark') : 'bg-transparent'
       }`}>
       <Text
@@ -178,14 +215,34 @@ export default function AllUsers() {
                           )}
                         </View>
                         <TouchableOpacity
-                          onPress={() => handleAddFriend(user._id)}
+                          onPress={() =>
+                            sentFriendRequests.includes(user._id)
+                              ? handleCancelRequest(user._id)
+                              : handleAddFriend(user._id)
+                          }
                           className={`rounded-full p-2 ${
-                            isDarkMode ? 'bg-blue-500/20' : 'bg-blue-500/10'
+                            sentFriendRequests.includes(user._id)
+                              ? isDarkMode
+                                ? 'bg-red-500/20'
+                                : 'bg-red-500/10'
+                              : isDarkMode
+                                ? 'bg-blue-500/20'
+                                : 'bg-blue-500/10'
                           }`}>
                           <Feather
-                            name="user-plus"
+                            name={
+                              sentFriendRequests.includes(user._id) ? 'user-minus' : 'user-plus'
+                            }
                             size={18}
-                            color={isDarkMode ? '#3b82f6' : '#2563eb'}
+                            color={
+                              sentFriendRequests.includes(user._id)
+                                ? isDarkMode
+                                  ? '#ef4444'
+                                  : '#dc2626'
+                                : isDarkMode
+                                  ? '#3b82f6'
+                                  : '#2563eb'
+                            }
                           />
                         </TouchableOpacity>
                       </View>
@@ -240,6 +297,38 @@ export default function AllUsers() {
       </SafeAreaView>
 
       <CustomAlert
+        visible={showSuccessAlert}
+        title="Success"
+        message={successMessage}
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowSuccessAlert(false),
+          },
+        ]}
+      />
+
+      <CustomAlert
+        visible={showConfirmationAlert}
+        title="Cancel Friend Request"
+        message="Are you sure you want to cancel this friend request?"
+        buttons={[
+          {
+            text: 'No',
+            style: 'destructive',
+            onPress: () => {
+              setShowConfirmationAlert(false);
+              setUserToCancel(null);
+            },
+          },
+          {
+            text: 'Yes',
+            onPress: confirmCancelRequest,
+          },
+        ]}
+      />
+
+      <CustomAlert
         visible={showErrorAlert}
         title="Error"
         message={errorMessage}
@@ -250,18 +339,6 @@ export default function AllUsers() {
           },
         ]}
       />
-
-      {/* <CustomAlert
-        visible={showSuccessAlert}
-        title="Success"
-        message={successMessage}
-        buttons={[
-          {
-            text: 'OK',
-            onPress: () => setShowSuccessAlert(false),
-          },
-        ]}
-      /> */}
     </>
   );
 }
