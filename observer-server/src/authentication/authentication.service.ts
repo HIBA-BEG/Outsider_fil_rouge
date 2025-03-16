@@ -124,6 +124,12 @@ export class AuthenticationService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      if (user.isBanned) {
+        throw new UnauthorizedException(
+          'Your account has been banned. Please contact support for more information.',
+        );
+      }
+
       const isPasswordValid = await bcrypt.compare(
         loginAuthDto.password,
         user.password,
@@ -136,6 +142,7 @@ export class AuthenticationService {
         id: user._id,
         email: user.email,
         role: user.role,
+        isBanned: user.isBanned,
       };
 
       // console.log('Login payload:', payload);
