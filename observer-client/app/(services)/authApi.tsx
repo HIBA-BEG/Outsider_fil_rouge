@@ -16,12 +16,19 @@ class AuthApi {
         email,
         password,
       });
-      // console.log('Login response:', response.data);
+
+      console.log('Login response::', response.data);
 
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
-      throw this.handleError(error);
+      if (error.response?.status === 401 && error.response?.data?.message?.includes('banned')) {
+        throw new Error('ACCOUNT_BANNED');
+      }
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      // console.error('Login error:', error);
+      throw new Error('An error occurred during login');
     }
   }
 

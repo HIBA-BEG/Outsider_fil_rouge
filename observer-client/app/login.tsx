@@ -7,6 +7,8 @@ import AuthApi from './(services)/authApi';
 import Illustration from '../components/ui/Illustration';
 import { useAuth } from '../context/AuthContext';
 
+import CustomAlert from '~/components/ui/CustomAlert';
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const screenWidth = Dimensions.get('window').width;
@@ -15,6 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showBanAlert, setShowBanAlert] = useState(false);
 
   const { login } = useAuth();
 
@@ -24,113 +27,133 @@ export default function Login() {
       setError('');
 
       const response = await AuthApi.login(email, password);
-
-      // console.log('response f login', response);
-
-      // await AsyncStorage.setItem('authToken', response.token);
-
       AuthApi.setAuthToken(response.token);
-
       await login(response.token);
-
       // console.log('token f login', response.token);
 
       router.push('/');
     } catch (error: any) {
-      console.log('error f login', error);
-      setError(error.message);
+      if (error.message === 'ACCOUNT_BANNED') {
+        setShowBanAlert(true);
+      } else {
+        console.log('error f login', error);
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary-dark">
-      <View className="flex-1">
-        <View className="p-6">
-          <TouchableOpacity onPress={() => router.back()} className="mb-4">
-            <Text className="text-lg text-white">← Back</Text>
-          </TouchableOpacity>
-          <ScrollView className="mb-8">
-            <View className="mb-6 items-center">
-              <Illustration width={screenWidth} height={screenWidth * 0.5} />
-            </View>
-
-            <Text className="text-center text-5xl font-extrabold text-white">Saluuuut !!</Text>
-            <Text className="text-center text-lg text-gray-400">Connectez-vous à votre compte</Text>
-
-            <View className="space-y-4">
-              <View>
-                <Text className="mb-2 pl-2 text-lg text-white">Votre Email</Text>
-                <View className="flex-row items-center rounded-full bg-white/10">
-                  <TextInput
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="email@example.com"
-                    placeholderTextColor="#666"
-                    className="flex-1 px-4 py-4 text-white"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                  <Text className="pr-4 text-green-500">✓</Text>
-                </View>
+    <>
+      <SafeAreaView className="flex-1 bg-primary-dark">
+        <View className="flex-1">
+          <View className="p-6">
+            <TouchableOpacity onPress={() => router.back()} className="mb-4">
+              <Text className="text-lg text-white">← Back</Text>
+            </TouchableOpacity>
+            <ScrollView className="mb-8">
+              <View className="mb-6 items-center">
+                <Illustration width={screenWidth} height={screenWidth * 0.5} />
               </View>
 
-              <View className="mt-4">
-                <Text className="mb-2 pl-2 text-lg text-white">Votre mot de passe</Text>
-                <View className="flex-row items-center rounded-full bg-white/10">
-                  <TextInput
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Enter your password"
-                    placeholderTextColor="#666"
-                    className="flex-1 px-4 py-4 text-white"
-                    secureTextEntry={!showPassword}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="pr-4">
-                    <Text className="text-gray-400">{showPassword ? '👁' : '👁‍🗨'}</Text>
+              <Text className="text-center text-5xl font-extrabold text-white">Saluuuut !!</Text>
+              <Text className="text-center text-lg text-gray-400">
+                Connectez-vous à votre compte
+              </Text>
+
+              <View className="space-y-4">
+                <View>
+                  <Text className="mb-2 pl-2 text-lg text-white">Votre Email</Text>
+                  <View className="flex-row items-center rounded-full bg-white/10">
+                    <TextInput
+                      value={email}
+                      onChangeText={setEmail}
+                      placeholder="email@example.com"
+                      placeholderTextColor="#666"
+                      className="flex-1 px-4 py-4 text-white"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                    <Text className="pr-4 text-green-500">✓</Text>
+                  </View>
+                </View>
+
+                <View className="mt-4">
+                  <Text className="mb-2 pl-2 text-lg text-white">Votre mot de passe</Text>
+                  <View className="flex-row items-center rounded-full bg-white/10">
+                    <TextInput
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder="Enter your password"
+                      placeholderTextColor="#666"
+                      className="flex-1 px-4 py-4 text-white"
+                      secureTextEntry={!showPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="pr-4">
+                      <Text className="text-gray-400">{showPassword ? '👁' : '👁‍🗨'}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View className="mt-4 flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <TouchableOpacity className="mr-2 h-5 w-5 rounded border border-white/30" />
+                    <Text className="text-white">Se souvenir de moi</Text>
+                  </View>
+                  <TouchableOpacity>
+                    <Text className="text-purple-500">Mot de passe oublié ?</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
 
-              <View className="mt-4 flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <TouchableOpacity className="mr-2 h-5 w-5 rounded border border-white/30" />
-                  <Text className="text-white">Se souvenir de moi</Text>
-                </View>
-                <TouchableOpacity>
-                  <Text className="text-purple-500">Mot de passe oublié ?</Text>
+                <TouchableOpacity
+                  className="mt-6 rounded-full bg-purple-600 py-3"
+                  onPress={handleLogin}
+                  disabled={loading}
+                  // onPress={() => router.push('/')}
+                >
+                  <Text className="text-center text-lg font-semibold text-white">
+                    {loading ? 'Loading...' : 'Se connecter'}
+                  </Text>
                 </TouchableOpacity>
-              </View>
 
-              <TouchableOpacity
-                className="mt-6 rounded-full bg-purple-600 py-3"
-                onPress={handleLogin}
-                disabled={loading}
-                // onPress={() => router.push('/')}
-              >
-                <Text className="text-center text-lg font-semibold text-white">
-                  {loading ? 'Loading...' : 'Se connecter'}
-                </Text>
-              </TouchableOpacity>
+                {error ? <Text className="mt-2 text-center text-red-500">{error}</Text> : null}
 
-              {error ? <Text className="mt-2 text-center text-red-500">{error}</Text> : null}
-
-              {/* <TouchableOpacity className="flex-row items-center justify-center space-x-2 rounded-full bg-white py-4">
+                {/* <TouchableOpacity className="flex-row items-center justify-center space-x-2 rounded-full bg-white py-4">
               <Image source={require('../../assets/images/google-icon.png')} className="h-5 w-5" />
               <Text className="font-semibold text-[#14132A]">Sign in with Google</Text>
             </TouchableOpacity> */}
 
-              <View className="mt-6 flex-row justify-center">
-                <Text className="text-gray-400">Je suis un nouvel utilisateur. </Text>
-                <TouchableOpacity onPress={() => router.push('/register')}>
-                  <Text className="text-purple-500">S'inscrire</Text>
-                </TouchableOpacity>
+                <View className="mt-6 flex-row justify-center">
+                  <Text className="text-gray-400">Je suis un nouvel utilisateur. </Text>
+                  <TouchableOpacity onPress={() => router.push('/register')}>
+                    <Text className="text-purple-500">S'inscrire</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+
+      <CustomAlert
+        visible={showBanAlert}
+        title="Account Banned"
+        message="Your account has been banned. Please contact support for more information."
+        buttons={[
+          {
+            text: 'OK',
+            style: 'destructive',
+            onPress: () => {
+              setShowBanAlert(false);
+              setEmail('');
+              setPassword('');
+            },
+          },
+        ]}
+      />
+    </>
   );
 }
