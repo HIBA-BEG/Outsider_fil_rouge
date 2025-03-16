@@ -145,6 +145,54 @@ const userService = {
       throw error;
     }
   },
+
+  async sendFriendRequest(receiverId: string): Promise<{ message: string }> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.post(
+        `/user/friends/request/${receiverId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // console.log('Friend request sent:', response.data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async cancelFriendRequest(receiverId: string): Promise<{ message: string }> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.delete(`/user/friends/cancel/${receiverId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log('Friend request cancelled:', response.data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  async getSentFriendRequests(): Promise<User[]> {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axiosInstance.get('/user/friends/requests/sent', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
 };
 
 export default userService;
