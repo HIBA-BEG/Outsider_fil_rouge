@@ -243,9 +243,10 @@ export default function AllUsersAdmin() {
                           </TouchableOpacity>
                         ))}
                     </View>
-                    {user.city && user.city[0] && (
+                    {user.city && (
                       <Text className={`${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
-                        📍 {user.city[0].name}
+                        {/* @ts-ignore */}
+                        📍 {user.city.name}
                       </Text>
                     )}
                     {user.interests && user.interests.length > 0 && (

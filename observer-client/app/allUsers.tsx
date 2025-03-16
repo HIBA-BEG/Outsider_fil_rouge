@@ -143,6 +143,18 @@ export default function AllUsers() {
   return (
     <>
       <SafeAreaView className={`flex-1 ${isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'}`}>
+        <View className="p-4">
+          <Text className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+            Discover People
+          </Text>
+
+          <View className="mb-2 mt-4 flex-row rounded-full bg-white/5 p-1">
+            <TabButton title="Suggestions" tab="suggestions" />
+            <TabButton title="All" tab="all" />
+            <TabButton title="Organizers" tab="organizers" />
+            <TabButton title="Participants" tab="participants" />
+          </View>
+        </View>
         {isLoading ? (
           <ActivityIndicator size="large" color={isDarkMode ? '#fff' : '#000'} />
         ) : (
@@ -150,20 +162,6 @@ export default function AllUsers() {
             className="flex-1 px-4"
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}>
-            <View className="py-4">
-              <Text
-                className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                Discover People
-              </Text>
-
-              <View className="mb-2 mt-4 flex-row rounded-full bg-white/5 p-1">
-                <TabButton title="Suggestions" tab="suggestions" />
-                <TabButton title="All" tab="all" />
-                <TabButton title="Organizers" tab="organizers" />
-                <TabButton title="Participants" tab="participants" />
-              </View>
-            </View>
-
             <View className="gap-4">
               {users.map((user) => (
                 <TouchableOpacity
@@ -246,10 +244,11 @@ export default function AllUsers() {
                           />
                         </TouchableOpacity>
                       </View>
-                      {user.city && user.city[0] && (
+                      {user.city && (
                         <Text
                           className={`${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
-                          📍 {user.city[0].name}
+                          {/* @ts-ignore */}
+                          📍 {user.city.name}
                         </Text>
                       )}
                       {user.interests && user.interests.length > 0 && (

@@ -276,7 +276,7 @@ export class UserService {
       .populate({
         path: 'friendRequestsReceived',
         model: 'User',
-        select: 'firstName lastName email profilePicture city interests',
+        select: 'firstName lastName email profilePicture city interests role',
         populate: [
           {
             path: 'interests',
@@ -305,7 +305,7 @@ export class UserService {
       .populate({
         path: 'friendRequestsSent',
         model: 'User',
-        select: 'firstName lastName email profilePicture city interests',
+        select: 'firstName lastName email profilePicture city interests role',
         populate: [
           {
             path: 'interests',
@@ -417,7 +417,7 @@ export class UserService {
     const user = await this.userModel.findById(userId).populate({
       path: 'friends',
       model: 'User',
-      select: 'firstName lastName email profilePicture city interests',
+      select: 'firstName lastName email profilePicture city interests role',
       populate: [
         {
           path: 'city',

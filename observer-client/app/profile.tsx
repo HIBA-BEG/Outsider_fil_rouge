@@ -223,7 +223,8 @@ const Profile = () => {
                   className={`mb-2 rounded-full ${
                     isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                   } p-3`}
-                  style={{ width: screenWidth > 380 ? '48%' : '100%' }}>
+                  style={{ width: screenWidth > 380 ? '48%' : '100%' }}
+                  onPress={() => router.push('/friends')}>
                   <Text
                     className={`text-center ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}
                     style={{ fontSize: screenWidth * 0.035 }}>
