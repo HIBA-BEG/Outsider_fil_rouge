@@ -21,6 +21,7 @@ export default function AllUsers() {
   const { isDarkMode } = useTheme();
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [myFriends, setMyFriends] = useState<string[]>([]);
   const [sentFriendRequests, setSentFriendRequests] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -62,6 +63,15 @@ export default function AllUsers() {
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
+    }
+  };
+
+  const fetchMyFriends = async () => {
+    try {
+      const friends = await userService.getFriends();
+      setMyFriends(friends.map((friend) => friend._id));
+    } catch (error) {
+      console.error('Error fetching friends:', error);
     }
   };
 
@@ -119,6 +129,7 @@ export default function AllUsers() {
     // console.log('Tab changed to:', activeTab);
     fetchUsers();
     fetchSentFriendRequests();
+    fetchMyFriends();
   }, [activeTab]);
 
   const TabButton = ({ title, tab }: { title: string; tab: typeof activeTab }) => (
@@ -212,37 +223,52 @@ export default function AllUsers() {
                             </View>
                           )}
                         </View>
-                        <TouchableOpacity
-                          onPress={() =>
-                            sentFriendRequests.includes(user._id)
-                              ? handleCancelRequest(user._id)
-                              : handleAddFriend(user._id)
-                          }
-                          className={`rounded-full p-2 ${
-                            sentFriendRequests.includes(user._id)
-                              ? isDarkMode
-                                ? 'bg-red-500/20'
-                                : 'bg-red-500/10'
-                              : isDarkMode
-                                ? 'bg-blue-500/20'
-                                : 'bg-blue-500/10'
-                          }`}>
-                          <Feather
-                            name={
-                              sentFriendRequests.includes(user._id) ? 'user-minus' : 'user-plus'
+                        {myFriends.includes(user._id) ? (
+                          <TouchableOpacity
+                            className={`rounded-full p-2 ${
+                              isDarkMode ? 'bg-green-500/20' : 'bg-green-500/10'
+                            }`}>
+                            <View className="flex-row items-center gap-2">
+                              <Feather
+                                name="user-check"
+                                size={18}
+                                color={isDarkMode ? '#22c55e' : '#16a34a'}
+                              />
+                            </View>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={() =>
+                              sentFriendRequests.includes(user._id)
+                                ? handleCancelRequest(user._id)
+                                : handleAddFriend(user._id)
                             }
-                            size={18}
-                            color={
+                            className={`rounded-full p-2 ${
                               sentFriendRequests.includes(user._id)
                                 ? isDarkMode
-                                  ? '#ef4444'
-                                  : '#dc2626'
+                                  ? 'bg-red-500/20'
+                                  : 'bg-red-500/10'
                                 : isDarkMode
-                                  ? '#3b82f6'
-                                  : '#2563eb'
-                            }
-                          />
-                        </TouchableOpacity>
+                                  ? 'bg-blue-500/20'
+                                  : 'bg-blue-500/10'
+                            }`}>
+                            <Feather
+                              name={
+                                sentFriendRequests.includes(user._id) ? 'user-minus' : 'user-plus'
+                              }
+                              size={18}
+                              color={
+                                sentFriendRequests.includes(user._id)
+                                  ? isDarkMode
+                                    ? '#ef4444'
+                                    : '#dc2626'
+                                  : isDarkMode
+                                    ? '#3b82f6'
+                                    : '#2563eb'
+                              }
+                            />
+                          </TouchableOpacity>
+                        )}
                       </View>
                       {user.city && (
                         <Text
