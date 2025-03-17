@@ -4,11 +4,10 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image } fro
 
 import CustomAlert from './CustomAlert';
 import commentService from '../../app/(services)/commentApi';
+import { API_URL } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Comment } from '../../types/comment';
-
-import { API_URL } from '~/config';
 
 interface CommentSectionProps {
   eventId: string;

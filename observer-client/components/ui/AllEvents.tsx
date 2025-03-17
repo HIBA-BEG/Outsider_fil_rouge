@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 
+import eventService from '../../app/(services)/eventApi';
+import { API_URL } from '../../config';
 import { useTheme } from '../../context/ThemeContext';
 import { Event } from '../../types/event';
-
-import eventService from '~/app/(services)/eventApi';
-import { API_URL } from '~/config';
 
 export default function AllEvents() {
   const { isDarkMode } = useTheme();

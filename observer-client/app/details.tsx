@@ -10,8 +10,7 @@ import CommentSection from '../components/ui/CommentSection';
 import CustomAlert from '../components/ui/CustomAlert';
 import { API_URL } from '../config';
 import ratingService from './(services)/ratingApi';
-
-import { useAuth } from '~/context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Details() {
   const { isDarkMode } = useTheme();
