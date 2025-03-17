@@ -1,6 +1,5 @@
 import axiosInstance from './axiosInstance';
-
-import { City } from '~/types/city';
+import { City } from '../../types/city';
 
 const cityService = {
   async getAllCities(): Promise<City[]> {

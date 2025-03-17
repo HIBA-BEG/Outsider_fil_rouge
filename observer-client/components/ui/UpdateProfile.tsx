@@ -5,14 +5,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from 'react-native';
 
 import CustomAlert from './CustomAlert';
+import cityService from '../../app/(services)/cityApi';
 import interestService from '../../app/(services)/interestApi';
+import userService from '../../app/(services)/userApi';
 import { useTheme } from '../../context/ThemeContext';
+import { City } from '../../types/city';
 import { Interest } from '../../types/interest';
 import { User } from '../../types/user';
-
-import cityService from '~/app/(services)/cityApi';
-import userService from '~/app/(services)/userApi';
-import { City } from '~/types/city';
 
 interface UpdateProfileProps {
   isVisible: boolean;

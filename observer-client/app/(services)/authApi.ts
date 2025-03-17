@@ -38,10 +38,7 @@ class AuthApi {
       const response = await axiosInstance.post('/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Accept: 'application/json',
         },
-        transformRequest: (data) => data,
-        timeout: 30000,
       });
       return response.data;
     } catch (error) {

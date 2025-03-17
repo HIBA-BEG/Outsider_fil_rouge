@@ -15,11 +15,10 @@ import eventService from './(services)/eventApi';
 import AddEvent from '../components/ui/AddEvent';
 import CustomAlert from '../components/ui/CustomAlert';
 import EventDetailsModal from '../components/ui/EventDetails';
+import UpdateEvent from '../components/ui/UpdateEvent';
 import { API_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { Event } from '../types/event';
-
-import UpdateEvent from '~/components/ui/UpdateEvent';
 
 export default function MyEvents() {
   const { isDarkMode } = useTheme();

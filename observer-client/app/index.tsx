@@ -18,11 +18,10 @@ import BottomNavigation from '../components/ui/BottomNavigation';
 import EventDetailsModal from '../components/ui/EventDetails';
 import Interests from '../components/ui/Interests';
 import ThemeToggle from '../components/ui/ThemeToggle';
+import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Event } from '../types/event';
-
-import { API_URL } from '~/config';
 
 export default function Index() {
   const { isDarkMode } = useTheme();
@@ -39,7 +38,6 @@ export default function Index() {
 
   useEffect(() => {
     fetchEvents();
-    handleProfilePress();
   }, []);
 
   useEffect(() => {
@@ -125,14 +123,9 @@ export default function Index() {
                       ? { uri: API_URL + user?.profilePicture }
                       : require('../assets/profile-icon.jpg')
                   }
-                  className="h-10 w-10 rounded-full"
+                  className="h-12 w-12 rounded-full border border-white/20"
                 />
               </TouchableOpacity>
-              {/* <View className="flex-row items-center gap-2">
-            <Text className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              {user?.firstName} {user?.lastName}
-            </Text>
-          </View> */}
 
               <TextInput
                 placeholder="Search events, or organizers"
@@ -155,19 +148,6 @@ export default function Index() {
             </View>
 
             <ScrollView>
-              {/* <View className="mt-4">
-            <TextInput
-              placeholder="Search events, or organizers"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor={isDarkMode ? '#ffffff80' : '#14132A80'}
-              className={`rounded-full border px-4 py-3 ${
-                isDarkMode
-                  ? 'border-white/20 bg-white/10 text-white'
-                  : 'border-primary-dark/20 bg-primary-dark/10 text-primary-dark'
-              }`}
-            />
-          </View> */}
               <Interests
                 onSelectInterest={handleInterestSelect}
                 selectedInterest={selectedInterest}
