@@ -67,6 +67,34 @@ class AuthApi {
   static clearAuthToken(): void {
     delete axiosInstance.defaults.headers.common['Authorization'];
   }
+
+  static async forgotPassword(email: string) {
+    try {
+      const response = await axiosInstance.post(`/auth/forgot-password`, { email });
+
+      console.log('Forgot password response::', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      throw error;
+    }
+  }
+
+  static async resetPassword(token: string, newPassword: string) {
+    try {
+      const response = await axiosInstance.post(`/auth/reset-password`, {
+        token,
+        newPassword,
+      });
+
+      console.log('Reset password response::', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
+  }
 }
 
 export default AuthApi;

@@ -209,15 +209,15 @@ export class AuthenticationService {
       { expiresIn: '1h' },
     );
 
-    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-
     await this.mailerService.sendMail({
       to: user.email,
+      from: process.env.MAIL_FROM,
       subject: 'Password Reset Request',
       template: 'password-reset',
       context: {
         name: user.firstName,
-        resetLink,
+        token: resetToken,
+        from: process.env.MAIL_FROM,
       },
     });
   }

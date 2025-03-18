@@ -46,8 +46,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       useFactory: (configService: ConfigService) => ({
         transport: {
           host: configService.get('MAIL_HOST'),
-          port: 465, // Using Gmail's SSL port
-          secure: true, // Required for port 465
+          port: 465,
+          secure: true,
           auth: {
             user: configService.get('MAIL_USER'),
             pass: configService.get('MAIL_PASS'),
