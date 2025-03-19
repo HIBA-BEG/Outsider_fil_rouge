@@ -177,8 +177,8 @@ export default function Index() {
                       <View className="h-32 w-full overflow-hidden rounded-2xl">
                         <Image
                           source={
-                            API_URL + event.poster
-                              ? { uri: API_URL + event.poster }
+                            API_URL + event.poster[0]
+                              ? { uri: API_URL + event.poster[0] }
                               : require('../assets/event3.jpg')
                           }
                           className="h-full w-full"
