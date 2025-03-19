@@ -54,7 +54,7 @@ const eventService = {
 
       Object.keys(eventData).forEach((key) => {
         if (key === 'interests') {
-          formData.append(key, eventData[key]);
+          formData.append(key, JSON.stringify(eventData[key]));
         } else {
           formData.append(key, String(eventData[key]));
         }

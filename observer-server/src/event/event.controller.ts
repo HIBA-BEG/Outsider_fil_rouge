@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Request,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
 import { Public } from '../authentication/decorators/public.decorator';
 import { FileUpload } from '../types/file-upload.interface';
+import { FastifyRequest } from 'fastify';
 
 @Controller('events')
 export class EventController {
@@ -20,49 +23,60 @@ export class EventController {
 
   @Post()
   @Roles(UserRole.ORGANIZER)
-  async create(@Body() @Request() req) {
-    console.log('Request body:', req.body);
+  async create(@Req() request: FastifyRequest, @Request() req) {
+    try {
+      const body = request.body as any;
 
-    const eventData = {
-      title: req.body.title?.value,
-      description: req.body.description?.value,
-      startDate: req.body.startDate?.value,
-      endDate: req.body.endDate?.value,
-      location: req.body.location?.value,
-      city: req.body.city?.value,
-      maxParticipants: parseInt(req.body.maxParticipants?.value),
-      price: parseFloat(req.body.price?.value),
-      interests: req.body.interests?.value?.split(',') || [],
-      isPublic: req.body.isPublic?.value === 'true',
-    };
+      console.log('Request body:', body);
 
-    const processedFiles: FileUpload[] = [];
-
-    if (Array.isArray(req.body.poster)) {
-      for (const file of req.body.poster) {
-        if (file.type === 'file') {
-          const buffer = await file.toBuffer();
-          processedFiles.push({
-            buffer,
-            mimetype: file.mimetype,
-            originalname: file.filename,
-          });
-        }
+      if (!body) {
+        throw new BadRequestException('No form data received');
       }
-    } else if (req.body.poster?.type === 'file') {
-      const buffer = await req.body.poster.toBuffer();
-      processedFiles.push({
-        buffer,
-        mimetype: req.body.poster.mimetype,
-        originalname: req.body.poster.filename,
-      });
+
+      const eventData = {
+        title: body.title?.value || '',
+        description: body.description?.value || '',
+        startDate: body.startDate?.value || '',
+        endDate: body.endDate?.value || '',
+        location: body.location?.value || '',
+        city: body.city?.value || '',
+        maxParticipants: parseInt(body.maxParticipants?.value) || 0,
+        price: parseFloat(body.price?.value) || 0.0,
+        interests: body.interests?.value
+          ? JSON.parse(body.interests.value)
+          : [],
+        isPublic: body.isPublic?.value === 'true',
+      };
+
+      const processedFiles: FileUpload[] = [];
+
+      if (Array.isArray(body.poster)) {
+        for (const file of body.poster) {
+          if (file.type === 'file') {
+            const buffer = await file.toBuffer();
+            processedFiles.push({
+              buffer,
+              mimetype: file.mimetype,
+              originalname: file.filename,
+            });
+          }
+        }
+      } else if (body.poster?.type === 'file') {
+        const buffer = await body.poster.toBuffer();
+        processedFiles.push({
+          buffer,
+          mimetype: body.poster.mimetype,
+          originalname: body.poster.filename,
+        });
+      }
+
+      console.log('Processed files:', processedFiles.length);
+
+      return this.eventService.create(eventData, req.user.id, processedFiles);
+    } catch (error) {
+      console.error('Event creation error:', error);
+      throw error;
     }
-
-    // console.log('Received files:', processedFiles);
-
-    console.log('Processed files:', processedFiles.length);
-
-    return this.eventService.create(eventData, req.user.id, processedFiles);
   }
 
   @Public()

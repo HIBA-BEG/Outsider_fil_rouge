@@ -34,7 +34,7 @@ const userService = {
         const interestIds = profileData.interests.map((interest: any) =>
           typeof interest === 'string' ? interest : interest._id
         );
-        formData.append('interests', interestIds.join(','));
+        formData.append('interests', interestIds);
       }
 
       if (profileData.profileImage?.uri) {
