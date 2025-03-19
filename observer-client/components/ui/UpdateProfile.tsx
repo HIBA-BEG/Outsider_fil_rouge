@@ -145,7 +145,7 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
                 Update Profile
               </Text>
 
-              <View className="space-y-6">
+              <View className="gap-6">
                 <View>
                   <Text
                     className={`mb-2 text-lg ${

@@ -3,8 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../user/entities/user.entity';
@@ -197,84 +198,50 @@ export class AuthenticationService {
     }
   }
 
-  // async forgotPassword(email: string): Promise<{ email: string }> {
-  //   try {
-  //     console.log('Starting password reset process for:', email);
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-  //     const user = await this.userModel.findOne({ email });
-  //     if (!user) {
-  //       throw new UnauthorizedException('User with this email does not exist');
-  //     }
+    const resetToken = this.jwtService.sign(
+      { email: user.email, type: 'password_reset' },
+      { expiresIn: '1h' },
+    );
 
-  //     console.log('User found:', user.email);
+    await this.mailerService.sendMail({
+      to: user.email,
+      from: process.env.MAIL_FROM,
+      subject: 'Password Reset Request',
+      template: 'password-reset',
+      context: {
+        name: user.firstName,
+        token: resetToken,
+        from: process.env.MAIL_FROM,
+      },
+    });
+  }
 
-  //     const resetToken = this.jwtService.sign(
-  //       { id: user._id, email: user.email },
-  //       { secret: process.env.JWT_SECRET, expiresIn: '1h' },
-  //     );
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const decoded = this.jwtService.verify(token);
+      if (decoded.type !== 'password_reset') {
+        throw new UnauthorizedException('Invalid reset token');
+      }
 
-  //     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-  //     console.log('Reset link generated:', resetLink);
+      const user = await this.userModel.findOne({ email: decoded.email });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-  //     const mailConfig = {
-  //       host: process.env.MAIL_HOST,
-  //       port: process.env.MAIL_PORT,
-  //       user: process.env.MAIL_USER,
-  //       hasPassword: !!process.env.MAIL_PASS,
-  //     };
-  //     console.log('Mail configuration:', mailConfig);
-
-  //     try {
-  //       console.log('Attempting to send email...');
-
-  //       const mailResult = await this.mailerService.sendMail({
-  //         to: user.email,
-  //         subject: 'Password Reset Request',
-  //         html: `
-  //         <h3>Password Reset Request</h3>
-  //         <p>You requested to reset your password.</p>
-  //         <p>Please click the link below to reset your password:</p>
-  //         <a href="${resetLink}">Reset Password</a>
-  //         <p>This link will expire in 1 hour.</p>
-  //         <p>If you didn't request a password reset, please ignore this email.</p>
-  //       `,
-  //       });
-  //       console.log('Email sent successfully:', mailResult);
-
-  //     } catch (emailError) {
-  //       console.error('Email sending error:', emailError);
-  //       throw new Error('Failed to send reset email. Please try again later.');
-  //     }
-
-  //     return { email: user.email };
-  //   } catch (error) {
-  //     console.error('Forgot password error:', error);
-  //     throw error;
-  //   }
-  // }
-
-  // async resetPassword(
-  //   resetToken: string,
-  //   newPassword: string,
-  // ): Promise<{ message: string }> {
-  //   try {
-  //     const decoded = this.jwtService.verify(resetToken, {
-  //       secret: process.env.JWT_SECRET,
-  //     });
-  //     const user = await this.userModel.findById(decoded.id);
-
-  //     if (!user) {
-  //       throw new UnauthorizedException('User not found');
-  //     }
-
-  //     const saltRounds = 10;
-  //     user.password = await bcrypt.hash(newPassword, saltRounds);
-  //     await user.save();
-
-  //     return { message: 'Password has been successfully reset' };
-  //   } catch (error) {
-  //     console.error('Reset password error:', error);
-  //     throw error;
-  //   }
-  // }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await user.save();
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Reset token has expired');
+      }
+      throw error;
+    }
+  }
 }

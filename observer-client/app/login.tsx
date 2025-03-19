@@ -71,7 +71,7 @@ export default function Login() {
                 Sign in to your account
               </Text>
 
-              <View className="mt-8 space-y-4">
+              <View className="mt-8 gap-4">
                 <View>
                   <Text
                     className={`mb-2 pl-2 text-lg ${
@@ -131,7 +131,7 @@ export default function Login() {
                   </View>
                 </View>
 
-                <TouchableOpacity className="p-2">
+                <TouchableOpacity onPress={() => router.push('/forgotPassword')} className="p-2">
                   <Text className="text-right text-purple-500">Forgot password ?</Text>
                 </TouchableOpacity>
 

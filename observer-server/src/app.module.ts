@@ -17,6 +17,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './authentication/guards/jwt-auth.guard';
 import { RolesGuard } from './authentication/guards/roles.guard';
 import { AdminModule } from './admin/admin.module';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -44,16 +45,23 @@ import { AdminModule } from './admin/admin.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         transport: {
-          host: configService.get('SMTP_HOST'),
-          port: parseInt(configService.get('SMTP_PORT') || '587', 10),
-          secure: false,
+          host: configService.get('MAIL_HOST'),
+          port: 465,
+          secure: true,
           auth: {
-            user: configService.get('SMTP_USER'),
-            pass: configService.get('SMTP_PASS'),
+            user: configService.get('MAIL_USER'),
+            pass: configService.get('MAIL_PASS'),
           },
         },
         defaults: {
-          from: configService.get('MAIL_FROM') || 'noreply@example.com',
+          from: `"${configService.get('MAIL_USERNAME')}" <${configService.get('MAIL_FROM')}>`,
+        },
+        template: {
+          dir: process.cwd() + '/src/mail/templates',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
         },
       }),
     }),
