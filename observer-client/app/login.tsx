@@ -19,6 +19,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showBanAlert, setShowBanAlert] = useState(false);
+  const [showVerificationLink, setShowVerificationLink] = useState(false);
   const { login } = useAuth();
 
   const handleLogin = async () => {
@@ -33,7 +34,12 @@ export default function Login() {
 
       router.push('/');
     } catch (error: any) {
-      if (error.message === 'ACCOUNT_BANNED') {
+      if (error.message === 'Please verify your email before logging in') {
+        setError(
+          'Your email address has not been verified. Please check your email for verification instructions.'
+        );
+        setShowVerificationLink(true);
+      } else if (error.message === 'ACCOUNT_BANNED') {
         setShowBanAlert(true);
       } else {
         console.log('error f login', error);
@@ -136,7 +142,7 @@ export default function Login() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className={`mt-6 rounded-full py-3 ${
+                  className={`mt-4 rounded-full py-3 ${
                     isDarkMode ? 'bg-white' : 'bg-primary-dark'
                   }`}
                   onPress={handleLogin}
@@ -149,7 +155,17 @@ export default function Login() {
                   </Text>
                 </TouchableOpacity>
 
-                {error && <Text className="mt-2 text-center text-red-500">{error}</Text>}
+                {error && <Text className="my-2 text-center text-red-500">{error}</Text>}
+
+                {showVerificationLink && (
+                  <TouchableOpacity
+                    className="rounded-full bg-red-500 py-3"
+                    onPress={() => router.push('/verifyEmail')}>
+                    <Text className="text-center text-lg font-semibold text-white">
+                      Verify your email now
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 <View className="mt-6 flex-row justify-center">
                   <Text className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>

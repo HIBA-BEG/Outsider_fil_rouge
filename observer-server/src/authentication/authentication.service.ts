@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -18,11 +19,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { FileUpload } from '../types/file-upload.interface';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
 import { InterestService } from '../interest/interest.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private configService: ConfigService,
     private jwtService: JwtService,
     private mailerService: MailerService,
     private interestService: InterestService,
@@ -31,13 +34,13 @@ export class AuthenticationService {
   async register(
     createAuthDto: CreateAuthenticationDto,
     file: FileUpload,
-  ): Promise<{ token: string }> {
+  ): Promise<{ message: string }> {
     try {
-      if (!file.buffer || file.buffer.length === 0) {
-        throw new Error('Invalid file buffer');
-      }
+      let imageUrl: string | null = null;
 
-      const imageUrl = await this.uploadUserImage(file);
+      if (file && file.buffer && file.buffer.length > 0) {
+        imageUrl = await this.uploadUserImage(file);
+      }
 
       const existingUser = await this.userModel.findOne({
         email: createAuthDto.email,
@@ -65,6 +68,7 @@ export class AuthenticationService {
       );
 
       console.log('Validated interests:', interests);
+      console.log('Profile picture URL:', imageUrl);
 
       const hashedPassword = await bcrypt.hash(createAuthDto.password, 10);
 
@@ -73,18 +77,99 @@ export class AuthenticationService {
         password: hashedPassword,
         profilePicture: imageUrl,
         interests: interests,
+        isVerified: false,
       });
 
-      const token = this.jwtService.sign({
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      });
+      await this.sendVerificationEmail(user);
 
-      return { token };
+      return {
+        message:
+          'Registration successful. Please check your email to verify your account.',
+      };
     } catch (error) {
       console.error('Register error:', error);
       throw error;
+    }
+  }
+
+  async verifyEmail(token: string) {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
+
+      if (payload.type !== 'email_verification') {
+        throw new UnauthorizedException('Invalid verification token');
+      }
+
+      const user = await this.userModel.findOne({ email: payload.email });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (user.isVerified) {
+        return { message: 'Email already verified' };
+      }
+
+      await this.userModel.updateOne({ _id: user._id }, { isVerified: true });
+
+      return { message: 'Email verified successfully' };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Verification token expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid verification token');
+      } else if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Email verification failed');
+    }
+  }
+
+  async sendVerificationEmail(user: User) {
+    const verificationToken = this.jwtService.sign(
+      { email: user.email, type: 'email_verification' },
+      { expiresIn: '24h' },
+    );
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Verify Your Email Address',
+      template: 'email-verification',
+      context: {
+        name: user.firstName,
+        token: verificationToken,
+        from: process.env.MAIL_FROM,
+      },
+    });
+  }
+
+  async resendVerificationEmail(email: string) {
+    try {
+      const user = await this.userModel.findOne({ email });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (user.isVerified) {
+        throw new BadRequestException('Email already verified');
+      }
+
+      await this.sendVerificationEmail(user);
+      return { message: 'Verification email sent successfully' };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Failed to resend verification email',
+      );
     }
   }
 
@@ -123,6 +208,12 @@ export class AuthenticationService {
       const user = await this.userModel.findOne({ email: loginAuthDto.email });
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
+      }
+
+      if (!user.isVerified) {
+        throw new UnauthorizedException(
+          'Please verify your email before logging in',
+        );
       }
 
       if (user.isBanned) {

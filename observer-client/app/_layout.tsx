@@ -29,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="friends" options={{ headerShown: false }} />
           <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
           <Stack.Screen name="resetPassword" options={{ headerShown: false }} />
+          <Stack.Screen name="verifyEmail" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

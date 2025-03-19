@@ -34,7 +34,21 @@ class AuthApi {
 
   static async register(formData: FormData): Promise<AuthResponse> {
     try {
-      console.log('Registering user with form data:', formData);
+      const requiredFields = [
+        'firstName',
+        'lastName',
+        'email',
+        'password',
+        'role',
+        'city',
+        'interests',
+      ];
+      for (const field of requiredFields) {
+        if (!formData.get(field)) {
+          throw new Error(`${field} is required`);
+        }
+      }
+
       const response = await axiosInstance.post('/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -42,7 +56,6 @@ class AuthApi {
       });
       return response.data;
     } catch (error) {
-      console.error('Register error:', error);
       throw this.handleError(error);
     }
   }
@@ -92,6 +105,28 @@ class AuthApi {
       return response.data;
     } catch (error) {
       console.error('Reset password error:', error);
+      throw error;
+    }
+  }
+
+  static async verifyEmail(token: string) {
+    try {
+      const response = await axiosInstance.post(`/auth/verify-email`, { token });
+      console.log('Email verification response::', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Email verification error:', error);
+      throw error;
+    }
+  }
+
+  static async resendVerification(email: string) {
+    try {
+      const response = await axiosInstance.post(`/auth/resend-verification`, { email });
+      console.log('Resend verification response::', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Resend verification error:', error);
       throw error;
     }
   }

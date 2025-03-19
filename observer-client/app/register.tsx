@@ -1,5 +1,4 @@
 import { Feather } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
@@ -112,11 +111,19 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      if (!image) {
+      if (
+        !firstName ||
+        !lastName ||
+        !email ||
+        !password ||
+        !role ||
+        !selectedCity ||
+        selectedInterests.length === 0
+      ) {
         setAlertConfig({
           visible: true,
-          title: 'Missing Image',
-          message: 'Please select a profile picture',
+          title: 'Missing Information',
+          message: 'Please fill in all the required fields marked with *',
           buttons: [
             { text: 'OK', onPress: () => setAlertConfig((prev) => ({ ...prev, visible: false })) },
           ],
@@ -133,48 +140,39 @@ export default function Register() {
       formData.append('city', selectedCity);
       formData.append('interests', JSON.stringify(selectedInterests));
 
-      const filename = image.split('/').pop();
+      if (image) {
+        const filename = image.split('/').pop() || 'profile.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-      formData.append('file', {
-        uri: image,
-        name: filename,
-        type: 'image/jpeg',
-      } as any);
+        formData.append('file', {
+          uri: image,
+          type,
+          name: filename,
+        } as any);
+      }
 
-      console.log('Registering user with form data:', {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-        role,
-        city: selectedCity,
-        interests: selectedInterests,
-        imageFile: filename,
+      await AuthApi.register(formData);
+
+      setAlertConfig({
+        visible: true,
+        title: 'Success!',
+        message: 'Registration successful! Please check your email to verify your account.',
+        buttons: [
+          {
+            text: 'OK',
+            onPress: () => setAlertConfig((prev) => ({ ...prev, visible: false })),
+          },
+        ],
       });
 
-      const response = await AuthApi.register(formData);
-
-      if (response.token) {
-        setAlertConfig({
-          visible: true,
-          title: 'Success!',
-          message: 'Your account has been created successfully',
-          buttons: [
-            {
-              text: 'Continue',
-              onPress: async () => {
-                setAlertConfig((prev) => ({ ...prev, visible: false }));
-                await AsyncStorage.setItem('authToken', response.token);
-                router.replace('/');
-              },
-            },
-          ],
-        });
-      }
+      setTimeout(() => {
+        router.push('/verifyEmail');
+      }, 3000);
     } catch (error: any) {
       console.error('Register error:', error);
       const errorMessage =
         error?.response?.data?.message || error.message || 'An unexpected error occurred';
-      console.error('Error details:', errorMessage);
 
       setAlertConfig({
         visible: true,
@@ -220,12 +218,19 @@ export default function Register() {
               className={`mb-6 text-gray-400 ${isDarkMode ? 'text-white' : 'text-black'} text-center`}>
               Create an account
             </Text>
+            <View className="mb-4">
+              <Text
+                className={`text-sm underline ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                Fields marked with <Text className="text-lg font-bold text-red-500">*</Text> are
+                required
+              </Text>
+            </View>
             <View className="gap-4">
               <View className="flex-row gap-4">
                 <View className="flex-1">
                   <Text
                     className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                    First Name
+                    First Name <Text className="text-lg font-bold text-red-500">*</Text>
                   </Text>
                   <View
                     className={`rounded-full ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
@@ -243,7 +248,7 @@ export default function Register() {
                 <View className="flex-1">
                   <Text
                     className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                    Last Name
+                    Last Name <Text className="text-lg font-bold text-red-500">*</Text>
                   </Text>
                   <View
                     className={`rounded-full ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
@@ -262,7 +267,7 @@ export default function Register() {
               <View>
                 <Text
                   className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                  Email
+                  Email <Text className="text-lg font-bold text-red-500">*</Text>
                 </Text>
                 <View
                   className={`flex-row items-center rounded-full ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
@@ -282,7 +287,7 @@ export default function Register() {
               <View>
                 <Text
                   className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                  Password
+                  Password <Text className="text-lg font-bold text-red-500">*</Text>
                 </Text>
                 <View
                   className={`flex-row items-center rounded-full ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
@@ -308,7 +313,7 @@ export default function Register() {
                 <View className="flex-1">
                   <Text
                     className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                    Role
+                    Role <Text className="text-lg font-bold text-red-500">*</Text>
                   </Text>
                   <TouchableOpacity
                     onPress={() => setShowRoleDropdown(true)}
@@ -368,7 +373,7 @@ export default function Register() {
                 <View className="flex-1">
                   <Text
                     className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                    City
+                    City <Text className="text-lg font-bold text-red-500">*</Text>
                   </Text>
                   <TouchableOpacity
                     onPress={() => setShowCityDropdown(true)}
@@ -443,7 +448,7 @@ export default function Register() {
               <View>
                 <Text
                   className={`mb-2 pl-2 text-lg ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                  Interests
+                  Interests <Text className="text-lg font-bold text-red-500">*</Text>
                 </Text>
                 <View
                   className={`rounded-2xl ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
@@ -589,7 +594,7 @@ export default function Register() {
                 )}
                 <Text
                   className={`mt-3 font-medium ${isDarkMode ? 'text-white/70' : 'text-primary-dark/70'}`}>
-                  Add Profile Picture
+                  Add Profile Picture <Text className="text-gray-500">(Optional)</Text>
                 </Text>
               </TouchableOpacity>
 

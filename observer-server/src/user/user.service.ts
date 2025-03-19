@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -9,6 +10,10 @@ import { User } from './entities/user.entity';
 import { Model, Types } from 'mongoose';
 import { UpdateProfileDto } from './entities/update-profile.dto';
 import { Interest } from '../interest/entities/interest.entity';
+import { FileUpload } from '../types/file-upload.interface';
+import { join, extname } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -76,18 +81,59 @@ export class UserService {
   async updateProfile(
     userId: string,
     updateProfileDto: UpdateProfileDto,
+    fileUpload?: FileUpload,
   ): Promise<User> {
-    const user = await this.userModel
-      .findByIdAndUpdate(userId, updateProfileDto, { new: true })
-      .populate('interests')
-      .populate('registeredEvents')
-      .select('-password');
+    try {
+      if (fileUpload) {
+        const uploadResult = await this.uploadUserImage(fileUpload);
+        updateProfileDto.profilePicture = uploadResult;
+      }
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      const user = await this.userModel
+        .findByIdAndUpdate(userId, updateProfileDto, { new: true })
+        .populate('interests')
+        .populate('registeredEvents')
+        .select('-password');
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
     }
+  }
 
-    return user;
+  async uploadUserImage(file: FileUpload): Promise<string> {
+    try {
+      console.log('Uploading file:', file);
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      console.log('File MIME type:', file.mimetype);
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException(
+          'Invalid file type. Only JPEG, PNG, and GIF are allowed.',
+        );
+      }
+
+      const uploadDir = join(process.cwd(), 'uploads-profile');
+      try {
+        await mkdir(uploadDir, { recursive: true });
+      } catch (err) {
+        if (err.code !== 'EEXIST') throw err;
+      }
+
+      const fileExt = extname(file.originalname || '.jpg');
+      const fileName = `${uuidv4()}${fileExt}`;
+      const filePath = join(uploadDir, fileName);
+
+      await writeFile(filePath, file.buffer);
+      console.log('Service: File written successfully:', filePath);
+      return `/uploads-profile/${fileName}`;
+    } catch (error) {
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
   }
 
   async findAllParticipants(loggedUserId: string): Promise<User[]> {

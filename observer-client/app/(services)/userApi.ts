@@ -18,17 +18,46 @@ const userService = {
     }
   },
 
-  async updateProfile(updatedData: Partial<User>): Promise<User> {
+  async updateProfile(profileData: any): Promise<User> {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await axiosInstance.patch(`/user/profile`, updatedData, {
+      const formData = new FormData();
+
+      formData.append('firstName', profileData.firstName);
+      formData.append('lastName', profileData.lastName);
+      formData.append('email', profileData.email);
+
+      const cityId = typeof profileData.city === 'string' ? profileData.city : profileData.city._id;
+      formData.append('city', cityId);
+
+      if (Array.isArray(profileData.interests)) {
+        const interestIds = profileData.interests.map((interest: any) =>
+          typeof interest === 'string' ? interest : interest._id
+        );
+        formData.append('interests', interestIds.join(','));
+      }
+
+      if (profileData.profileImage?.uri) {
+        const { uri, type, name } = profileData.profileImage;
+        formData.append('profilePicture', {
+          uri,
+          type,
+          name,
+        } as any);
+      }
+
+      console.log('Sending profile update formData:', formData);
+
+      const response = await axiosInstance.patch('/user/profile', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
       return response.data;
     } catch (error) {
-      throw this.handleError(error);
+      console.error('Error updating profile:', error);
+      throw error;
     }
   },
 

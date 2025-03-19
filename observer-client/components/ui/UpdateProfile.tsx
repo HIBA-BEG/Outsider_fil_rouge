@@ -1,8 +1,10 @@
+import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Image } from 'react-native';
 
 import CustomAlert from './CustomAlert';
 import cityService from '../../app/(services)/cityApi';
@@ -36,6 +38,7 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,17 +79,59 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
     });
   };
 
-  const handleUpdate = async () => {
+  const handleUpdateProfile = async () => {
     try {
+      if (
+        !formData.firstName ||
+        !formData.lastName ||
+        !formData.email ||
+        !formData.city ||
+        formData.interests.length === 0
+      ) {
+        setErrorMessage('Please fill in all the required fields');
+        setShowErrorAlert(true);
+        return;
+      }
+
       setLoading(true);
-      await onUpdate(formData);
-      onClose();
+
+      const profileData = {
+        ...formData,
+        profileImage: image
+          ? {
+              uri: image,
+              type: 'image/' + (image.endsWith('.png') ? 'png' : 'jpeg'),
+              name: image.split('/').pop() || 'profile.jpg',
+            }
+          : undefined,
+      };
+
+      const response = await userService.updateProfile(profileData);
+
+      if (response) {
+        await onUpdate(response);
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      }
     } catch (error) {
+      console.error('Update error:', error);
       setErrorMessage('Failed to update profile. Please try again.');
       setShowErrorAlert(true);
-      console.error('Error updating profile:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImage(result.assets[0].uri);
     }
   };
 
@@ -146,6 +191,52 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
               </Text>
 
               <View className="gap-6">
+                <View>
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    className={`mt-4 items-center justify-center rounded-3xl p-6 ${
+                      isDarkMode ? 'bg-white/10' : 'bg-primary-dark/5'
+                    } active:scale-95`}
+                    style={{
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 1.41,
+                      elevation: 2,
+                    }}>
+                    {image ? (
+                      <View className="relative">
+                        <Image
+                          source={{ uri: image }}
+                          className="h-28 w-28 rounded-full"
+                          style={{
+                            borderWidth: 3,
+                            borderColor: isDarkMode ? '#ffffff30' : '#00000020',
+                          }}
+                        />
+                        <View className="absolute bottom-0 right-0 rounded-full bg-primary-dark/80 p-2">
+                          <Feather name="camera" size={18} color="#fff" />
+                        </View>
+                      </View>
+                    ) : (
+                      <View className="items-center justify-center">
+                        <View className="mb-2 rounded-full bg-primary-dark/10 p-4">
+                          <Feather
+                            name="camera"
+                            size={24}
+                            color={isDarkMode ? '#fff' : '#14132A'}
+                          />
+                        </View>
+                        <Text
+                          className={`text-sm ${
+                            isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
+                          }`}>
+                          Upload Profile Picture
+                        </Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
                 <View>
                   <Text
                     className={`mb-2 text-lg ${
@@ -289,7 +380,7 @@ const UpdateProfile = ({ isVisible, onClose, user, onUpdate }: UpdateProfileProp
 
               <View className="mt-10 flex-row justify-center gap-3">
                 <TouchableOpacity
-                  onPress={handleUpdate}
+                  onPress={handleUpdateProfile}
                   disabled={loading}
                   className="rounded-full border border-green-500 bg-green-500/10 px-6 py-2">
                   <Text className="text-green-500">{loading ? 'Updating...' : 'Update'}</Text>

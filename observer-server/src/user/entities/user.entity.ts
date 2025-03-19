@@ -34,7 +34,7 @@ export class User {
   profilePicture: string;
 
   @Prop({ default: false })
-  profileVerified: boolean;
+  isVerified: boolean;
 
   @Prop({ default: false })
   isArchived: boolean;
