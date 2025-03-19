@@ -25,9 +25,10 @@ export class AuthenticationController {
       const body = request.body as any;
 
       console.log('Request body:', body);
+      console.log('File received:', body.file);
 
-      if (!body || !body.file) {
-        throw new BadRequestException('No form data or file received');
+      if (!body) {
+        throw new BadRequestException('No form data received');
       }
 
       const createAuthenticationDto: CreateAuthenticationDto = {
@@ -64,6 +65,18 @@ export class AuthenticationController {
       console.error('Registration error:', error);
       throw error;
     }
+  }
+
+  @Public()
+  @Post('verify-email')
+  async verifyEmail(@Body('token') token: string) {
+    return this.authenticationService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post('resend-verification')
+  async resendVerificationEmail(@Body('email') email: string) {
+    return this.authenticationService.resendVerificationEmail(email);
   }
 
   @Public()

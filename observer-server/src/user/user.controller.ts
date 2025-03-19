@@ -7,6 +7,7 @@ import {
   Delete,
   Request,
   Post,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './entities/update-profile.dto';
@@ -36,8 +37,75 @@ export class UserController {
   }
 
   @Patch('profile')
-  updateProfile(@Request() req, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.userService.updateProfile(req.user.id, updateProfileDto);
+  async updateProfile(@Request() req) {
+    try {
+      const updateProfileDto: UpdateProfileDto = {
+        firstName: req.body.firstName?.value || req.body.firstName,
+        lastName: req.body.lastName?.value || req.body.lastName,
+        email: req.body.email?.value || req.body.email,
+        city: req.body.city?.value || req.body.city,
+      };
+
+      if (req.body.interests) {
+        try {
+          if (typeof req.body.interests === 'string') {
+            if (req.body.interests.includes(',')) {
+              updateProfileDto.interests = req.body.interests.split(',');
+            } else {
+              const parsed = JSON.parse(req.body.interests);
+              updateProfileDto.interests = Array.isArray(parsed)
+                ? parsed
+                : [parsed];
+            }
+          } else if (req.body.interests?.value) {
+            if (typeof req.body.interests.value === 'string') {
+              if (req.body.interests.value.includes(',')) {
+                updateProfileDto.interests =
+                  req.body.interests.value.split(',');
+              } else {
+                const parsed = JSON.parse(req.body.interests.value);
+                updateProfileDto.interests = Array.isArray(parsed)
+                  ? parsed
+                  : [parsed];
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing interests:', error);
+          throw new BadRequestException('Invalid interests format');
+        }
+      }
+
+      let fileUpload;
+      if (req.body.profilePicture?.type === 'file') {
+        const buffer = await req.body.profilePicture.toBuffer();
+        console.log(
+          'Profile picture received:',
+          req.body.profilePicture.filename,
+        );
+        console.log(
+          'Profile picture received:',
+          req.body.profilePicture.mimetype,
+        );
+        fileUpload = {
+          buffer,
+          mimetype: req.body.profilePicture.mimetype,
+          originalname: req.body.profilePicture.filename,
+        };
+        console.log('Profile picture received:', fileUpload.originalname);
+      } else {
+        console.log('No file uploaded');
+      }
+
+      return this.userService.updateProfile(
+        req.user.id,
+        updateProfileDto,
+        fileUpload,
+      );
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
   }
 
   @Get('participants')
