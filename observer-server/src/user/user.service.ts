@@ -288,10 +288,7 @@ export class UserService {
     return users;
   }
 
-  async sendFriendRequest(
-    senderId: string,
-    receiverId: string,
-  ): Promise<{ message: string }> {
+  async sendFriendRequest(senderId: string, receiverId: string) {
     const [sender, receiver] = await Promise.all([
       this.userModel.findById(senderId),
       this.userModel.findById(receiverId),
@@ -301,17 +298,27 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if (sender.friendRequestsSent.includes(new Types.ObjectId(receiverId))) {
-      throw new HttpException(
-        'Friend request already sent',
-        HttpStatus.BAD_REQUEST,
-      );
+    // Check if friend request already exists
+    if (
+      sender.friendRequestsSent.includes(new Types.ObjectId(receiverId)) ||
+      receiver.friendRequestsReceived.includes(new Types.ObjectId(senderId))
+    ) {
+      throw new BadRequestException('Friend request already exists');
+    }
+
+    // Check if users are already friends
+    if (
+      sender.friends.includes(new Types.ObjectId(receiverId)) ||
+      receiver.friends.includes(new Types.ObjectId(senderId))
+    ) {
+      throw new BadRequestException('Users are already friends');
     }
 
     sender.friendRequestsSent.push(new Types.ObjectId(receiverId));
     receiver.friendRequestsReceived.push(new Types.ObjectId(senderId));
 
     await Promise.all([sender.save(), receiver.save()]);
+
     return { message: 'Friend request sent' };
   }
 

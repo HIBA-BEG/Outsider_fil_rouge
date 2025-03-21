@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './entities/update-profile.dto';
-import { Roles } from 'src/authentication/decorators/roles.decorator';
+import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from './entities/user.entity';
 
 @Controller('user')

@@ -47,4 +47,11 @@ export default tseslint.config(
       '@typescript-eslint/prefer-promise-reject-errors': 'off',
     },
   },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/require-await': 'off'
+    }
+  },
 );

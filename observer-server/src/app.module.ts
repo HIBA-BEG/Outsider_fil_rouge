@@ -5,7 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { UserModule } from './user/user.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { InterestModule } from './interest/interest.module';
 import { CityModule } from './city/city.module';
 import { EventModule } from './event/event.module';
@@ -68,7 +67,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 
     AuthenticationModule,
     UserModule,
-    CloudinaryModule,
     InterestModule,
     CityModule,
     EventModule,

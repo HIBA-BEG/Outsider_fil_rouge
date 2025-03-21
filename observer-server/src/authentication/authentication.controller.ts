@@ -99,6 +99,7 @@ export class AuthenticationController {
       await this.authenticationService.sendPasswordResetEmail(body.email);
       return { message: 'Password reset email sent successfully' };
     } catch (error) {
+      console.log('Error sending password reset email:', error);
       return {
         message:
           'If an account exists with this email, a password reset link will be sent',
