@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
 
-import { API_URL } from '../../config';
 import { useTheme } from '../../context/ThemeContext';
 import { Event, EventStatus } from '../../types/event';
 
@@ -71,8 +70,8 @@ export default function EventDetailsModal({ visible, event, onClose }: EventDeta
                 <View className="mb-4 h-48 w-full overflow-hidden rounded-2xl">
                   <Image
                     source={
-                      API_URL + event.poster && event.poster.length > 0
-                        ? { uri: API_URL + event.poster[0] }
+                      process.env.EXPO_PUBLIC_API_URL + event.poster && event.poster.length > 0
+                        ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                         : require('../../assets/event1.jpg')
                     }
                     className="h-full w-full"

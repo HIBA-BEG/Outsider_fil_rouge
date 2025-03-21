@@ -13,7 +13,6 @@ import {
 
 import userService from './(services)/userApi';
 import CustomAlert from '../components/ui/CustomAlert';
-import { API_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { User } from '../types/user';
 
@@ -192,8 +191,8 @@ export default function FriendsScreen() {
                     <View className="flex-row items-center">
                       <Image
                         source={
-                          API_URL + user.profilePicture
-                            ? { uri: API_URL + user.profilePicture }
+                          process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                            ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                             : require('../assets/profile-icon.jpg')
                         }
                         className="h-16 w-16 rounded-full"
@@ -274,8 +273,8 @@ export default function FriendsScreen() {
                     <View className="flex-row items-center">
                       <Image
                         source={
-                          API_URL + user.profilePicture
-                            ? { uri: API_URL + user.profilePicture }
+                          process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                            ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                             : require('../assets/profile-icon.jpg')
                         }
                         className="h-16 w-16 rounded-full"
@@ -367,8 +366,8 @@ export default function FriendsScreen() {
                     <View className="flex-row items-center">
                       <Image
                         source={
-                          API_URL + user.profilePicture
-                            ? { uri: API_URL + user.profilePicture }
+                          process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                            ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                             : require('../assets/profile-icon.jpg')
                         }
                         className="h-16 w-16 rounded-full"

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 import eventService from '../../app/(services)/eventApi';
-import { API_URL } from '../../config';
 import { useTheme } from '../../context/ThemeContext';
 import { Event } from '../../types/event';
 
@@ -52,8 +51,8 @@ export default function AllEvents() {
               <View className="h-32 w-full overflow-hidden rounded-2xl">
                 <Image
                   source={
-                    API_URL + event.poster
-                      ? { uri: API_URL + event.poster[0] }
+                    process.env.EXPO_PUBLIC_API_URL + event.poster
+                      ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                       : require('../assets/event1.jpg')
                   }
                   className="h-full w-full"

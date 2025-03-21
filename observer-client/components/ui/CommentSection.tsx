@@ -4,7 +4,6 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image } fro
 
 import CustomAlert from './CustomAlert';
 import commentService from '../../app/(services)/commentApi';
-import { API_URL } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Comment } from '../../types/comment';
@@ -146,8 +145,8 @@ export default function CommentSection({ eventId, organizerId }: CommentSectionP
             <View className="flex-row items-center gap-2">
               <Image
                 source={
-                  API_URL + comment.user.profilePicture
-                    ? { uri: API_URL + comment.user.profilePicture }
+                  process.env.EXPO_PUBLIC_API_URL + comment.user.profilePicture
+                    ? { uri: process.env.EXPO_PUBLIC_API_URL + comment.user.profilePicture }
                     : require('../../assets/profile-icon.jpg')
                 }
                 className="h-10 w-10 rounded-full"

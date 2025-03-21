@@ -14,7 +14,6 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import userService from './(services)/userApi';
 import CustomAlert from '../components/ui/CustomAlert';
-import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { User } from '../types/user';
 export default function AllUsers() {
@@ -175,14 +174,15 @@ export default function AllUsers() {
             refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}>
             <View className="gap-4">
               {users.map((user) => (
+                // console.log('profile picture log', process.env.EXPO_PUBLIC_API_URL + user.profilePicture),
                 <TouchableOpacity
                   key={user._id}
                   className={`rounded-2xl p-4 ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
                   <View className="flex-row items-center">
                     <Image
                       source={
-                        API_URL + user.profilePicture
-                          ? { uri: API_URL + user.profilePicture }
+                        process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                          ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                           : require('../assets/profile-icon.jpg')
                       }
                       className="h-16 w-16 rounded-full"

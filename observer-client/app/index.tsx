@@ -18,7 +18,6 @@ import BottomNavigation from '../components/ui/BottomNavigation';
 import EventDetailsModal from '../components/ui/EventDetails';
 import Interests from '../components/ui/Interests';
 import ThemeToggle from '../components/ui/ThemeToggle';
-import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Event } from '../types/event';
@@ -119,8 +118,8 @@ export default function Index() {
               <TouchableOpacity onPress={handleProfilePress}>
                 <Image
                   source={
-                    API_URL + user?.profilePicture
-                      ? { uri: API_URL + user?.profilePicture }
+                    process.env.EXPO_PUBLIC_API_URL + user?.profilePicture
+                      ? { uri: process.env.EXPO_PUBLIC_API_URL + user?.profilePicture }
                       : require('../assets/profile-icon.jpg')
                   }
                   className="h-12 w-12 rounded-full border border-white/20"
@@ -177,8 +176,8 @@ export default function Index() {
                       <View className="h-32 w-full overflow-hidden rounded-2xl">
                         <Image
                           source={
-                            API_URL + event.poster[0]
-                              ? { uri: API_URL + event.poster[0] }
+                            process.env.EXPO_PUBLIC_API_URL + event.poster[0]
+                              ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                               : require('../assets/event3.jpg')
                           }
                           className="h-full w-full"
@@ -221,8 +220,8 @@ export default function Index() {
                         <View className="h-48 w-full overflow-hidden rounded-2xl">
                           <Image
                             source={
-                              API_URL + event.poster
-                                ? { uri: API_URL + event.poster[0] }
+                              process.env.EXPO_PUBLIC_API_URL + event.poster
+                                ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                                 : require('../assets/event1.jpg')
                             }
                             className="h-full w-full"

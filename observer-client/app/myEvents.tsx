@@ -16,7 +16,6 @@ import AddEvent from '../components/ui/AddEvent';
 import CustomAlert from '../components/ui/CustomAlert';
 import EventDetailsModal from '../components/ui/EventDetails';
 import UpdateEvent from '../components/ui/UpdateEvent';
-import { API_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { Event } from '../types/event';
 
@@ -200,7 +199,7 @@ export default function MyEvents() {
                         <Image
                           source={
                             event.poster && event.poster.length > 0
-                              ? { uri: API_URL + event.poster[0] }
+                              ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                               : require('../assets/event1.jpg')
                           }
                           className="h-full w-full"

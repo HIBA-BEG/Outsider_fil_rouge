@@ -12,7 +12,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import { API_URL } from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { User } from '../types/user';
 import eventService from './(services)/eventApi';
@@ -129,8 +128,8 @@ const Profile = () => {
       <View className="relative flex-1">
         <Image
           source={
-            API_URL + user.profilePicture
-              ? { uri: API_URL + user.profilePicture }
+            process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+              ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
               : require('../assets/profile-icon.jpg')
           }
           className="absolute left-0 top-0 w-full"
@@ -149,8 +148,8 @@ const Profile = () => {
           }}>
           <Image
             source={
-              API_URL + user.profilePicture
-                ? { uri: API_URL + user.profilePicture }
+              process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                 : require('../assets/profile-icon.jpg')
             }
             className="h-full w-full"
@@ -279,8 +278,8 @@ const Profile = () => {
                     <View className="h-32 w-full overflow-hidden rounded-2xl">
                       <Image
                         source={
-                          API_URL + event.poster
-                            ? { uri: API_URL + event.poster[0] }
+                          process.env.EXPO_PUBLIC_API_URL + event.poster
+                            ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                             : require('../assets/event1.jpg')
                         }
                         className="h-full w-full"

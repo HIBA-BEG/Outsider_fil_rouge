@@ -6,10 +6,9 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { Event, EventStatus } from '../types/event';
 import eventService from './(services)/eventApi';
+import ratingService from './(services)/ratingApi';
 import CommentSection from '../components/ui/CommentSection';
 import CustomAlert from '../components/ui/CustomAlert';
-import { API_URL } from '../config';
-import ratingService from './(services)/ratingApi';
 import { useAuth } from '../context/AuthContext';
 
 export default function Details() {
@@ -262,8 +261,8 @@ export default function Details() {
         <View className="relative h-64">
           <Image
             source={
-              API_URL + event.poster && event.poster.length > 0
-                ? { uri: API_URL + event.poster[0] }
+              process.env.EXPO_PUBLIC_API_URL + event.poster && event.poster.length > 0
+                ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                 : require('../assets/event1.jpg')
             }
             className="h-full w-full"
