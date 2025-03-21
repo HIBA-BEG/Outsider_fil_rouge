@@ -298,7 +298,6 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // Check if friend request already exists
     if (
       sender.friendRequestsSent.includes(new Types.ObjectId(receiverId)) ||
       receiver.friendRequestsReceived.includes(new Types.ObjectId(senderId))
@@ -306,7 +305,6 @@ export class UserService {
       throw new BadRequestException('Friend request already exists');
     }
 
-    // Check if users are already friends
     if (
       sender.friends.includes(new Types.ObjectId(receiverId)) ||
       receiver.friends.includes(new Types.ObjectId(senderId))
