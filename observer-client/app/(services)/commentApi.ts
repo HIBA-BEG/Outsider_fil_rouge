@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Comment } from '../../types/comment';
+
 import axiosInstance from './axiosInstance';
+import { Comment } from '../../types/comment';
 
 const commentService = {
   getEventComments: async (eventId: string): Promise<Comment[]> => {
@@ -19,7 +20,7 @@ const commentService = {
       // console.log('Token:', token);
       const response = await axiosInstance.post(`/comments/event/${eventId}`, data, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -32,11 +33,15 @@ const commentService = {
   updateComment: async (commentId: string, content: string): Promise<Comment> => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await axiosInstance.patch(`/comments/${commentId}`, { content }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await axiosInstance.patch(
+        `/comments/${commentId}`,
+        { content },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('Error updating comment:', error);
@@ -49,7 +54,7 @@ const commentService = {
       const token = await AsyncStorage.getItem('authToken');
       await axiosInstance.delete(`/comments/${commentId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
     } catch (error) {
@@ -63,7 +68,7 @@ const commentService = {
       const token = await AsyncStorage.getItem('authToken');
       await axiosInstance.delete(`/comments/organizer/${commentId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
     } catch (error) {
@@ -73,4 +78,4 @@ const commentService = {
   },
 };
 
-export default commentService; 
+export default commentService;

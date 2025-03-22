@@ -1,8 +1,9 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { User } from '../types/user';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
 import userService from '../app/(services)/userApi';
+import { User } from '../types/user';
 
 interface AuthContextType {
   user: User | null;
@@ -64,15 +65,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        isLoading, 
-        login, 
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
         logout,
-        updateUserContext 
-      }}
-    >
+        updateUserContext,
+      }}>
       {children}
     </AuthContext.Provider>
   );

@@ -9,8 +9,8 @@ import { Event, EventSchema } from '../event/entities/event.entity';
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Event.name, schema: EventSchema }
-    ])
+      { name: Event.name, schema: EventSchema },
+    ]),
   ],
   controllers: [AdminController],
   providers: [AdminService],

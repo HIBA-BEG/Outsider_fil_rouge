@@ -13,7 +13,7 @@ import { User, UserRole } from '../user/entities/user.entity';
 import { extname, join } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
-import { FileUpload } from 'src/types/file-upload.interface';
+import { FileUpload } from '../types/file-upload.interface';
 
 @Injectable()
 export class EventService {

@@ -1,6 +1,6 @@
-import { City } from "./city";
-import { Event } from "./event";
-import { Interest } from "./interest";
+import { City } from './city';
+import { Event } from './event';
+import { Interest } from './interest';
 
 export type User = {
   _id: string;

@@ -7,7 +7,6 @@ import { Public } from '../authentication/decorators/public.decorator';
 export class CityController {
   constructor(private readonly cityService: CityService) {}
 
-  
   @Get('search')
   async searchCities(@Query('q') query: string) {
     return this.cityService.searchCities(query);

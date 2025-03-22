@@ -3,7 +3,7 @@ import { RatingService } from './rating.service';
 import { RatingController } from './rating.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Rating, RatingSchema } from './entities/rating.entity';
-import { EventSchema } from 'src/event/entities/event.entity';
+import { EventSchema } from '../event/entities/event.entity';
 
 @Module({
   imports: [

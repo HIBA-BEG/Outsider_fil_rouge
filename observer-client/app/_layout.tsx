@@ -2,8 +2,8 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 
-import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import { ThemeProvider } from '../context/ThemeContext';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -26,6 +26,10 @@ export default function RootLayout() {
           <Stack.Screen name="allUsersAdmin" options={{ headerShown: false }} />
           <Stack.Screen name="details" options={{ headerShown: false }} />
           <Stack.Screen name="interestsManagement" options={{ headerShown: false }} />
+          <Stack.Screen name="friends" options={{ headerShown: false }} />
+          <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
+          <Stack.Screen name="resetPassword" options={{ headerShown: false }} />
+          <Stack.Screen name="verifyEmail" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>

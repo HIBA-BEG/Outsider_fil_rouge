@@ -14,7 +14,6 @@ import { Roles } from '../authentication/decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
 import { Public } from '../authentication/decorators/public.decorator';
 
-
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
@@ -44,19 +43,13 @@ export class CommentController {
   }
 
   @Delete(':id')
-  archiveByOwner(
-    @Param('id') id: string,
-    @Request() req
-  ) {
+  archiveByOwner(@Param('id') id: string, @Request() req) {
     return this.commentService.archiveByOwner(id, req.user.id);
   }
 
   @Delete('organizer/:id')
   @Roles(UserRole.ORGANIZER)
-  archiveByOrganizer(
-    @Param('id') id: string,
-    @Request() req
-  ) {
+  archiveByOrganizer(@Param('id') id: string, @Request() req) {
     return this.commentService.archiveByOrganizer(id, req.user.id);
   }
 }

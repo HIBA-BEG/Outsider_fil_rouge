@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '../../types/user';
+
 import axiosInstance from './axiosInstance';
+import { User } from '../../types/user';
 
 const adminService = {
   async banUser(userId: string): Promise<User> {

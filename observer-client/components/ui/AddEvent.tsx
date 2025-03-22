@@ -1,6 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   View,
@@ -13,16 +14,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 
+import CustomAlert from './CustomAlert';
 import cityService from '../../app/(services)/cityApi';
 import eventService from '../../app/(services)/eventApi';
 import interestService from '../../app/(services)/interestApi';
 import { useTheme } from '../../context/ThemeContext';
 import { City } from '../../types/city';
-import { EventStatus } from '../../types/event';
 import { Interest } from '../../types/interest';
-import * as ImagePicker from 'expo-image-picker';
-import CustomAlert from './CustomAlert';
-import { router } from 'expo-router';
 
 interface AddEventProps {
   onClose: (success?: boolean, error?: string) => void;
@@ -139,7 +137,7 @@ const AddEvent: React.FC<AddEventProps> = ({ onClose }) => {
         startDate: formData.startDate.toISOString(),
         endDate: formData.endDate.toISOString(),
         location: formData.location,
-        maxParticipants: parseInt(formData.maxParticipants),
+        maxParticipants: parseInt(formData.maxParticipants, 10),
         price: parseFloat(formData.price),
         city: selectedCity,
         interests: selectedInterests,
@@ -235,7 +233,7 @@ const AddEvent: React.FC<AddEventProps> = ({ onClose }) => {
               numberOfLines={4}
             />
           </View>
-      
+
           <View>
             <Text
               className={`mb-2 text-lg ${isDarkMode ? 'text-primary-light/80' : 'text-primary-dark/80'}`}>
@@ -577,33 +575,33 @@ const AddEvent: React.FC<AddEventProps> = ({ onClose }) => {
           </View>
 
           <View className="mb-4">
-                <Text
-                  className={`mb-2 text-lg ${isDarkMode ? 'text-primary-light/80' : 'text-primary-dark/80'}`}>
-                  Public Event
-                </Text>
+            <Text
+              className={`mb-2 text-lg ${isDarkMode ? 'text-primary-light/80' : 'text-primary-dark/80'}`}>
+              Public Event
+            </Text>
             <TouchableOpacity
               onPress={() => handleInputChange('isPublic', !formData.isPublic)}
               className={`rounded-full border px-4 py-3 ${
-                    formData.isPublic
-                      ? 'border-green-500 bg-green-500/10'
-                      : 'border-red-500 bg-red-500/10'
-                  }`}>
-                  <Text className={formData.isPublic ? 'text-green-500' : 'text-red-500'}>
-                    {formData.isPublic ? 'Public' : 'Private'}
-                  </Text>
-                </TouchableOpacity>
+                formData.isPublic
+                  ? 'border-green-500 bg-green-500/10'
+                  : 'border-red-500 bg-red-500/10'
+              }`}>
+              <Text className={formData.isPublic ? 'text-green-500' : 'text-red-500'}>
+                {formData.isPublic ? 'Public' : 'Private'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View className="mb-10 mt-4 flex-row justify-center gap-3">
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={isLoading}
-              className={`rounded-full border border-green-500 bg-green-500/10 px-6 py-4`}>
+              className="rounded-full border border-green-500 bg-green-500/10 px-6 py-4">
               <Text className="text-green-500">{isLoading ? 'Creating...' : 'Create Event'}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onClose()}
-              className={`rounded-full border border-red-500 bg-red-500/10 px-6 py-4`}>
+              className="rounded-full border border-red-500 bg-red-500/10 px-6 py-4">
               <Text className="text-red-500">Cancel</Text>
             </TouchableOpacity>
           </View>

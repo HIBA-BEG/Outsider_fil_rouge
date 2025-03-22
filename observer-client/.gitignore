@@ -12,7 +12,11 @@ web-build/
 # expo router
 expo-env.d.ts
 
+# config
 config.ts
+
+# env
+.env
 
 ios
 android
