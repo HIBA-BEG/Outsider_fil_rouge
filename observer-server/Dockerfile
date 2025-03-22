@@ -26,9 +26,7 @@ RUN echo "=== Contents of /app/dist in production ==="
 RUN ls -la /app/dist/
 RUN find /app/dist                  
 
-COPY uploads-event ./uploads-event
-
-COPY uploads-profile ./uploads-profile
+RUN mkdir -p /app/uploads-event /app/uploads-profile
 
 EXPOSE 3000
 
