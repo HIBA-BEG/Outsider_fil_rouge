@@ -160,24 +160,24 @@ The API documentation is available at `https://documenter.getpostman.com/view/32
 
 ## 🔍 Project Structure
 
-observer-app/
-├── observer-server/ # Backend NestJS application
-│ ├── src/
-│ │ ├── admin/ # Admin module
-│ │ ├── authentication/ # Authentication module
-│ │ ├── city/ # City module
-│ │ ├── comment/ # Comment system
-│ │ ├── event/ # Event management
-│ │ ├── interest/ # interest management
-│ │ ├── rating/ # rating module
-│ │ ├── users/ # User management
-│ │ └── ...
-│ └── test/ # Backend tests
-└── observer-client/ # Frontend React Native application
-├── app/ # Expo Router pages
-├── components/ # Reusable components
-├── context/ # React Context providers
-└── types/ # TypeScript definitions
+observer-app/ <br>
+├── observer-server/ # Backend NestJS application <br>
+│ ├── src/ <br>
+│ │ ├── admin/ # Admin module <br>
+│ │ ├── authentication/ # Authentication module <br>
+│ │ ├── city/ # City module <br>
+│ │ ├── comment/ # Comment system <br>
+│ │ ├── event/ # Event management <br>
+│ │ ├── interest/ # interest management <br>
+│ │ ├── rating/ # rating module <br>
+│ │ ├── users/ # User management <br>
+│ │ └── ... <br>
+│ └── test/ # Backend tests <br>
+└── observer-client/ # Frontend React Native application <br>
+├── app/ # Expo Router pages <br>
+├── components/ # Reusable components <br>
+├── context/ # React Context providers <br>
+└── types/ # TypeScript definitions <br>
 
 ## 🔮 Future Updates & Roadmap
 
