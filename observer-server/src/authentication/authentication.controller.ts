@@ -25,9 +25,10 @@ export class AuthenticationController {
       const body = request.body as any;
 
       console.log('Request body:', body);
+      console.log('File received:', body.file);
 
-      if (!body || !body.file) {
-        throw new BadRequestException('No form data or file received');
+      if (!body) {
+        throw new BadRequestException('No form data received');
       }
 
       const createAuthenticationDto: CreateAuthenticationDto = {
@@ -67,6 +68,18 @@ export class AuthenticationController {
   }
 
   @Public()
+  @Post('verify-email')
+  async verifyEmail(@Body('token') token: string) {
+    return this.authenticationService.verifyEmail(token);
+  }
+
+  @Public()
+  @Post('resend-verification')
+  async resendVerificationEmail(@Body('email') email: string) {
+    return this.authenticationService.resendVerificationEmail(email);
+  }
+
+  @Public()
   @Post('login')
   login(@Body() loginAuthDto: LoginAuthenticationDto) {
     return this.authenticationService.login(loginAuthDto);
@@ -79,18 +92,28 @@ export class AuthenticationController {
     return this.authenticationService.verifyToken(tokenValue);
   }
 
-  // @Public()
-  // @Post('forgot-password')
-  // forgotPassword(@Body() body: { email: string }) {
-  //   return this.authenticationService.forgotPassword(body.email);
-  // }
+  @Public()
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    try {
+      await this.authenticationService.sendPasswordResetEmail(body.email);
+      return { message: 'Password reset email sent successfully' };
+    } catch (error) {
+      console.log('Error sending password reset email:', error);
+      return {
+        message:
+          'If an account exists with this email, a password reset link will be sent',
+      };
+    }
+  }
 
-  // @Public()
-  // @Post('reset-password')
-  // resetPassword(@Body() resetPasswordDto: { token: string; password: string }) {
-  //   return this.authenticationService.resetPassword(
-  //     resetPasswordDto.token,
-  //     resetPasswordDto.password,
-  //   );
-  // }
+  @Public()
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    await this.authenticationService.resetPassword(
+      body.token,
+      body.newPassword,
+    );
+    return { message: 'Password reset successfully' };
+  }
 }

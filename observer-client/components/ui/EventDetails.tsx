@@ -1,10 +1,11 @@
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
+
 import { useTheme } from '../../context/ThemeContext';
 import { Event, EventStatus } from '../../types/event';
-import { router } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
-import { API_URL } from '~/config';
+
 interface EventDetailsModalProps {
   visible: boolean;
   event: Event | null;
@@ -69,8 +70,8 @@ export default function EventDetailsModal({ visible, event, onClose }: EventDeta
                 <View className="mb-4 h-48 w-full overflow-hidden rounded-2xl">
                   <Image
                     source={
-                      API_URL + event.poster && event.poster.length > 0
-                        ? { uri: API_URL + event.poster[0] }
+                      process.env.EXPO_PUBLIC_API_URL + event.poster && event.poster.length > 0
+                        ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                         : require('../../assets/event1.jpg')
                     }
                     className="h-full w-full"

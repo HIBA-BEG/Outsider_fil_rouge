@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f7f7f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .content {
+            padding: 32px 24px;
+        }
+        .content h2 {
+            color: #1f2937;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        .content p {
+            color: #4b5563;
+            margin-bottom: 16px;
+        }
+        .steps {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 24px 0;
+        }
+        .steps ol {
+            margin-left: 20px;
+            color: #4b5563;
+        }
+        .steps li {
+            margin-bottom: 8px;
+        }
+        .token-container {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .token-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+        .token {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            letter-spacing: 1px;
+            background-color: #f9fafb;
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            word-break: break-all;
+            color: #1f2937;
+            text-align: center;
+            user-select: all;
+            -webkit-user-select: all;
+            -moz-user-select: all;
+            -ms-user-select: all;
+        }
+        .token-hint {
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        .note {
+            background-color: #fffbeb;
+            border-left: 4px solid #fbbf24;
+            padding: 12px 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .footer {
+            text-align: center;
+            padding: 24px;
+            background-color: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            color: #6b7280;
+            font-size: 12px;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Verify Your Email Address</h1>
+        </div>
+        <div class="content">
+            <h2>Hello {{name}},</h2>
+            <p>Thank you for registering with Observer App. To complete your registration, please verify your email address.</p>
+            
+            <div class="steps">
+                <p><strong>Follow these steps to verify your email:</strong></p>
+                <ol>
+                    <li>Select and copy the verification token below (click/tap to select all)</li>
+                    <li>Open the Observer app and navigate to Email Verification</li>
+                    <li>Paste the token to verify your account</li>
+                </ol>
+            </div>
+
+            <div class="token-container">
+                <div class="token-label">Your Verification Token</div>
+                <div class="token">{{token}}</div>
+                <div class="token-hint">Click or tap the token above to select it, then copy</div>
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> This verification token will expire in 24 hours for security reasons.
+            </div>
+        </div>
+        <div class="footer">
+            <p>This email was sent from {{from}} via Observer App</p>
+            <p>This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

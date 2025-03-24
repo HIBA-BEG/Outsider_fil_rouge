@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { API_URL } from '../../config';
 
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
 });
 
 axiosInstance.interceptors.request.use(

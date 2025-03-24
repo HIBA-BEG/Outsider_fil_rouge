@@ -1,12 +1,13 @@
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { FontAwesome, FontAwesome6, Foundation, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
+// import { useTheme } from '../../context/ThemeContext';
 
 export default function BottomNavigation() {
-  const { isDarkMode } = useTheme();
+  // const { isDarkMode } = useTheme();
   const { user } = useAuth();
 
   const handleMyEvents = () => {
@@ -77,9 +78,9 @@ export default function BottomNavigation() {
             {/* <Text className="text-gray-400">My Events</Text> */}
           </TouchableOpacity>
         )}
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text className="text-gray-400">🔔</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { Event } from '../event/entities/event.entity';
 
 @Injectable()
@@ -11,13 +15,13 @@ export class AdminService {
     @InjectModel(Event.name) private eventModel: Model<Event>,
   ) {}
 
-  async banUser(userId: string, adminId: string): Promise<User> {
+  async banUser(userId: string, _adminId: string): Promise<User> {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    if (user.role === 'admin') {
+    if (user.role === UserRole.ADMIN) {
       throw new ForbiddenException('Cannot ban an admin');
     }
 
@@ -40,7 +44,8 @@ export class AdminService {
   }
 
   async getArchivedEvents(): Promise<Event[]> {
-    return this.eventModel.find({ isArchivedByAdmin: true })
+    return this.eventModel
+      .find({ isArchivedByAdmin: true })
       .populate('archivedBy', 'firstName lastName email');
   }
 }

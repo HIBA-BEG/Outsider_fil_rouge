@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../../context/ThemeContext';
-import interestService from '../../app/(services)/interestApi';
+
 import CustomAlert from './CustomAlert';
-import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext';
 import { Interest } from '../../types/interest';
 
 interface UpdateInterestProps {
@@ -14,7 +13,12 @@ interface UpdateInterestProps {
   onUpdate: (interest: Interest) => void;
 }
 
-const UpdateInterest: React.FC<UpdateInterestProps> = ({ isVisible, interest, onClose, onUpdate }) => {
+const UpdateInterest: React.FC<UpdateInterestProps> = ({
+  isVisible,
+  interest,
+  onClose,
+  onUpdate,
+}) => {
   const { isDarkMode } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -125,12 +129,14 @@ const UpdateInterest: React.FC<UpdateInterestProps> = ({ isVisible, interest, on
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={isLoading}
-              className={`rounded-full border border-green-500 bg-green-500/10 px-6 py-4`}>
-              <Text className="text-green-500">{isLoading ? 'Updating...' : 'Update Interest'}</Text>
+              className="rounded-full border border-green-500 bg-green-500/10 px-6 py-4">
+              <Text className="text-green-500">
+                {isLoading ? 'Updating...' : 'Update Interest'}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onClose}
-              className={`rounded-full border border-red-500 bg-red-500/10 px-6 py-4`}>
+              className="rounded-full border border-red-500 bg-red-500/10 px-6 py-4">
               <Text className="text-red-500">Cancel</Text>
             </TouchableOpacity>
           </View>

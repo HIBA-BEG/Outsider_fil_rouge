@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Modal } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
-import interestService from '../../app/(services)/interestApi';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Modal,
+} from 'react-native';
+
 import CustomAlert from './CustomAlert';
-import { Feather } from '@expo/vector-icons';
+import interestService from '../../app/(services)/interestApi';
+import { useTheme } from '../../context/ThemeContext';
 
 interface AddInterestProps {
   visible: boolean;
@@ -70,7 +78,7 @@ const AddInterest: React.FC<AddInterestProps> = ({ visible, onClose }) => {
         <TouchableOpacity
           activeOpacity={1}
           onPress={(e) => e.stopPropagation()}
-          className={`w-[90%] max-h-[80%] rounded-2xl p-6 ${
+          className={`max-h-[80%] w-[90%] rounded-2xl p-6 ${
             isDarkMode ? 'bg-primary-dark' : 'bg-primary-light'
           }`}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -146,7 +154,7 @@ const AddInterest: React.FC<AddInterestProps> = ({ visible, onClose }) => {
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={isLoading}
-              className={`rounded-full border border-green-500 bg-green-500/10 px-6 py-3`}>
+              className="rounded-full border border-green-500 bg-green-500/10 px-6 py-3">
               <Text className="text-green-500">{isLoading ? 'Creating...' : 'Create'}</Text>
             </TouchableOpacity>
           </View>

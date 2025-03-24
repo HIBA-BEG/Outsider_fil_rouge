@@ -1,0 +1,43 @@
+name: Client CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'observer-client/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'observer-client/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./observer-client
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './observer-client/package-lock.json'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run TypeScript type checking
+      run: npm run typescript:check
+
+    - name: Run ESLint
+      run: npm run lint
+
+    # - name: Run tests
+    #   run: npm test
+
+    # - name: Build Expo web
+    #   run: npm run build:web 

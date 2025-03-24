@@ -12,8 +12,9 @@ export class InterestService {
   ) {}
 
   async create(createInterestDto: CreateInterestDto): Promise<Interest> {
-    const newInterest = new this.interestModel(createInterestDto);
-    return newInterest.save();
+    // const newInterest = new this.interestModel(createInterestDto);
+    // return newInterest.save();
+    return this.interestModel.create(createInterestDto);
   }
 
   async findAll(): Promise<Interest[]> {

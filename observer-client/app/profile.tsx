@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,16 +9,17 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
+
 import { useTheme } from '../context/ThemeContext';
-import { ActivityIndicator } from 'react-native';
 import { User } from '../types/user';
-import userService from './(services)/userApi';
 import eventService from './(services)/eventApi';
+import userService from './(services)/userApi';
+import CustomAlert from '../components/ui/CustomAlert';
 import UpdateProfile from '../components/ui/UpdateProfile';
 import { Event } from '../types/event';
-import { router } from 'expo-router';
-import { API_URL } from '../config';
+
 const Profile = () => {
   const { isDarkMode } = useTheme();
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -81,6 +83,7 @@ const Profile = () => {
       const updatedUser = await userService.updateProfile(updatedData);
       setUser(updatedUser);
       setIsUpdateModalVisible(false);
+      loadUserProfile();
       setTimeout(() => {
         setSuccessMessage('Profile updated successfully');
         setShowSuccessAlert(true);
@@ -126,8 +129,8 @@ const Profile = () => {
       <View className="relative flex-1">
         <Image
           source={
-            API_URL + user.profilePicture
-              ? { uri: API_URL + user.profilePicture }
+            process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+              ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
               : require('../assets/profile-icon.jpg')
           }
           className="absolute left-0 top-0 w-full"
@@ -146,8 +149,8 @@ const Profile = () => {
           }}>
           <Image
             source={
-              API_URL + user.profilePicture
-                ? { uri: API_URL + user.profilePicture }
+              process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                 : require('../assets/profile-icon.jpg')
             }
             className="h-full w-full"
@@ -220,7 +223,8 @@ const Profile = () => {
                   className={`mb-2 rounded-full ${
                     isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
                   } p-3`}
-                  style={{ width: screenWidth > 380 ? '48%' : '100%' }}>
+                  style={{ width: screenWidth > 380 ? '48%' : '100%' }}
+                  onPress={() => router.push('/friends')}>
                   <Text
                     className={`text-center ${isDarkMode ? 'text-primary-light' : 'text-primary-dark'}`}
                     style={{ fontSize: screenWidth * 0.035 }}>
@@ -275,8 +279,8 @@ const Profile = () => {
                     <View className="h-32 w-full overflow-hidden rounded-2xl">
                       <Image
                         source={
-                          API_URL + event.poster
-                            ? { uri: API_URL + event.poster[0] }
+                          process.env.EXPO_PUBLIC_API_URL + event.poster
+                            ? { uri: process.env.EXPO_PUBLIC_API_URL + event.poster[0] }
                             : require('../assets/event1.jpg')
                         }
                         className="h-full w-full"
@@ -326,6 +330,30 @@ const Profile = () => {
           onUpdate={handleUpdateProfile}
         />
       )}
+
+      <CustomAlert
+        visible={showSuccessAlert}
+        title="Success"
+        message={successMessage}
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowSuccessAlert(false),
+          },
+        ]}
+      />
+
+      <CustomAlert
+        visible={showErrorAlert}
+        title="Error"
+        message={errorMessage}
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => setShowErrorAlert(false),
+          },
+        ]}
+      />
     </SafeAreaView>
   );
 };

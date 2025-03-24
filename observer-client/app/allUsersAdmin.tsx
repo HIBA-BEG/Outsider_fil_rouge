@@ -1,3 +1,4 @@
+import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -9,14 +10,13 @@ import {
   Image,
   RefreshControl,
 } from 'react-native';
+
 import { useTheme } from '../context/ThemeContext';
+import adminService from './(services)/adminApi';
 import userService from './(services)/userApi';
-import { User } from '../types/user';
 import CustomAlert from '../components/ui/CustomAlert';
 import { useAuth } from '../context/AuthContext';
-import { Feather } from '@expo/vector-icons';
-import adminService from './(services)/adminApi';
-import { API_URL } from '../config';
+import { User } from '../types/user';
 
 export default function AllUsersAdmin() {
   const { isDarkMode } = useTheme();
@@ -37,7 +37,7 @@ export default function AllUsersAdmin() {
     try {
       setIsLoading(true);
       let fetchedUsers;
-      
+
       switch (activeTab) {
         case 'banned':
           fetchedUsers = await userService.bannedUsers();
@@ -48,7 +48,7 @@ export default function AllUsersAdmin() {
         default:
           fetchedUsers = await userService.allUsers();
       }
-      
+
       setUsers(fetchedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -77,11 +77,11 @@ export default function AllUsersAdmin() {
 
   const confirmBanUser = async () => {
     if (!userToBan) return;
-    
+
     try {
       await adminService.banUser(userToBan._id);
       setShowBanAlert(false);
-      fetchUsers(); 
+      fetchUsers();
       setSuccessMessage('User banned successfully');
       setShowSuccessAlert(true);
     } catch (error) {
@@ -93,7 +93,7 @@ export default function AllUsersAdmin() {
 
   const confirmUnbanUser = async () => {
     if (!userToBan) return;
-    
+
     try {
       await adminService.unbanUser(userToBan._id);
       setShowUnbanAlert(false);
@@ -115,22 +115,16 @@ export default function AllUsersAdmin() {
     <TouchableOpacity
       onPress={() => setActiveTab(tab)}
       className={`flex-1 rounded-full px-4 py-2 ${
-        activeTab === tab
-          ? isDarkMode
-            ? 'bg-white/20'
-            : 'bg-primary-dark'
-          : 'bg-transparent'
-      }`}
-    >
+        activeTab === tab ? (isDarkMode ? 'bg-white/20' : 'bg-primary-dark') : 'bg-transparent'
+      }`}>
       <Text
         className={`text-center ${
           activeTab === tab
-            ? 'text-white font-semibold'
+            ? 'font-semibold text-white'
             : isDarkMode
-            ? 'text-white/60'
-            : 'text-primary-dark/60'
-        }`}
-      >
+              ? 'text-white/60'
+              : 'text-primary-dark/60'
+        }`}>
         {title}
       </Text>
     </TouchableOpacity>
@@ -150,30 +144,20 @@ export default function AllUsersAdmin() {
         <ScrollView
           className="flex-1 px-4"
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-          }
-        >
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}>
           <View className="py-4">
             <Text
-              className={`text-2xl font-bold ${
-                isDarkMode ? 'text-white' : 'text-primary-dark'
-              }`}
-            >
+              className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
               Users Management
             </Text>
-            
-            <View className="flex-row space-x-2 mt-4 mb-2 p-1 rounded-full bg-white/5">
+
+            <View className="mb-2 mt-4 flex-row space-x-2 rounded-full bg-white/5 p-1">
               <TabButton title="All Users" tab="all" />
               <TabButton title="Banned" tab="banned" />
               <TabButton title="Archived" tab="archived" />
             </View>
 
-            <Text
-              className={`mt-2 ${
-                isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-              }`}
-            >
+            <Text className={`mt-2 ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
               {activeTab === 'all' && 'All active users in the community'}
               {activeTab === 'banned' && 'Users who have been banned'}
               {activeTab === 'archived' && 'Users who have deleted their accounts'}
@@ -184,15 +168,12 @@ export default function AllUsersAdmin() {
             {users.map((user) => (
               <TouchableOpacity
                 key={user._id}
-                className={`rounded-2xl p-4 ${
-                  isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'
-                }`}
-              >
+                className={`rounded-2xl p-4 ${isDarkMode ? 'bg-white/10' : 'bg-primary-dark/10'}`}>
                 <View className="flex-row items-center">
                   <Image
                     source={
-                      API_URL + user.profilePicture
-                        ? { uri: API_URL + user.profilePicture }
+                      process.env.EXPO_PUBLIC_API_URL + user.profilePicture
+                        ? { uri: process.env.EXPO_PUBLIC_API_URL + user.profilePicture }
                         : require('../assets/profile-icon.jpg')
                     }
                     className="h-16 w-16 rounded-full"
@@ -203,53 +184,48 @@ export default function AllUsersAdmin() {
                         <Text
                           className={`text-lg font-semibold ${
                             isDarkMode ? 'text-white' : 'text-primary-dark'
-                          }`}
-                        >
+                          }`}>
                           {user.firstName} {user.lastName}
                         </Text>
                         {user.role === 'organizer' && (
-                          <View 
+                          <View
                             className={`ml-2 rounded-full px-2 py-0.5 ${
                               isDarkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'
-                            }`}
-                          >
-                            <Text 
+                            }`}>
+                            <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-purple-300' : 'text-purple-600'
-                              }`}
-                            >
+                              }`}>
                               Organizer
                             </Text>
                           </View>
                         )}
                         {user.role === 'participant' && (
-                          <View 
+                          <View
                             className={`ml-2 rounded-full px-2 py-0.5 ${
                               isDarkMode ? 'bg-green-500/20' : 'bg-green-500/10'
-                            }`}
-                          >
-                            <Text 
+                            }`}>
+                            <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-green-300' : 'text-green-600'
-                              }`}
-                            >
+                              }`}>
                               Participant
                             </Text>
                           </View>
                         )}
                       </View>
-                      {currentUser?.role === 'admin' && !user.isArchived && (
-                        user.isBanned ? (
+                      {currentUser?.role === 'admin' &&
+                        !user.isArchived &&
+                        (user.isBanned ? (
                           <TouchableOpacity
                             onPress={() => handleUnbanUser(user)}
                             className={`rounded-full p-2 ${
                               isDarkMode ? 'bg-blue-600/20' : 'bg-blue-600/10'
-                            }`}
-                          >
-                            <Feather 
-                              name="user-check" 
-                              size={18} 
-                              color={isDarkMode ? '#3b82f6' : '#2563eb'} 
+                            }`}>
+                            <Feather
+                              name="user-check"
+                              size={18}
+                              color={isDarkMode ? '#3b82f6' : '#2563eb'}
                             />
                           </TouchableOpacity>
                         ) : (
@@ -257,23 +233,18 @@ export default function AllUsersAdmin() {
                             onPress={() => handleBanUser(user)}
                             className={`rounded-full p-2 ${
                               isDarkMode ? 'bg-red-500/20' : 'bg-red-500/10'
-                            }`}
-                          >
-                            <Feather 
-                              name="slash" 
-                              size={18} 
-                              color={isDarkMode ? '#ef4444' : '#dc2626'} 
+                            }`}>
+                            <Feather
+                              name="slash"
+                              size={18}
+                              color={isDarkMode ? '#ef4444' : '#dc2626'}
                             />
                           </TouchableOpacity>
-                        )
-                      )}
+                        ))}
                     </View>
                     {user.city && (
-                      <Text
-                        className={`${
-                          isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                        }`}
-                      >
+                      <Text className={`${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                        {/* @ts-ignore */}
                         📍 {user.city.name}
                       </Text>
                     )}
@@ -284,13 +255,11 @@ export default function AllUsersAdmin() {
                             key={interest._id}
                             className={`mr-2 mt-1 rounded-full px-2 py-1 ${
                               isDarkMode ? 'bg-white/20' : 'bg-primary-dark/20'
-                            }`}
-                          >
+                            }`}>
                             <Text
                               className={`text-xs ${
                                 isDarkMode ? 'text-white' : 'text-primary-dark'
-                              }`}
-                            >
+                              }`}>
                               {interest.category}
                             </Text>
                           </View>
@@ -299,8 +268,7 @@ export default function AllUsersAdmin() {
                           <Text
                             className={`mt-1 text-xs ${
                               isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                            }`}
-                          >
+                            }`}>
                             +{user.interests.length - 3} more
                           </Text>
                         )}
@@ -314,10 +282,7 @@ export default function AllUsersAdmin() {
             {users.length === 0 && (
               <View className="mt-4 items-center">
                 <Text
-                  className={`text-lg ${
-                    isDarkMode ? 'text-white/60' : 'text-primary-dark/60'
-                  }`}
-                >
+                  className={`text-lg ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
                   No users found in this category
                 </Text>
               </View>
@@ -332,15 +297,15 @@ export default function AllUsersAdmin() {
         message={`Are you sure you want to ban ${userToBan?.firstName} ${userToBan?.lastName}? This action cannot be undone.`}
         buttons={[
           {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => setShowBanAlert(false)
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setShowBanAlert(false),
           },
           {
-            text: "Ban",
-            style: "destructive",
-            onPress: confirmBanUser
-          }
+            text: 'Ban',
+            style: 'destructive',
+            onPress: confirmBanUser,
+          },
         ]}
       />
 
@@ -350,14 +315,14 @@ export default function AllUsersAdmin() {
         message={`Are you sure you want to unban ${userToBan?.firstName} ${userToBan?.lastName}?`}
         buttons={[
           {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => setShowUnbanAlert(false)
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setShowUnbanAlert(false),
           },
           {
-            text: "Unban",
-            onPress: confirmUnbanUser
-          }
+            text: 'Unban',
+            onPress: confirmUnbanUser,
+          },
         ]}
       />
 
@@ -367,9 +332,9 @@ export default function AllUsersAdmin() {
         message={errorMessage}
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowErrorAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowErrorAlert(false),
+          },
         ]}
       />
 
@@ -379,9 +344,9 @@ export default function AllUsersAdmin() {
         message={successMessage}
         buttons={[
           {
-            text: "OK",
-            onPress: () => setShowSuccessAlert(false)
-          }
+            text: 'OK',
+            onPress: () => setShowSuccessAlert(false),
+          },
         ]}
       />
     </>
