@@ -118,7 +118,7 @@ export default function Index() {
               <TouchableOpacity onPress={handleProfilePress}>
                 <Image
                   source={
-                    process.env.EXPO_PUBLIC_API_URL + user?.profilePicture
+                    user?.profilePicture
                       ? { uri: process.env.EXPO_PUBLIC_API_URL + user?.profilePicture }
                       : require('../assets/profile-icon.jpg')
                   }
@@ -159,9 +159,9 @@ export default function Index() {
                     Top Events
                   </Text>
                   <TouchableOpacity>
-                    <Text className={isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}>
+                    {/* <Text className={isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}>
                       See all
-                    </Text>
+                    </Text> */}
                   </TouchableOpacity>
                 </View>
 
@@ -188,7 +188,9 @@ export default function Index() {
                         {event.title}
                       </Text>
                       <Text
-                        className={`text-sm ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                        className={`text-sm ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}
+                        numberOfLines={2}
+                        ellipsizeMode="tail">
                         {event.description}
                       </Text>
                     </TouchableOpacity>

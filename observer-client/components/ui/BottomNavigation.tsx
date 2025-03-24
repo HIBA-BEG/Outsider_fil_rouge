@@ -78,9 +78,9 @@ export default function BottomNavigation() {
             {/* <Text className="text-gray-400">My Events</Text> */}
           </TouchableOpacity>
         )}
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text className="text-gray-400">🔔</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

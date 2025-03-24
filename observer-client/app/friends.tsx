@@ -240,7 +240,7 @@ export default function FriendsScreen() {
                             📍 {user.city.name}
                           </Text>
                         )}
-                        {user.interests && user.interests.length > 0 && (
+                        {/* {user.interests && user.interests.length > 0 && (
                           <View className="mt-2 flex-row flex-wrap">
                             {user.interests.slice(0, 2).map((interest) => (
                               <View
@@ -259,7 +259,7 @@ export default function FriendsScreen() {
                               </Text>
                             )}
                           </View>
-                        )}
+                        )} */}
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -333,7 +333,7 @@ export default function FriendsScreen() {
                             📍 {user.city.name}
                           </Text>
                         )}
-                        {user.interests && user.interests.length > 0 && (
+                        {/* {user.interests && user.interests.length > 0 && (
                           <View className="mt-2 flex-row flex-wrap">
                             {user.interests.slice(0, 2).map((interest) => (
                               <View
@@ -352,7 +352,7 @@ export default function FriendsScreen() {
                               </Text>
                             )}
                           </View>
-                        )}
+                        )} */}
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -415,26 +415,29 @@ export default function FriendsScreen() {
                             📍 {user.city.name}
                           </Text>
                         )}
-                        {user.interests && user.interests.length > 0 && (
-                          <View className="mt-2 flex-row flex-wrap">
-                            {user.interests.slice(0, 3).map((interest) => (
-                              <View
-                                key={interest._id}
-                                className={`mr-2 mt-1 rounded-full px-2 py-1 ${isDarkMode ? 'bg-white/20' : 'bg-primary-dark/20'}`}>
+                        {/* {user.interests &&
+                          user.interests.length > 0 &&
+                          (console.log(user.interests),
+                          (
+                            <View className="mt-2 flex-row flex-wrap">
+                              {user.interests.slice(0, 3).map((interest) => (
+                                <View
+                                  key={interest._id}
+                                  className={`mr-2 mt-1 rounded-full px-2 py-1 ${isDarkMode ? 'bg-white/20' : 'bg-primary-dark/20'}`}>
+                                  <Text
+                                    className={`text-xs ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
+                                    {interest.category}
+                                  </Text>
+                                </View>
+                              ))}
+                              {user.interests.length > 3 && (
                                 <Text
-                                  className={`text-xs ${isDarkMode ? 'text-white' : 'text-primary-dark'}`}>
-                                  {interest.category}
+                                  className={`mt-1 text-xs ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
+                                  +{user.interests.length - 3} more
                                 </Text>
-                              </View>
-                            ))}
-                            {user.interests.length > 3 && (
-                              <Text
-                                className={`mt-1 text-xs ${isDarkMode ? 'text-white/60' : 'text-primary-dark/60'}`}>
-                                +{user.interests.length - 3} more
-                              </Text>
-                            )}
-                          </View>
-                        )}
+                              )}
+                            </View>
+                          ))} */}
                       </View>
                     </View>
                   </TouchableOpacity>

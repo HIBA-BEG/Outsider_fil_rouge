@@ -83,6 +83,7 @@ const Profile = () => {
       const updatedUser = await userService.updateProfile(updatedData);
       setUser(updatedUser);
       setIsUpdateModalVisible(false);
+      loadUserProfile();
       setTimeout(() => {
         setSuccessMessage('Profile updated successfully');
         setShowSuccessAlert(true);
